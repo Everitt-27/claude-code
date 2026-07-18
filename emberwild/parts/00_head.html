@@ -25,6 +25,9 @@
   bottom:calc(122px + env(safe-area-inset-bottom,0px));font-size:20px}
 #bG{width:50px;height:50px;right:calc(124px + env(safe-area-inset-right,0px));
   bottom:calc(206px + env(safe-area-inset-bottom,0px));font-size:18px}
+#bS{width:54px;height:54px;right:calc(36px + env(safe-area-inset-right,0px));
+  bottom:calc(196px + env(safe-area-inset-bottom,0px));font-size:19px}
+.vb.off{display:none !important}
 #ctxb{position:absolute;display:none;right:calc(14px + env(safe-area-inset-right,0px));
   bottom:calc(188px + env(safe-area-inset-bottom,0px));min-width:86px;height:42px;
   border-radius:21px;padding:0 16px;align-items:center;justify-content:center;gap:7px;
@@ -37,8 +40,11 @@
   right:calc(12px + env(safe-area-inset-right,0px));gap:8px}
 .tb{width:42px;height:42px;border-radius:12px;background:rgba(16,14,13,.44);
   border:1.5px solid rgba(242,233,216,.28);color:#f2e9d8;font-size:17px;
-  display:flex;align-items:center;justify-content:center}
+  display:flex;align-items:center;justify-content:center;position:relative}
 .tb:active{background:rgba(232,137,74,.5)}
+#skb{position:absolute;top:-4px;right:-4px;width:13px;height:13px;border-radius:50%;
+  background:#e8b04a;box-shadow:0 0 8px #e8b04a;display:none;border:2px solid #12100f}
+#bSkill.has #skb{display:block}
 #obj{position:absolute;display:none;top:calc(10px + env(safe-area-inset-top,0px));left:50%;
   transform:translateX(-50%);max-width:min(72vw,460px);padding:7px 14px 7px 12px;border-radius:16px;
   background:rgba(16,14,13,.55);border:1px solid rgba(242,233,216,.20);font-size:12.5px;
@@ -90,7 +96,33 @@
 #mtravD{font-size:12.5px;color:rgba(242,233,216,.6);margin-bottom:14px}
 #mtrav .dopt{text-align:center;margin-top:7px;display:block;width:100%}
 
-#pausov{overflow-y:auto;-webkit-overflow-scrolling:touch;touch-action:pan-y}
+#pausov,#skillov,#craftov{overflow-y:auto;-webkit-overflow-scrolling:touch;touch-action:pan-y}
+#skillin,#craftin{max-width:560px;margin:0 auto;padding:calc(18px + env(safe-area-inset-top,0px)) 16px
+  calc(30px + env(safe-area-inset-bottom,0px))}
+.ovh{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.ovh b{font-size:18px;font-weight:800;letter-spacing:.1em}
+.brcol{margin-bottom:14px;border:1px solid rgba(242,233,216,.14);border-radius:13px;padding:11px 13px}
+.brh{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+.brh b{font-size:14px;font-weight:800}
+.brh span{font-size:11px;color:rgba(242,233,216,.6)}
+.xpbar{height:5px;border-radius:3px;background:rgba(242,233,216,.12);overflow:hidden;margin-bottom:8px}
+.xpbar i{display:block;height:100%;border-radius:3px}
+.skrow{display:flex;gap:7px;flex-wrap:wrap}
+.skcard{flex:1;min-width:130px;padding:8px 10px;border-radius:10px;border:1.5px solid rgba(242,233,216,.18);
+  background:rgba(242,233,216,.05);font-size:12px;line-height:1.35;color:rgba(242,233,216,.55)}
+.skcard b{display:block;font-size:12.5px;color:rgba(242,233,216,.75)}
+.skcard.can{border-color:#e8b04a;background:rgba(232,176,74,.14);color:#f2e9d8}
+.skcard.can b{color:#ffd66e}
+.skcard.own{border-color:#8fce6a;background:rgba(143,206,106,.12);color:#e4f0d8}
+.skcard.own b{color:#a8e086}.skcard.own b::after{content:" ✓"}
+.skcard:active{transform:scale(.97)}
+.recrow{display:flex;justify-content:space-between;align-items:center;gap:10px;
+  padding:9px 4px;border-bottom:1px solid rgba(242,233,216,.10);font-size:13px}
+.recrow b{font-size:13.5px}
+.recrow span{color:rgba(242,233,216,.6);font-size:11.5px;display:block}
+.durbar{height:4px;border-radius:2px;background:rgba(242,233,216,.14);overflow:hidden;margin-top:5px;min-width:60px}
+.durbar i{display:block;height:100%;background:#8fce6a}
+.chip .durbar{width:100%}
 #pausin{max-width:520px;margin:0 auto;padding:calc(18px + env(safe-area-inset-top,0px)) 20px
   calc(30px + env(safe-area-inset-bottom,0px))}
 .ph{font-size:11px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;
@@ -142,6 +174,8 @@
 #ew[data-mode="intro"] #adv,#ew[data-mode="ending"] #adv,#ew[data-mode="dead"] #adv{display:block}
 #ew[data-mode="map"] #mapov{display:flex}
 #ew[data-mode="pause"] #pausov{display:block}
+#ew[data-mode="skills"] #skillov{display:block}
+#ew[data-mode="craft"] #craftov{display:block}
 #ew[data-mode="title"] #titlov{display:flex}
 </style>
 <div id="ew" data-mode="boot">
@@ -151,8 +185,9 @@
   <div id="bB" class="vb">↷<small>ROLL·RUN</small></div>
   <div id="bW" class="vb">➶<small>BOW</small></div>
   <div id="bG" class="vb">●<small>BOMB</small></div>
+  <div id="bS" class="vb">✦<small>SPELL</small></div>
   <div id="ctxb"><span id="ctxt">Talk</span></div>
-  <div id="topb"><div class="tb" id="bMap">🗺</div><div class="tb" id="bMenu">☰</div></div>
+  <div id="topb"><div class="tb" id="bSkill">☆<div id="skb"></div></div><div class="tb" id="bMap">🗺</div><div class="tb" id="bMenu">☰</div></div>
   <div id="obj"><span id="objt"></span></div>
   <div id="saved">✦ SAVED</div>
   <div id="toasts"></div>
@@ -162,6 +197,8 @@
     <div id="mtrav"><div id="mtravN"></div><div id="mtravD"></div>
       <div class="dopt" id="mtgo">Travel</div><div class="dopt" id="mtno">Not now</div></div></div>
   <div id="pausov" class="ov"><div id="pausin"></div></div>
+  <div id="skillov" class="ov"><div id="skillin"></div></div>
+  <div id="craftov" class="ov"><div id="craftin"></div></div>
   <div id="titlov"><div id="tlogo">EMBERWILD</div><div id="tsub">A Tale of the Shattered Crown</div>
     <div class="tbtn" id="tCont" style="display:none">Continue Journey</div>
     <div class="tbtn ghost" id="tNew">New Journey</div>

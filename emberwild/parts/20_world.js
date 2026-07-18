@@ -46,6 +46,8 @@ function stampTile(base,tx,ty,stamps){
       case'lonetree':if(d<4&&(SOLIDT(t)||WATERT(t)))t=T_GRASS;break;
       case'grove':if(d<4&&SOLIDT(t))t=T_GRASS;break;
       case'stone':case'chest':case'fire':if(d<2&&(SOLIDT(t)||WATERT(t)))t=T_GRASS;break;
+      case'dock':if(d<1.6&&SOLIDT(t))t=T_SAND;break;
+      case'field':if(d<4&&(SOLIDT(t)||WATERT(t)))t=T_GRASS;break;
     }
   }
   return t;
@@ -125,6 +127,14 @@ function initWorld(){
   SP.stones=ST.map((s,i)=>Object.assign(snap(s[0],s[1]),{li:i}));
   SP.borocamp=snap(.478,.610);
   SP.lonetree=snap(.605,.598);
+  const coastPred=(x,y)=>{
+    const e=elevAt(x,y);
+    if(!(e>=.354&&e<.378))return false;
+    return elevAt(x+1,y)<.35||elevAt(x-1,y)<.35||elevAt(x,y+1)<.35||elevAt(x,y-1)<.35;
+  };
+  SP.docks=[Object.assign(snap(.13,.52,coastPred),{di:0,name:'West Pier'}),
+            Object.assign(snap(.88,.42,coastPred),{di:1,name:'East Pier'})];
+  SP.fields=SP.vils.map((v,i)=>Object.assign(snap((v.tx+15)/WORLD,(v.ty+7)/WORLD),{vi:i}));
 
   const specials=[{...SP.cit,rr:44},{...SP.spawn,rr:20},...SP.vils.map(v=>({...v,rr:22})),
     ...SP.towers.map(t=>({...t,rr:18})),...SP.wardens.map(w=>({...w,rr:22})),
@@ -156,6 +166,8 @@ function initWorld(){
   POIS.push({k:'glade',id:'glade',tx:SP.spawn.tx,ty:SP.spawn.ty});
   POIS.push({k:'camp',id:'borocamp',tx:SP.borocamp.tx,ty:SP.borocamp.ty});
   POIS.push({k:'lonetree',id:'lonetree',tx:SP.lonetree.tx,ty:SP.lonetree.ty});
+  SP.docks.forEach((d,i)=>POIS.push({k:'dock',id:'dock'+i,tx:d.tx,ty:d.ty,name:d.name}));
+  SP.fields.forEach((f,i)=>POIS.push({k:'field',id:'field'+i,tx:f.tx,ty:f.ty,vi:i}));
   G.totalShrines=POIS.filter(p=>p.k==='shrine').length;
 
   chunkPois.clear();
@@ -199,10 +211,18 @@ function buildProps(c){
         break;
       case'vil':{
         const H=[[-56,-42],[56,-36],[-60,30],[50,42]];
-        H.forEach((h,i)=>props.push({t:'hut',x:X+h[0],y:Y+h[1],w:58,h:46,rect:1,id:poi.id+'h'+i,sol:1,vi:poi.vi}));
+        H.forEach((h,i)=>props.push({t:'hut',x:X+h[0],y:Y+h[1],w:58,h:46,rect:1,id:poi.id+'h'+i,sol:1,vi:poi.vi,sale:i===0?1:0}));
         props.push({t:'fire',x:X,y:Y+8,r:8,id:poi.id+'f'});
         props.push({t:'statue',x:X,y:Y-44,r:9,id:poi.id+'s',sol:1});
-        props.push({t:'stall',x:X-4,y:Y+46,r:11,id:poi.id+'m',sol:1});
+        props.push({t:'stall',x:X-4,y:Y+46,r:11,id:poi.id+'m',sol:1,vi:poi.vi});
+        if(poi.vi===0||poi.vi===2)props.push({t:'stable',x:X+72,y:Y+6,r:14,id:poi.id+'st',vi:poi.vi});
+        if(poi.vi===0)props.push({t:'forge',x:X+46,y:Y-26,r:9,id:poi.id+'fg',sol:1});
+        break;}
+      case'dock':{
+        props.push({t:'dock',x:X,y:Y,r:12,id:poi.id,name:poi.name});
+        break;}
+      case'field':{
+        props.push({t:'field',x:X,y:Y,r:14,id:poi.id,vi:poi.vi});
         break;}
       case'cit':{
         props.push({t:'gate',x:X,y:Y+10*TILE,r:22,id:'gate',sol:1});
@@ -217,19 +237,26 @@ function buildProps(c){
         break;
     }
   }
-  for(let i=0;i<3;i++){
-    const hx=hashi(c.cx*3+i,c.cy,NS+401)%CHUNK,hy=hashi(c.cx,c.cy*3+i,NS+402)%CHUNK;
+  for(let i=0;i<5;i++){
+    const hx=hashi(c.cx*5+i,c.cy,NS+401)%CHUNK,hy=hashi(c.cx,c.cy*5+i,NS+402)%CHUNK;
     const ttx=c.cx*CHUNK+hx,tty=c.cy*CHUNK+hy;
     const t=c.tiles[hx+hy*CHUNK];
     const near=list.some(p=>hyp(ttx-p.tx,tty-p.ty)<8);
     if(near)continue;
-    const h=h01(ttx,tty,NS+403);
-    if((t===T_GRASS||t===T_MEADOW)&&h<.55)
-      props.push({t:'bush',x:ttx*TILE+12,y:tty*TILE+12,r:7,id:'b'+ttx+'_'+tty});
-    else if(t===T_ROCK&&h<.22)
-      props.push({t:'boulder',x:ttx*TILE+12,y:tty*TILE+12,r:10,id:'o'+ttx+'_'+tty,sol:1});
-    else if((t===T_FGRASS||t===T_SWAMP)&&h<.4)
-      props.push({t:'shroomp',x:ttx*TILE+12,y:tty*TILE+12,r:6,id:'m'+ttx+'_'+tty});
+    const h=h01(ttx,tty,NS+403+i*7);
+    if(i<3){
+      if((t===T_GRASS||t===T_MEADOW)&&h<.55)
+        props.push({t:'bush',x:ttx*TILE+12,y:tty*TILE+12,r:7,id:'b'+ttx+'_'+tty});
+      else if(t===T_ROCK&&h<.22)
+        props.push({t:'boulder',x:ttx*TILE+12,y:tty*TILE+12,r:10,id:'o'+ttx+'_'+tty,sol:1});
+      else if((t===T_FGRASS||t===T_SWAMP)&&h<.4)
+        props.push({t:'shroomp',x:ttx*TILE+12,y:tty*TILE+12,r:6,id:'m'+ttx+'_'+tty});
+    }else{
+      if(t===T_FGRASS&&h<.34)
+        props.push({t:'branch',x:ttx*TILE+12,y:tty*TILE+12,r:6,id:'w'+ttx+'_'+tty});
+      else if(t===T_ROCK&&h<.3)
+        props.push({t:'orevein',x:ttx*TILE+12,y:tty*TILE+12,r:9,id:'v'+ttx+'_'+tty,sol:1});
+    }
   }
   c.props=props;
 }

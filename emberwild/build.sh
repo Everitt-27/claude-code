@@ -9,12 +9,12 @@ TMPJS="${EW_TMP:-/tmp}/emberwild_all.js"
 
 # concatenated pure-JS image for syntax checking
 { tail -n +2 parts/10_core.js
-  cat parts/20_world.js parts/30_ents.js parts/35_draw.js parts/40_ui.js
+  cat parts/20_world.js parts/30_ents.js parts/32_story.js parts/35_draw.js parts/40_ui.js
 } > "$TMPJS"
 node --check "$TMPJS"
 
 cat parts/00_head.html parts/10_core.js parts/20_world.js \
-    parts/30_ents.js parts/35_draw.js parts/40_ui.js > game.html
+    parts/30_ents.js parts/32_story.js parts/35_draw.js parts/40_ui.js > game.html
 printf '</script>\n' >> game.html
 
 {
