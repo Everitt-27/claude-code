@@ -965,7 +965,7 @@ function updPlayer(dt){
     if(G.chill>0)sp*=.6;
     p.vx=lerp(p.vx,mx*sp,1-Math.pow(.0001,dt));
     p.vy=lerp(p.vy,my*sp,1-Math.pow(.0001,dt));
-    if(moving&&!p.aim)p.face=Math.atan2(my,mx);
+    if(moving&&!p.aim){const ta=Math.atan2(my,mx);p.face+=angDiff(p.face,ta)*Math.min(1,dt*13);}
     if(p.mount==='horse'&&moving&&Math.random()<dt*8){sfx('gallop');spawnP(p.x,p.y+8,'#c9b48f',1,30,.3,1.6);}
     if(p.mount==='boat'&&moving&&Math.random()<dt*10)spawnP(p.x-Math.cos(p.face)*14,p.y-Math.sin(p.face)*14,'rgba(255,255,255,.7)',1,20,.6,2);
     if(inp.aP&&!p.aim&&!p.fish){

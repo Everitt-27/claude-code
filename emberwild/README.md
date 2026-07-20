@@ -1,6 +1,6 @@
 # Emberwild — a tale of the shattered crown
 
-A seamless open-world action-RPG in a single ~260 KB HTML file. Runs on iPhone
+A seamless open-world action-RPG in a single ~270 KB HTML file. Runs on iPhone
 (Safari / Add to Home Screen), desktop browsers, and inside a claude.ai Artifact.
 No assets, no dependencies, no network, no load screens. BOTW-style world and art,
 Diablo/Baldur's-Gate-style character growth, loot, and company.
@@ -70,6 +70,14 @@ with four minibosses, a 3-phase final boss, and an ending that heals the map.
   upward, **origins** at creation (Warrior/Rogue/Sorcerer), an optional
   **Hardcore** mode where death erases the save, plus gambling and gear
   vendoring at Zef's.
+- **Articulated characters** — an adult-proportioned rig (roughly 1:6 head-to-body,
+  broad shoulders tapering to the hips) built on two-bone inverse-kinematics limbs
+  with real knees and elbows and shaded, cylindrical volumes. A natural gait drives
+  it: strides land along the direction of travel with foot-lift and knee bend,
+  footfall bob, a lean into the run with a trailing scarf, counter-swinging arms,
+  breathing at idle, and smoothed turning instead of snap-facing. Armor sets, held
+  weapons, helmets and hoods are all read at a glance; the same rig drives NPCs,
+  companions and enemies. Horses gallop with paired hoofbeats and suspension bob.
 - **Everything from v1** — stamina-gated climbing/swimming/sprinting, towers,
   shrines→orbs→heart/stamina upgrades, perfect-dodge slow-mo, day/night, weather,
   cooking, fast travel to *any* discovered place, autosave (v1 saves migrate).

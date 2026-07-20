@@ -994,7 +994,7 @@ function frame(t){
   if(!lastT)lastT=t;
   const dtR=Math.min(.05,(t-lastT)/1000);
   lastT=t;
-  G.vt+=dtR;
+  G.vt+=dtR;G.ldt=dtR;
   fpsA=fpsA*.96+dtR*1000*.04;
   if(!G.lowfx&&G.vt>10&&fpsA>27){G.lowfx=true;resize();}
   let scale=1;
