@@ -84,10 +84,11 @@ function updCtxBtn(){
 /* only show buttons the player can actually use right now */
 function refreshButtons(){
   if(!window.document||!$('bA'))return;
-  const slots=[[102,34],[112,120],[124,206],[36,200]];
-  const show={bB:true,bW:!!G.bow,bS:G.spells.length>0,bG:!!G.pouch};
+  const slots=[[102,34],[112,120],[124,206],[36,200],[178,40]];
+  const show={bB:true,bW:!!G.bow,bS:G.spells.length>0,bG:!!G.pouch,
+    bP:(G.pot.hp+G.pot.mp)>0};
   let si=0;
-  for(const id of['bB','bW','bS','bG']){
+  for(const id of['bB','bW','bS','bG','bP']){
     const el=$(id);
     if(show[id]){
       el.classList.remove('off');
@@ -100,6 +101,7 @@ function refreshButtons(){
   $('bAl').textContent=fishing?'HOOK!':'ATTACK';
   const sm=$('bS').querySelector('small');
   if(sm&&G.spells.length)sm.textContent=SPELLS[G.spellEq]?SPELLS[G.spellEq].n.toUpperCase():'SPELL';
+  $('bPl').textContent=G.pot.hp+'♥ '+G.pot.mp+'✦';
   $('bSkill').classList.toggle('has',BRANCHES.some(b=>(G.pts[b]||0)>0));
 }
 /* ================= fades ================= */
@@ -115,7 +117,8 @@ function fadeIn(ms){
 function fadeFlash(){fadeOut(()=>fadeIn(500),320);}
 /* ================= map: travel to anywhere you've discovered ================= */
 let mapSel=null;
-function openMap(){setMode('map');$('mtrav').style.display='none';renderMap();}
+function openMap(){setMode('map');$('mtrav').style.display='none';
+  if(G.inDun)renderDunMap();else renderMap();}
 function tri(g,x,y,s){g.beginPath();g.moveTo(x,y-s);g.lineTo(x+s,y+s);g.lineTo(x-s,y+s);g.closePath();g.fill();}
 function diam(g,x,y,s){g.beginPath();g.moveTo(x,y-s);g.lineTo(x+s,y);g.lineTo(x,y+s);g.lineTo(x-s,y);g.closePath();g.fill();}
 function renderMap(){
@@ -192,6 +195,7 @@ function renderMap(){
   g.strokeStyle='rgba(242,233,216,.2)';g.lineWidth=1;g.strokeRect(.5,.5,size-1,size-1);
 }
 function mapTap(ev){
+  if(G.inDun)return;
   const mc=$('mapcv'),r=mc.getBoundingClientRect();
   const x=ev.clientX-r.left,y=ev.clientY-r.top;
   let best=null,bd=20;
@@ -339,8 +343,12 @@ function gearDlg(inst,isArm){
   if(inst.dur<inst.mx&&(isArm?aDef(inst).def>0:true))
     ch.push({t:'Repair ('+(isArm?'1 leather/ore':'1 ore')+')',f(){repairInst(inst,isArm);}});
   ch.push({t:'Back',f(){}});
-  const n=isArm?aDef(inst).n:wDef(inst).n+(inst.up?' +'+inst.up:'');
-  startDlg([{n,t:(isArm?'Defense '+aDef(inst).def:'Damage '+wDmg(inst)+' · '+wDef(inst).t)+' · condition '+Math.max(0,Math.round(inst.dur))+'%'}],
+  const n=RARN[inst.rar||0]+instName(inst)+(inst.up?' +'+inst.up:'');
+  const aff=[];
+  if(inst.pre)aff.push(PREFIX[inst.pre].n);
+  if(inst.suf)aff.push(SUFFIX[inst.suf].n);
+  startDlg([{n,t:(isArm?'Defense '+(aDef(inst).def+affix(inst,'def')):'Damage '+wDmg(inst)+' · '+wDef(inst).t)+
+    ' · condition '+Math.max(0,Math.round(inst.dur))+'%'+(aff.length?' · '+aff.join(', '):'')}],
     {choices:ch.slice(0,5)});
 }
 function buildPause(){
@@ -350,7 +358,8 @@ function buildPause(){
     '<div style="font-size:19px;font-weight:800;letter-spacing:.08em">EMBERWILD</div>'+
     '<div class="chip eq" data-act="resume">Resume ▸</div></div>';
   h+='<div id="pstats">'+
-    '<span><i>♥</i>'+(Math.round(p.hp/4*10)/10)+' / '+(p.maxhp/4)+'</span>'+
+    '<span><i>♥</i>'+(Math.round(p.hp/4*10)/10)+' / '+(totHp()/4)+'</span>'+
+    (G.hlvl>0?'<span><i>✧</i>Lv '+G.hlvl+'</span>':'')+
     '<span><i>⚡</i>'+Math.round(p.maxst)+'</span>'+
     (G.spells.length?'<span><i>✦</i>'+Math.round(G.mana)+'/'+maxMana()+' mana</span>':'')+
     '<span><i>🛡</i>def '+(arm?aDef(arm).def:0)+'</span>'+
@@ -358,18 +367,21 @@ function buildPause(){
     '<span><i>◉</i>'+G.coins+'</span></div>';
   h+='<div class="chips" style="margin-top:8px">'+
     '<div class="chip eq" data-act="skills">☆ Skills'+(BRANCHES.some(b=>G.pts[b]>0)?' •':'')+'</div>'+
+    (G.scrolls>0?'<div class="chip" data-act="scroll">📜 Read Return Scroll</div>':'')+
     (canCraftHere()?'<div class="chip eq" data-act="craft">⚒ Smithing</div>':'<div class="chip" style="opacity:.45">⚒ Smithing — find a forge or learn Blacksmith</div>')+
     '</div>';
   h+='<div class="ph">Weapons — tap to equip / dual wield / repair</div><div class="chips">';
   G.inv.w.forEach((w,i)=>{
     const eq=i===G.eqM?' · MAIN':(i===G.eqO?' · OFF':'');
-    h+='<div class="chip'+(eq?' eq':'')+'" data-wi="'+i+'">'+wDef(w).n+(w.up?' +'+w.up:'')+
+    h+='<div class="chip'+(eq?' eq':'')+'" data-wi="'+i+'" style="border-color:'+instColor(w)+'66">'+
+      '<span style="color:'+instColor(w)+'">'+instName(w)+'</span>'+(w.up?' +'+w.up:'')+
       '<small>'+eq+'</small><div class="durbar"><i style="width:'+Math.max(0,w.dur)+'%;background:'+(w.dur<25?'#e05b4b':'#8fce6a')+'"></i></div></div>';
   });
   if(!G.inv.w.length)h+='<div class="chip" style="opacity:.5">Bare fists — craft or find a weapon</div>';
   h+='</div><div class="ph">Armor</div><div class="chips">';
   G.inv.a.forEach((a,i)=>{
-    h+='<div class="chip'+(i===G.eqA?' eq':'')+'" data-ai="'+i+'">'+aDef(a).n+
+    h+='<div class="chip'+(i===G.eqA?' eq':'')+'" data-ai="'+i+'" style="border-color:'+instColor(a)+'66">'+
+      '<span style="color:'+instColor(a)+'">'+instName(a)+'</span>'+
       '<small> · def '+aDef(a).def+'</small><div class="durbar"><i style="width:'+Math.max(0,a.dur)+'%;background:'+(a.dur<25?'#e05b4b':'#8fce6a')+'"></i></div></div>';
   });
   h+='</div><div class="ph">Materials & Supplies</div><div id="pstats">'+
@@ -377,6 +389,8 @@ function buildPause(){
     (G.bow?'<span><i>➶</i>'+G.arrows+'</span>':'')+
     (G.pouch?'<span><i>●</i>'+G.bombs+'</span>':'')+
     (G.rod?'<span><i>🎣</i>rod</span>':'')+
+    '<span><i>🧪</i>'+G.pot.hp+'♥ '+G.pot.mp+'✦</span>'+
+    (G.scrolls?'<span><i>📜</i>'+G.scrolls+'</span>':'')+
     '<span><i>✦</i>'+G.orbs+' orbs</span>'+
     (G.shards?'<span><i>♦</i>'+G.shards+'/4</span>':'')+'</div>';
   if(G.spells.length){
@@ -426,6 +440,7 @@ function buildPause(){
     if(act==='resume'){eraseArm=false;setMode('play');}
     else if(act==='skills'){openSkills();}
     else if(act==='craft'){if(canCraftHere())openCraft();}
+    else if(act==='scroll'){setMode('play');useScroll();}
     else if(act==='audio'){G.audio=!G.audio;if(G.audio)ensureAC();buildPause();}
     else if(act==='fx'){G.lowfx=!G.lowfx;resize();buildPause();}
     else if(act==='erase'){
@@ -470,7 +485,8 @@ function expDecode(str){
   }catch(e){}
 }
 function saveData(){
-  return JSON.stringify({v:2,px:Math.round(G.p.x),py:Math.round(G.p.y),
+  const sx=G.inDun&&G.dun?G.dun.surfX:G.p.x,sy=G.inDun&&G.dun?G.dun.surfY:G.p.y;
+  return JSON.stringify({v:2,px:Math.round(sx),py:Math.round(sy),
     hp:G.p.hp,maxhp:G.p.maxhp,st:Math.round(G.p.st),maxst:G.p.maxst,
     coins:G.coins,arrows:G.arrows,bombs:G.bombs,orbs:G.orbs,shards:G.shards,
     invW:G.inv.w,invA:G.inv.a,eqM:G.eqM,eqO:G.eqO,eqA:G.eqA,
@@ -479,6 +495,8 @@ function saveData(){
     trust:G.trust,team:G.team,horse:G.horse,boat:G.boat,rod:G.rod,
     bow:G.bow,pouch:G.pouch,food:G.food,
     mq:G.mq,q:G.q,flags:G.flags,stats:G.stats,dayT:G.dayT,dayN:G.dayN,
+    pot:G.pot,scrolls:G.scrolls,hxp:G.hxp,hlvl:G.hlvl,
+    hardcore:G.hardcore,origin:G.origin,
     healed:G.healed,lastSafe:G.lastSafe,audio:G.audio,exp:expEncode()});
 }
 function autosave(){
@@ -512,6 +530,9 @@ function loadSave(){
       G.mana=typeof d.mana==='number'?d.mana:50;
       G.trust=d.trust||{};G.team=Array.isArray(d.team)?d.team:[];
       G.horse=d.horse||null;G.boat=d.boat||null;G.rod=!!d.rod;
+      G.pot=Object.assign({hp:0,mp:0},d.pot||{});
+      G.scrolls=d.scrolls||0;G.hxp=d.hxp||0;G.hlvl=d.hlvl||0;
+      G.hardcore=!!d.hardcore;G.origin=d.origin||'';
     }else{ /* migrate v1 → instances */
       const wpns=Array.isArray(d.wpns)?d.wpns:['rusty'];
       G.inv.w=wpns.map(k=>mkInst(k));
@@ -521,6 +542,7 @@ function loadSave(){
       G.mat={wood:0,ore:0,leather:0};
       G.skills={};G.spells=[];G.spellEq='';G.mana=50;
       G.trust={};G.team=[];G.horse=null;G.boat=null;G.rod=false;
+      G.pot={hp:1,mp:0};G.scrolls=0;G.hxp=0;G.hlvl=0;G.hardcore=false;G.origin='';
     }
     G.bow=!!d.bow;G.pouch=!!d.pouch;
     G.food=d.food||{};G.mq=(typeof d.mq==='number')?d.mq:0;G.q=d.q||{};
@@ -549,6 +571,9 @@ function resetState(){
   G.xp={};G.pts={};BRANCHES.forEach(b=>{G.xp[b]=0;G.pts[b]=0;});
   G.skills={};G.spells=[];G.spellEq='';G.mana=50;G.manaCd=0;
   G.trust={};G.team=[];G.horse=null;G.boat=null;G.rod=false;
+  G.pot={hp:1,mp:0};G.scrolls=0;G.hxp=0;G.hlvl=0;G.hardcore=false;G.origin='';
+  G.inDun=false;G.dun=null;G.portal=null;G.pburn=0;G.chill=0;
+  G.brokenUrns=new Set();G.takenGold=new Set();
   G.bow=false;G.pouch=false;G.food={apple:2};
   G.healed=false;G.dayT=.30;G.dayN=1;G.hurtT=0;G.slow=0;G.freeze=0;
   clearWorldCache();
@@ -567,10 +592,22 @@ function die(){
   if(G.p.mount)dismount();
   setMode('dead');sfx('roar');
 }
+function hardcoreEnd(){
+  store.del();
+  fadeOut(()=>{
+    resetState();
+    $('tCont').style.display='none';
+    setMode('title');
+    toast('The tale ends where it ends. Hardcore keeps no drafts.');
+    fadeIn(800);
+  },600);
+}
 function respawn(){
   fadeOut(()=>{
+    if(G.inDun){G.inDun=false;G.dun=null;}
+    G.portal=null;G.pburn=0;G.chill=0;
     const s=G.lastSafe||{x:SP.spawn.tx*TILE+12,y:SP.spawn.ty*TILE+12};
-    G.p.x=s.x;G.p.y=s.y;G.p.hp=G.p.maxhp;G.p.st=G.p.maxst;
+    G.p.x=s.x;G.p.y=s.y;G.p.hp=totHp();G.p.st=totSt();
     G.p.iv=1.5;G.p.act='';G.p.exh=false;G.p.vx=0;G.p.vy=0;G.p.kbx=0;G.p.kby=0;
     G.mana=maxMana();
     for(const e of G.ents)if(e.t!=='npc'&&e.t!=='ally')e.dead=true;
@@ -624,7 +661,7 @@ function introAdv(){
 function drawHUD(){
   if(G.mode==='title'||G.mode==='intro')return;
   const p=G.p;
-  const hn=Math.round(p.maxhp/4);
+  const hn=Math.round(totHp()/4);
   for(let i=0;i<hn;i++){
     const x=22+(i%10)*20,y=24+Math.floor(i/10)*19;
     const q=clamp(p.hp-i*4,0,4)/4;
@@ -659,6 +696,10 @@ function drawHUD(){
     cx0+=15+ctx.measureText(String(val)).width+16;
   };
   counter((x,y)=>{dotc(x,y,5.5,'#e8b04a');dotc(x-1.2,y-1.2,2,'#f6d47c');},G.coins);
+  if(G.hlvl>0)counter((x,y)=>{ctx.fillStyle='#ffd66e';
+    ctx.beginPath();ctx.moveTo(x,y-5);ctx.lineTo(x+1.6,y-1.6);ctx.lineTo(x+5,y);ctx.lineTo(x+1.6,y+1.6);
+    ctx.lineTo(x,y+5);ctx.lineTo(x-1.6,y+1.6);ctx.lineTo(x-5,y);ctx.lineTo(x-1.6,y-1.6);ctx.closePath();ctx.fill();},'Lv'+G.hlvl);
+  if(G.scrolls>0)counter((x,y)=>{rr(x-4,y-4,8,7,1.5,'#e8dcc4');dotc(x,y+4,1.4,'#9fd8ff');},G.scrolls);
   if(G.bow)counter((x,y)=>{ctx.save();ctx.translate(x,y);ctx.rotate(-.7);
     rr(-5,-1,10,2,1,'#c9b48f');ctx.fillStyle='#8d8577';
     ctx.beginPath();ctx.moveTo(5,-2.6);ctx.lineTo(8,0);ctx.lineTo(5,2.6);ctx.fill();ctx.restore();},G.arrows);
@@ -666,6 +707,10 @@ function drawHUD(){
   if(G.orbs>0)counter((x,y)=>{dotc(x,y,5,'rgba(159,216,255,.9)');dotc(x,y,2,'#e8f4ff');},G.orbs);
   if(G.shards>0)counter((x,y)=>{ctx.fillStyle='#ffb35c';
     ctx.beginPath();ctx.moveTo(x,y-5.5);ctx.lineTo(x+4,y);ctx.lineTo(x,y+5.5);ctx.lineTo(x-4,y);ctx.closePath();ctx.fill();},G.shards+'/4');
+  if(G.pburn>0){ctx.font='700 10px -apple-system,system-ui,sans-serif';
+    ctx.fillStyle='#ff9a4a';ctx.fillText('🔥 burning',16,cy+18);cy+=14;}
+  if(G.chill>0){ctx.font='700 10px -apple-system,system-ui,sans-serif';
+    ctx.fillStyle='#9fd8ff';ctx.fillText('❄ chilled',16,cy+18);cy+=14;}
   const m=eqMain();
   if(m&&m.dur<25){
     ctx.font='700 10px -apple-system,system-ui,sans-serif';
@@ -723,7 +768,7 @@ function drawHUD(){
       if(G.deadT>1.1){
         ctx.font='600 13px -apple-system,system-ui,sans-serif';
         ctx.fillStyle='rgba(242,233,216,.72)';
-        ctx.fillText('Tap to rise at the last fire you knew',VW/2,VH*.42+30);
+        ctx.fillText(G.hardcore?'Hardcore — this tale is over. Tap to let it go.':'Tap to rise at the last fire you knew',VW/2,VH*.42+30);
       }
     }
   }
@@ -782,7 +827,7 @@ function render(vdt){
   const S=ZM*DPR;
   const shx=(Math.random()-.5)*G.shake*DPR,shy=(Math.random()-.5)*G.shake*DPR;
   ctx.setTransform(S,0,0,S,cv.width/2-G.cam.x*S+shx,cv.height/2-G.cam.y*S+shy);
-  drawWorld();
+  if(G.inDun)drawDun();else drawWorld();
   drawTrial();
   drawDrops();
   drawEnts();
@@ -792,7 +837,7 @@ function render(vdt){
   drawLumen();
   drawBeams();
   ctx.setTransform(DPR,0,0,DPR,0,0);
-  lightPass();
+  if(G.inDun)dunLight();else lightPass();
   drawHUD();
 }
 /* ================= input ================= */
@@ -814,7 +859,16 @@ function bindInputs(){
   bindBtn($('bB'),()=>{inp.rH=true;inp.rT=G.vt;},()=>{if(G.vt-inp.rT<=.22)inp.rP=true;inp.rH=false;});
   bindBtn($('bW'),()=>{inp.bowH=true;},()=>{inp.bowH=false;inp.bowR=true;});
   bindBtn($('bG'),()=>{inp.bombP=true;},null);
-  bindBtn($('bS'),()=>{inp.spellP=true;},null);
+  let bsT=0;
+  bindBtn($('bS'),()=>{bsT=G.vt;},()=>{
+    if(G.vt-bsT>.35&&G.spells.length>1){
+      const i=G.spells.indexOf(G.spellEq);
+      G.spellEq=G.spells[(i+1)%G.spells.length];
+      sfx('blip');toast('Readied: '+SPELLS[G.spellEq].n);
+      refreshButtons();
+    }else inp.spellP=true;
+  });
+  bindBtn($('bP'),()=>{inp.potP=true;},null);
   bindBtn($('ctxb'),()=>{inp.intP=true;},null);
   $('bMap').addEventListener('pointerdown',e=>{e.stopPropagation();markTouch();if(G.mode==='play')openMap();});
   $('bMenu').addEventListener('pointerdown',e=>{e.stopPropagation();markTouch();if(G.mode==='play')openPause();});
@@ -856,7 +910,7 @@ function bindInputs(){
     e.preventDefault();markTouch();ensureAC();
     if(G.mode==='dialog')advDlg();
     else if(G.mode==='intro')introAdv();
-    else if(G.mode==='dead'&&G.deadT>1)respawn();
+    else if(G.mode==='dead'&&G.deadT>1){if(G.hardcore)hardcoreEnd();else respawn();}
   });
   let newArm=false;
   $('tCont').addEventListener('pointerdown',e=>{
@@ -866,8 +920,8 @@ function bindInputs(){
   $('tNew').addEventListener('pointerdown',e=>{
     e.preventDefault();markTouch();ensureAC();
     if(store.get()&&!newArm){newArm=true;$('tNew').textContent='Erase saved journey — tap again';return;}
-    newArm=false;store.del();resetState();
-    fadeOut(()=>{setMode('intro');G.introI=0;G.introT=0;fadeIn(600);},350);
+    newArm=false;store.del();
+    newGameFlow();
   });
   cv.addEventListener('pointerdown',e=>{
     if(e.pointerType==='mouse'&&G.mode==='play'){
@@ -880,7 +934,7 @@ function bindInputs(){
   cv.addEventListener('pointerup',e=>{
     if(e.pointerType==='mouse'){inp.aH=false;inp.aR=true;}
   });
-  const GKEYS=['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright',' ','j','k','l','b','e','m','i','p','z','v','t','enter','escape','shift'];
+  const GKEYS=['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright',' ','j','k','l','b','e','m','i','p','z','v','t','q','enter','escape','shift'];
   window.addEventListener('keydown',e=>{
     const k=e.key.toLowerCase();
     if(GKEYS.includes(k))e.preventDefault();
@@ -892,7 +946,7 @@ function bindInputs(){
       return;
     }
     if(G.mode==='intro'){if(k==='e'||k==='enter'||k===' ')introAdv();return;}
-    if(G.mode==='dead'){if(G.deadT>1)respawn();return;}
+    if(G.mode==='dead'){if(G.deadT>1){if(G.hardcore)hardcoreEnd();else respawn();}return;}
     if(G.mode==='dialog'){if(k==='e'||k==='enter'||k===' '||k==='j'||k==='z')advDlg();return;}
     if(G.mode==='map'){if(k==='m'||k==='escape')setMode('play');return;}
     if(G.mode==='pause'){if(k==='escape'||k==='i'||k==='p')setMode('play');return;}
@@ -903,6 +957,7 @@ function bindInputs(){
     else if(k==='l'){inp.bowH=true;}
     else if(k==='b'){inp.bombP=true;}
     else if(k==='v'){inp.spellP=true;}
+    else if(k==='q'){inp.potP=true;}
     else if(k==='e'||k==='enter'){inp.intP=true;}
     else if(k==='m'){openMap();}
     else if(k==='t'){openSkills();}
@@ -1017,6 +1072,9 @@ window.__EW={G,inp,keys,WPN,ARM,SPELLS,SKILLS,RECIPES,mkInst,
   addTrust,trustOf,priceFor,canRecruit,recruit,stealFrom,
   castSpell,startFishing,tryMount,dismount,ensureTeam,
   eqMain,eqOff,eqArm,wDmg,addWpn,refreshButtons,openSkills,openCraft,
+  rollInst,instName,instColor,affix,PREFIX,SUFFIX,UNIQ,totHp,totSt,heroLvlFor,
+  usePotion,useScroll,enterDun,descendDun,exitDun,ascendDun,enterPortal,
+  dunTileAt:(x,y)=>dunTileAt(x,y),newGameFlow,applyOrigin,gearValue,sellables,
   killAround(r){for(const e of G.ents)if(e.t!=='npc'&&e.t!=='ally'&&hyp(e.x-G.p.x,e.y-G.p.y)<(r||500))killE(e);},
   give(){G.coins+=500;G.arrows+=30;G.bombs+=8;G.pouch=true;G.bow=true;
     G.mat.wood+=10;G.mat.ore+=10;G.mat.leather+=10;refreshButtons();}};

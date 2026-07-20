@@ -36,12 +36,12 @@ const DAYLEN=480;
 
 const T_DEEP=0,T_WATER=1,T_SAND=2,T_GRASS=3,T_MEADOW=4,T_FGRASS=5,T_TREE=6,T_ROCK=7,
       T_SNOW=8,T_STREE=9,T_DESERT=10,T_CACTUS=11,T_SWAMP=12,T_SWATER=13,T_ASH=14,
-      T_BLIGHT=15,T_ROAD=16,T_STONE=17;
-const SOLIDT=id=>id===T_TREE||id===T_STREE||id===T_CACTUS;
+      T_BLIGHT=15,T_ROAD=16,T_STONE=17,T_DWALL=18;
+const SOLIDT=id=>id===T_TREE||id===T_STREE||id===T_CACTUS||id===T_DWALL;
 const WATERT=id=>id===T_DEEP||id===T_WATER||id===T_SWATER;
 const CLIMBT=id=>id===T_ROCK;
 const COLB=['#24486b','#3f7fae','#e8d29a','#79b855','#8cc463','#4f9147','#2f6d3a','#8d8577',
-  '#e9eff4','#5d7a52','#e3bd77','#8ba055','#64794b','#4a6357','#6f6468','#6d4a85','#c9b48f','#a8a29a'];
+  '#e9eff4','#5d7a52','#e3bd77','#8ba055','#64794b','#4a6357','#6f6468','#6d4a85','#c9b48f','#a8a29a','#241f28'];
 
 /* ---- weapons: diverse types; instances carry durability + upgrades ---- */
 const WPN={
@@ -61,7 +61,59 @@ const FIST={n:'Fists',t:'fist',d:1,spd:1.2,rc:-10,kb:.5,c:'#f2c9a0',tier:0};
 const TIERC=['#f2e9d8','#8fce6a','#6db8f0','#ffd66e','#ff9a4a'];
 const mkInst=(k,dur)=>({k,dur:dur===undefined?100:dur,mx:100,up:0});
 const wDef=i=>(i&&WPN[i.k])?WPN[i.k]:FIST;
-const wDmg=i=>wDef(i).d+(i?i.up:0);
+/* ---- Diablo-style magic affixes: prefixes, suffixes, rarities, uniques ---- */
+const PREFIX={
+  sharp:{n:'Sharp',dmg:2},
+  brutal:{n:'Brutal',kb:.7},
+  swift:{n:'Swift',spd:.2},
+  sturdy:{n:'Sturdy',stur:1,arm:1},
+  keen:{n:'Keen',crit:.14},
+  warded:{n:'Warded',def:1,armOnly:1,arm:1},
+  gilded:{n:'Gilded',gold:1,arm:1}};
+const SUFFIX={
+  fox:{n:'of the Fox',stam:25,arm:1},
+  bear:{n:'of the Bear',hp:4,arm:1},
+  embers:{n:'of Embers',burn:1},
+  frost:{n:'of Frost',chill:1},
+  leech:{n:'of the Leech',leech:1},
+  fortune:{n:'of Fortune',gold:1,arm:1}};
+const UNIQ=[
+  {n:'Thornsong',base:'forged',pre:'sharp',suf:'leech'},
+  {n:'Wolfsbane',base:'waraxe',pre:'keen',suf:'frost'},
+  {n:'Dawnpiercer',base:'ironspear',pre:'swift',suf:'embers'},
+  {n:'Gravedigger',base:'hammer',pre:'brutal',suf:'bear'},
+  {n:'Duskfang',base:'twinfang',pre:'swift',suf:'fortune'}];
+const RARC=['#f2e9d8','#6db8f0','#ffd66e','#ff9a4a'];
+const RARN=['','Magic ','Rare ','UNIQUE '];
+function rollInst(k,boost){
+  const isArm=!!ARM[k];
+  const i=isArm?{k,dur:irnd(60,100),mx:100,up:0}:mkInst(k,irnd(55,95));
+  const r=Math.random()-(boost||0)*.08;
+  let rar=r<.03?3:(r<.14?2:(r<.42?1:0));
+  if(rar===3&&!isArm){
+    const u=UNIQ.filter(u=>u.base===k);
+    if(u.length){const q=pick(u);i.uniq=q.n;i.pre=q.pre;i.suf=q.suf;}
+    else rar=2;
+  }else if(rar===3)rar=2;
+  const pres=Object.keys(PREFIX).filter(p=>isArm?PREFIX[p].arm:!PREFIX[p].armOnly);
+  const sufs=Object.keys(SUFFIX).filter(s=>isArm?SUFFIX[s].arm:true);
+  if(rar>=1&&!i.pre)i.pre=pick(pres);
+  if(rar>=2&&!i.suf)i.suf=pick(sufs);
+  if(i.pre==='sturdy'){i.mx=180;i.dur=Math.min(i.mx,i.dur+80);}
+  i.rar=rar;
+  return i;
+}
+function instName(i){
+  if(!i)return FIST.n;
+  if(i.uniq)return i.uniq;
+  const base=(WPN[i.k]||ARM[i.k]||FIST).n;
+  return (i.pre?PREFIX[i.pre].n+' ':'')+base+(i.suf?' '+SUFFIX[i.suf].n:'');
+}
+const instColor=i=>RARC[(i&&i.rar)||0];
+const affix=(i,f)=>((i&&i.pre&&PREFIX[i.pre][f])||0)+((i&&i.suf&&SUFFIX[i.suf][f])||0);
+const wDmg=i=>wDef(i).d+(i?i.up:0)+affix(i,'dmg');
+const wSpdOf=i=>wDef(i).spd*(1+affix(i,'spd'));
+const wKbOf=i=>wDef(i).kb+affix(i,'kb');
 
 const ARM={
   cloth:{n:'Traveler Cloth',def:0,c:'#3f8f8a',c2:'#2d6a66',tier:0},
@@ -180,6 +232,9 @@ const G={
   trust:{}, team:[],
   horse:null, boat:null, rod:false,
   bow:false, pouch:false, food:{apple:2},
+  pot:{hp:1,mp:0}, scrolls:0, hxp:0, hlvl:0, hardcore:false, origin:'',
+  inDun:false, dun:null, dunRun:0, portal:null, pburn:0, pbAcc:0, chill:0,
+  brokenUrns:new Set(), takenGold:new Set(),
   lastSafe:null, audio:true, lowfx:false, healed:false,
   saveT:0, ensT:0, expT:0, kbSeen:false};
 BRANCHES.forEach(b=>{G.xp[b]=0;G.pts[b]=0;});
@@ -191,12 +246,22 @@ const maxMana=()=>50+(hasSkill('spark')?40:0)+lvlFor(G.xp.magic)*10;
 const eqMain=()=>G.inv.w[G.eqM]||null;
 const eqOff=()=>G.eqO>=0?G.inv.w[G.eqO]||null:null;
 const eqArm=()=>G.inv.a[G.eqA]||null;
+function gearB(f){
+  let v=0;
+  for(const i of[eqMain(),eqOff(),eqArm()])v+=affix(i,f);
+  return v;
+}
+const totHp=()=>G.p.maxhp+gearB('hp');
+const totSt=()=>G.p.maxst+gearB('stam');
+const goldMul=()=>1+gearB('gold')*.5;
+const HXPL=n=>Math.round(100*Math.pow(n,1.6));
+function heroLvlFor(x){let l=0;while(l<60&&HXPL(l+1)<=x)l++;return l;}
 const newPlayer=(x,y)=>({x,y,vx:0,vy:0,r:7,face:Math.PI/2,hp:12,maxhp:12,st:100,maxst:100,
   exh:false,regenCd:0,anim:0,mv:0,act:'',actT:0,dur:.26,combo:0,chain:0,chargeT:0,charged:false,
   aim:false,aimAng:Math.PI/2,iv:0,flurry:0,kbx:0,kby:0,rollAng:0,lgx:x,lgy:y,climb:false,swim:false,
   mount:null,fish:null,hand:0,undyDay:0});
 
-/* xp → branch levels → skill points, earned by doing */
+/* xp → branch levels → skill points, earned by doing; also feeds hero level */
 function addXP(br,amt){
   if(!BRINFO[br]||amt<=0||G.mq<0)return;
   const l0=lvlFor(G.xp[br]);
@@ -207,6 +272,17 @@ function addXP(br,amt){
     sfx('orb');
     toast(BRINFO[br].n+' rank '+l1+' — skill point earned ('+BRINFO[br].src+')');
     refreshButtons();
+  }
+  G.hxp+=amt;
+  const h1=heroLvlFor(G.hxp);
+  if(h1>G.hlvl){
+    G.hlvl=h1;
+    if(h1%2)G.p.maxhp=Math.min(48,G.p.maxhp+2);
+    else G.p.maxst=Math.min(220,G.p.maxst+6);
+    G.p.hp=totHp();G.p.st=totSt();
+    sfx('levelup');G.shake=Math.max(G.shake,3);
+    if(typeof ringP==='function')ringP(G.p.x,G.p.y,'#ffd66e');
+    toast('LEVEL '+h1+' — the wild takes notice');
   }
 }
 function learnSkill(id){
@@ -266,7 +342,7 @@ const ew=$('ew'), cv=$('cv'), ctx=cv.getContext('2d');
 let VW=320,VH=568,DPR=1,ZM=1,SCL=2,CS=2;
 
 const inp={mx:0,my:0,aP:false,aH:false,aR:false,rP:false,rH:false,rT:0,
-  bowH:false,bowR:false,bombP:false,intP:false,spellP:false};
+  bowH:false,bowR:false,bombP:false,intP:false,spellP:false,potP:false};
 const keys={};
 const joy={active:false,id:-1,ox:0,oy:0,dx:0,dy:0};
 
@@ -342,7 +418,7 @@ function musicTick(){
   const bpm=G.boss?100:82, spb=60/bpm/4;
   while(musNext<AC.currentTime+.25){
     const w=Math.max(0,musNext-AC.currentTime);
-    const night=G.dayT>.72||G.dayT<.04;
+    const night=G.inDun||G.dayT>.72||G.dayT<.04;
     const combat=!!G.boss||G.ents.some(e=>e.aggro&&e.hp>0&&e.t!=='ally'&&hyp(e.x-G.p.x,e.y-G.p.y)<340);
     const root=night?98:130.81;
     const sc=G.boss?SC_BOSS:(night?SC_NIGHT:SC_DAY);

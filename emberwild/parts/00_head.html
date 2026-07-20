@@ -27,6 +27,8 @@
   bottom:calc(206px + env(safe-area-inset-bottom,0px));font-size:18px}
 #bS{width:54px;height:54px;right:calc(36px + env(safe-area-inset-right,0px));
   bottom:calc(196px + env(safe-area-inset-bottom,0px));font-size:19px}
+#bP{width:50px;height:50px;right:calc(178px + env(safe-area-inset-right,0px));
+  bottom:calc(40px + env(safe-area-inset-bottom,0px));font-size:17px}
 .vb.off{display:none !important}
 #ctxb{position:absolute;display:none;right:calc(14px + env(safe-area-inset-right,0px));
   bottom:calc(188px + env(safe-area-inset-bottom,0px));min-width:86px;height:42px;
@@ -54,7 +56,7 @@
   box-shadow:0 0 8px #e8b04a;flex:none}
 
 /* ---- dialogue ---- */
-#dlg{position:absolute;display:none;z-index:3;left:50%;transform:translateX(-50%);
+#dlg{position:absolute;display:none;z-index:6;left:50%;transform:translateX(-50%);
   bottom:calc(9% + env(safe-area-inset-bottom,0px));width:min(94vw,560px);
   background:rgba(14,12,11,.90);border:1.5px solid rgba(242,233,216,.32);border-radius:14px;
   padding:14px 18px 15px;box-shadow:0 10px 40px rgba(0,0,0,.5)}
@@ -186,6 +188,7 @@
   <div id="bW" class="vb">➶<small>BOW</small></div>
   <div id="bG" class="vb">●<small>BOMB</small></div>
   <div id="bS" class="vb">✦<small>SPELL</small></div>
+  <div id="bP" class="vb off">🧪<small id="bPl">POTION</small></div>
   <div id="ctxb"><span id="ctxt">Talk</span></div>
   <div id="topb"><div class="tb" id="bSkill">☆<div id="skb"></div></div><div class="tb" id="bMap">🗺</div><div class="tb" id="bMenu">☰</div></div>
   <div id="obj"><span id="objt"></span></div>

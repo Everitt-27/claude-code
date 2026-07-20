@@ -1,6 +1,6 @@
 # Emberwild — a tale of the shattered crown
 
-A seamless open-world action-RPG in a single ~225 KB HTML file. Runs on iPhone
+A seamless open-world action-RPG in a single ~260 KB HTML file. Runs on iPhone
 (Safari / Add to Home Screen), desktop browsers, and inside a claude.ai Artifact.
 No assets, no dependencies, no network, no load screens. BOTW-style world and art,
 Diablo/Baldur's-Gate-style character growth, loot, and company.
@@ -57,6 +57,19 @@ with four minibosses, a 3-phase final boss, and an ending that heals the map.
 - **Magic** — five spells (Ember Bolt, Gale Step, Mend, Frost Ring, Storm Call)
   learned from scholars, scrolls, and the Magic path, powered by a regenerating
   mana pool that deepens as you practice.
+- **The Diablo layer** — five **Barrow Delve** dungeons: three procedurally
+  generated floors of rooms and corridors, rendered in darkness with real
+  torch-light radii, packed with monsters, breakable urns, gold piles, champion
+  packs, and a floor-3 boss (sometimes The Butcher — "Ah… fresh meat!").
+  Loot rolls **magic affixes**: Sharp/Swift/Keen/Brutal/Sturdy prefixes,
+  of-the-Bear/Fox/Embers/Frost/Leech/Fortune suffixes, white→blue→gold→orange
+  rarities, and five fixed **uniques** (Thornsong, Wolfsbane, Dawnpiercer,
+  Gravedigger, Duskfang). Elites carry modifiers (Swift/Molten/Frost/Vampiric).
+  Belt-style **health & mana potions** on a quick-use button, **Return Scrolls**
+  that open persistent two-way town portals, a **hero level** that dings vitals
+  upward, **origins** at creation (Warrior/Rogue/Sorcerer), an optional
+  **Hardcore** mode where death erases the save, plus gambling and gear
+  vendoring at Zef's.
 - **Everything from v1** — stamina-gated climbing/swimming/sprinting, towers,
   shrines→orbs→heart/stamina upgrades, perfect-dodge slow-mo, day/night, weather,
   cooking, fast travel to *any* discovered place, autosave (v1 saves migrate).
@@ -75,5 +88,8 @@ iPhone-sized touch context and a desktop keyboard context: boot → intro → di
 → combat → quests → towers → shrine trial → map travel → bosses → death/respawn,
 plus the RPG layer: XP/skill grants, durability wear/repair/breakage, crafting,
 dual wield, trust pricing, stealing, companion recruitment and combat, spellcasting,
-horse and boat mounts, fishing, contextual button states, save v2 round-trip and
-v1 migration — **56 checks, all passing, zero console errors**, ~17 ms/frame.
+horse and boat mounts, fishing, contextual button states, save round-trips and
+v1 migration — plus the Diablo layer: affix/rarity/unique loot rolls, gear stat
+bonuses, potion quick-use, elite modifiers, a full barrow run (descend two floors,
+portal to town and back, walk out), hero levels, vendoring, origins, and hardcore
+erasure — **70 checks, all passing, zero console errors**, ~17 ms/frame.

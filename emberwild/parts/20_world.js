@@ -48,6 +48,7 @@ function stampTile(base,tx,ty,stamps){
       case'stone':case'chest':case'fire':if(d<2&&(SOLIDT(t)||WATERT(t)))t=T_GRASS;break;
       case'dock':if(d<1.6&&SOLIDT(t))t=T_SAND;break;
       case'field':if(d<4&&(SOLIDT(t)||WATERT(t)))t=T_GRASS;break;
+      case'delve':if(d<3&&(SOLIDT(t)||WATERT(t)))t=T_FGRASS;break;
     }
   }
   return t;
@@ -88,6 +89,7 @@ function clearWorldCache(){
   canvasCount=0;G.chunks.clear();
 }
 function tileAt(tx,ty){
+  if(G.inDun)return dunTileAt(tx,ty);
   if(tx<0||ty<0||tx>=WORLD||ty>=WORLD)return T_DEEP;
   const c=getChunk(tx>>4,ty>>4);
   return c.tiles[(tx&15)+(ty&15)*CHUNK];
@@ -168,6 +170,9 @@ function initWorld(){
   POIS.push({k:'lonetree',id:'lonetree',tx:SP.lonetree.tx,ty:SP.lonetree.ty});
   SP.docks.forEach((d,i)=>POIS.push({k:'dock',id:'dock'+i,tx:d.tx,ty:d.ty,name:d.name}));
   SP.fields.forEach((f,i)=>POIS.push({k:'field',id:'field'+i,tx:f.tx,ty:f.ty,vi:i}));
+  const DL=[[.525,.578],[.36,.47],[.66,.50],[.44,.26],[.72,.72]];
+  SP.delves=DL.map((d,i)=>Object.assign(snap(d[0],d[1]),{di:i}));
+  SP.delves.forEach((d,i)=>POIS.push({k:'delve',id:'delve'+i,tx:d.tx,ty:d.ty,name:'Barrow Delve '+'I'.repeat(i%3+1)}));
   G.totalShrines=POIS.filter(p=>p.k==='shrine').length;
 
   chunkPois.clear();
@@ -224,6 +229,9 @@ function buildProps(c){
       case'field':{
         props.push({t:'field',x:X,y:Y,r:14,id:poi.id,vi:poi.vi});
         break;}
+      case'delve':{
+        props.push({t:'delve',x:X,y:Y,r:16,id:poi.id,tx:poi.tx,ty:poi.ty,sol:1});
+        break;}
       case'cit':{
         props.push({t:'gate',x:X,y:Y+10*TILE,r:22,id:'gate',sol:1});
         props.push({t:'throne',x:X,y:Y-56,r:11,id:'throne',sol:1});
@@ -261,6 +269,7 @@ function buildProps(c){
   c.props=props;
 }
 function propsNear(x,y,rad){
+  if(G.inDun)return (G.dun&&G.dun.props)||[];
   rad=rad||1;
   const cx=Math.floor(x/(TILE*CHUNK)),cy=Math.floor(y/(TILE*CHUNK));
   const out=[];
@@ -293,9 +302,9 @@ let ACELL=48;
 function buildAtlas(){
   ACELL=Math.round(TILE*CS);
   const cnv=document.createElement('canvas');
-  cnv.width=ACELL*18*3;cnv.height=ACELL;
+  cnv.width=ACELL*19*3;cnv.height=ACELL;
   const g=cnv.getContext('2d');
-  for(let id=0;id<18;id++)for(let v=0;v<3;v++)tileArt(g,id,v,(id*3+v)*ACELL,0,ACELL);
+  for(let id=0;id<19;id++)for(let v=0;v<3;v++)tileArt(g,id,v,(id*3+v)*ACELL,0,ACELL);
   G.atlas=cnv;
 }
 function tileArt(g,id,vr,X,Y,s){
@@ -369,6 +378,11 @@ function tileArt(g,id,vr,X,Y,s){
       g.beginPath();g.moveTo(0,u(.5));g.lineTo(s,u(.5));g.moveTo(u(.5),0);g.lineTo(u(.5),u(.5));
       g.moveTo(u(.25),u(.5));g.lineTo(u(.25),s);g.stroke();
       if(vr===2){g.beginPath();g.moveTo(u(.6),u(.6));g.lineTo(u(.8),u(.85));g.stroke();}break;
+    case T_DWALL:fill('#241f28');g.strokeStyle='#332c38';g.lineWidth=u(.05);
+      g.beginPath();g.moveTo(0,u(.34));g.lineTo(s,u(.34));g.moveTo(0,u(.68));g.lineTo(s,u(.68));
+      g.moveTo(u(.5),0);g.lineTo(u(.5),u(.34));g.moveTo(u(.25),u(.34));g.lineTo(u(.25),u(.68));
+      g.moveTo(u(.7),u(.68));g.lineTo(u(.7),s);g.stroke();
+      if(vr===1)dot(.35+R(1)*.3,.4,.05,'#171319');break;
   }
   g.restore();
 }
@@ -437,6 +451,7 @@ function drawWorld(){
 }
 /* guiding light-pillars: wayfinding without a gps chevron */
 function drawBeams(){
+  if(G.inDun)return;
   ctx.save();ctx.globalCompositeOperation='lighter';
   const draw=(x,y,col,w,hgt,a)=>{
     const gr=ctx.createLinearGradient(0,y-hgt,0,y);
@@ -458,6 +473,7 @@ function drawBeams(){
   ctx.restore();
 }
 function reveal(tx,ty,r){
+  if(G.inDun)return;
   const cx=Math.floor(tx/ECELL),cy=Math.floor(ty/ECELL);
   for(let j=-r;j<=r;j++)for(let i=-r;i<=r;i++){
     if(i*i+j*j>r*r+1)continue;

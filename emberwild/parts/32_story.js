@@ -33,7 +33,7 @@ function talkTo(e){
 function greetLine(key){
   const t=trustOf(key);
   const g={
-    elder:'Sit, wanderer. The fire is warm and my ears still work.',
+    elder:'Stay awhile, and listen. The fire is warm and my ears still work.',
     boro:'Mind the sparks. What do you need?',
     pip:'Oh! Hello! Are you doing a heroic errand right now??',
     sella:'Welcome back! Finest wares this side of the blight.',
@@ -270,17 +270,17 @@ function dlgRhoa(){
 /* ---- shops: dynamic prices from trust + haggling, buy & sell ---- */
 function shopItems(key){
   if(key==='sella')return[
-    {label:'Apple',cost:4,f(){addFood('apple',1);}},
+    {label:'Health Potion',cost:15,f(){G.pot.hp++;refreshButtons();}},
+    {label:'Return Scroll',cost:20,f(){G.scrolls++;}},
     {label:'5 Arrows',cost:8,f(){G.arrows+=5;}},
-    {label:'Seared Steak',cost:12,f(){addFood('steak',1);}},
     G.spells.includes('mend')?null:{label:'Scroll: Mend',cost:60,f(){
       G.spells.push('mend');if(!G.spellEq)G.spellEq='mend';
       toast('Learned the MEND spell');refreshButtons();}},
     G.pouch?{label:'3 Bombs',cost:15,f(){G.bombs+=3;}}
            :{label:'Bomb Pouch',cost:25,f(){G.pouch=true;G.bombs+=3;refreshButtons();}}];
   if(key==='zef')return[
-    {label:'8 Arrows',cost:12,f(){G.arrows+=8;}},
-    {label:'Baked Apple',cost:6,f(){addFood('bapple',1);}},
+    {label:'Mana Potion',cost:12,f(){G.pot.mp++;refreshButtons();}},
+    {label:'Return Scroll',cost:20,f(){G.scrolls++;}},
     {label:'2 Iron Ore',cost:14,f(){G.mat.ore+=2;}},
     G.spells.includes('gale')?null:{label:'Scroll: Gale Step',cost:60,f(){
       G.spells.push('gale');if(!G.spellEq)G.spellEq='gale';
@@ -298,6 +298,18 @@ function sellables(){
   if((G.food.fish||0)>0)out.push({label:'Raw Fish',get:6,f(){G.food.fish--;}});
   if((G.food.meat||0)>0)out.push({label:'Raw Meat',get:4,f(){G.food.meat--;}});
   if(G.mat.leather>0)out.push({label:'Leather',get:7,f(){G.mat.leather--;}});
+  const spareW=G.inv.w.map((w,i)=>({w,i})).filter(x=>x.i!==G.eqM&&x.i!==G.eqO)
+    .sort((a,b)=>gearValue(b.w)-gearValue(a.w)).slice(0,2);
+  for(const s2 of spareW)out.push({label:instName(s2.w),get:gearValue(s2.w),f(){
+    const idx=G.inv.w.indexOf(s2.w);
+    if(idx>=0){G.inv.w.splice(idx,1);
+      if(G.eqM>idx)G.eqM--;if(G.eqO>idx)G.eqO--;}
+  }});
+  const spareA=G.inv.a.map((a,i)=>({a,i})).filter(x=>x.i!==G.eqA&&aDef(x.a).def>0).slice(0,1);
+  for(const s3 of spareA)out.push({label:instName(s3.a),get:gearValue(s3.a),f(){
+    const idx=G.inv.a.indexOf(s3.a);
+    if(idx>=0){G.inv.a.splice(idx,1);if(G.eqA>idx)G.eqA--;}
+  }});
   return out;
 }
 function shop(key){
@@ -311,10 +323,30 @@ function shop(key){
   });
   const sell=sellables();
   if(sell.length)ch.push({t:'Sell goods…',f(){shopSell(key);}});
+  if(key==='zef')ch.push({t:'Gamble — 40c, unmarked steel',f(){gamble(key);}});
   ch.push({t:'Leave',f(){}});
   const disc=priceMod(key);
   const line=disc<1?'For you? Friendly prices.':(disc>1?'Prices are… higher, for some.':'Browse, browse.');
   startDlg([{n:npcName(key)+trustTag(key),t:line}],{choices:ch.slice(0,6)});
+}
+function gamble(key){
+  const cost=priceFor(key,40);
+  if(G.coins<cost){sfx('err');
+    startDlg([{n:'Zef',t:'Gambling needs coin, friend. That is rather the point.'}],{choices:[{t:'Leave',f(){}}]});
+    return;}
+  G.coins-=cost;
+  const r=Math.random();
+  const i=rollInst(pick(areaWpnPool(G.p.x,G.p.y)),r<.06?4:(r<.3?2:1));
+  if(i.rar<1){i.rar=1;i.pre=pick(Object.keys(PREFIX).filter(p=>!PREFIX[p].armOnly));}
+  G.inv.w.push(i);
+  sfx('chest');addXP('charm',4);
+  toast('Gambled: '+RARN[i.rar]+instName(i));
+  startDlg([{n:'Zef',t:i.rar>=3?'…Zef will pretend that did not just happen. Enjoy it, friend.':(i.rar>=2?'Ooh — the dice love you today.':'The dice giveth what the dice giveth.')}],
+    {choices:[{t:'Again!',f(){gamble(key);}},{t:'Enough',f(){shop(key);}}]});
+}
+function gearValue(i){
+  const base=(WPN[i.k]||ARM[i.k]||{tier:0}).tier+1;
+  return Math.max(2,Math.round((base*8+(i.rar||0)*12+i.up*5)*(0.4+0.6*i.dur/i.mx)));
 }
 function shopSell(key){
   const ch=sellables().slice(0,4).map(it=>({t:'Sell '+it.label+' — +'+it.get+'c',f(){
@@ -379,4 +411,42 @@ function questLog(){
   rows.push({t:'Shrines of the Old Crown',d:G.stats.shrines+'/'+G.totalShrines+' trials passed · '+G.orbs+' orbs held',done:G.stats.shrines>=G.totalShrines});
   rows.push({t:'The Standing Stones',d:G.stats.stones+'/8 stones read',done:G.stats.stones>=8});
   return rows;
+}
+
+/* ---- remembered callings: class start + hardcore choice ---- */
+function newGameFlow(){
+  resetState();
+  startDlg([{n:'The Dark Before Waking',t:'Before the grass, before the light — a memory of hands. What did they know best?'}],
+    {choices:[
+      {t:'⚔ The weight of a sword — Warrior',f(){G.origin='warrior';}},
+      {t:'🏹 The quiet of the woods — Rogue',f(){G.origin='rogue';}},
+      {t:'✦ The old burning words — Sorcerer',f(){G.origin='sorcerer';}}],
+     end(){
+       applyOrigin();
+       startDlg([{n:'The Dark Before Waking',t:'And how tightly will fate hold this tale?'}],
+         {choices:[
+           {t:"Wanderer's Road — fall and rise again",f(){G.hardcore=false;}},
+           {t:'HARDCORE — death erases everything',f(){G.hardcore=true;}}],
+          end(){
+            if(G.hardcore)toast('Hardcore — the wild will not forgive');
+            fadeOut(()=>{setMode('intro');G.introI=0;G.introT=0;fadeIn(600);},350);
+          }});
+     }});
+}
+function applyOrigin(){
+  if(G.origin==='warrior'){
+    const i=addWpn('soldier');G.eqM=G.inv.w.indexOf(i);
+    addArm('leather');G.eqA=G.inv.a.length-1;
+    G.xp.blades=45;G.xp.guard=45;G.pts.blades=1;G.pts.guard=1;
+  }else if(G.origin==='rogue'){
+    const a=addWpn('dagger'),b=addWpn('dagger');
+    G.eqM=G.inv.w.indexOf(a);G.eqO=G.inv.w.indexOf(b);
+    G.xp.hunt=45;G.xp.agility=45;G.pts.hunt=1;G.pts.agility=1;
+    G.coins+=15;
+  }else if(G.origin==='sorcerer'){
+    if(!G.spells.includes('bolt'))G.spells.push('bolt');
+    G.spellEq='bolt';G.pot.mp+=2;
+    G.xp.magic=45;G.xp.charm=45;G.pts.magic=1;G.pts.charm=1;
+  }
+  refreshButtons();
 }
