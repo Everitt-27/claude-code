@@ -718,7 +718,7 @@ function drawHUD(){
     ctx.fillText('⚠ '+wDef(m).n+' failing',16,cy+18);
   }
   if(p.st<p.maxst-.5||p.exh){
-    const sx=(p.x-G.cam.x)*ZM+VW/2,sy=(p.y-G.cam.y)*ZM*G.tilt+VH/2-40;
+    const sw=projC(p.x,p.y),sx=sw.x,sy=sw.y-40*ZM;
     ctx.lineWidth=4.5;ctx.lineCap='round';
     ctx.strokeStyle='rgba(16,14,13,.45)';
     ctx.beginPath();ctx.arc(sx,sy,15,0,TAU);ctx.stroke();
@@ -773,6 +773,7 @@ function drawHUD(){
     }
   }
 }
+let vigCv=null,vigKey='';
 function lightPass(){
   const t=G.dayT;
   let na=0;
@@ -781,6 +782,25 @@ function lightPass(){
   if(na>0){ctx.fillStyle='rgba(10,16,42,'+na+')';ctx.fillRect(0,0,VW,VH);}
   const da=Math.max(0,1-Math.abs(t-.70)/.06)*.16+Math.max(0,1-Math.abs(t-.075)/.05)*.12;
   if(da>0){ctx.fillStyle='rgba(232,110,60,'+da+')';ctx.fillRect(0,0,VW,VH);}
+  /* personal light radius: the world dims away from the hero, Diablo-style
+     (hero rides the screen centre, so the mask is cached at quarter-res) */
+  if(G.mode!=='title'){
+    const va=.20+na*.55;
+    const b=Math.round(va*40);
+    const key=VW+'x'+VH+'_'+b;
+    if(key!==vigKey){
+      vigKey=key;
+      if(!vigCv)vigCv=document.createElement('canvas');
+      vigCv.width=Math.max(2,VW>>2);vigCv.height=Math.max(2,VH>>2);
+      const vg=vigCv.getContext('2d'),w=vigCv.width,h=vigCv.height,a2=b/40;
+      const gr=vg.createRadialGradient(w/2,h/2,Math.min(w,h)*.30,w/2,h/2,Math.max(w,h)*.82);
+      gr.addColorStop(0,'rgba(8,9,16,0)');
+      gr.addColorStop(.55,'rgba(8,9,16,'+(a2*.4).toFixed(3)+')');
+      gr.addColorStop(1,'rgba(8,9,16,'+a2.toFixed(3)+')');
+      vg.clearRect(0,0,w,h);vg.fillStyle=gr;vg.fillRect(0,0,w,h);
+    }
+    ctx.drawImage(vigCv,0,0,vigCv.width,vigCv.height,0,0,VW,VH);
+  }
   if(G.rain>0){
     ctx.fillStyle='rgba(30,40,60,.14)';ctx.fillRect(0,0,VW,VH);
     ctx.strokeStyle='rgba(190,215,240,.30)';ctx.lineWidth=1;
@@ -824,14 +844,18 @@ function render(vdt){
   ctx.fillStyle='#0c0b0a';ctx.fillRect(0,0,cv.width,cv.height);
   if(!G.p||!SP){return;}
   if(G.mode==='intro'){ctx.setTransform(DPR,0,0,DPR,0,0);drawIntro();return;}
-  const S=ZM*DPR,T=G.tilt;
+  const S=ZM*DPR;
   const shx=(Math.random()-.5)*G.shake*DPR,shy=(Math.random()-.5)*G.shake*DPR;
-  // ground pass — the floor plane, squashed vertically so it recedes
-  ctx.setTransform(S,0,0,S*T,cv.width/2-G.cam.x*S+shx,cv.height/2-G.cam.y*S*T+shy);
+  setCamMatrix(S,G.cam.x,G.cam.y,cv.width/2,cv.height/2,shx,shy);
+  // conservative world-space cull radius: circumcircle of the screen's preimage
+  {const c1=invProj(0,0),c2=invProj(cv.width,0),c3=invProj(0,cv.height),c4=invProj(cv.width,cv.height);
+   let r=0;for(const c of[c1,c2,c3,c4]){const d=hyp(c.x-G.cam.x,c.y-G.cam.y);if(d>r)r=d;}
+   G.cullR=r+TILE*2;}
+  // ground pass — the floor plane, rotated 45° and squashed so it recedes
+  ctx.setTransform(_M.a,_M.b,_M.c,_M.d,_M.e,_M.f);
   if(G.inDun)drawDun();else drawWorld();
   drawTrial();
-  // upright pass — sprites drawn at full height, anchored onto the tilted floor
-  ctx.setTransform(S,0,0,S,cv.width/2-G.cam.x*S+shx,cv.height/2-G.cam.y*S+shy);
+  // upright pass — each sprite sets its own screen-vertical frame on the floor
   drawDrops();
   drawEnts();
   drawPr();
@@ -929,8 +953,8 @@ function bindInputs(){
   cv.addEventListener('pointerdown',e=>{
     if(e.pointerType==='mouse'&&G.mode==='play'){
       ensureAC();
-      const wx=(e.clientX-VW/2)/ZM+G.cam.x,wy=(e.clientY-VH/2)/(ZM*G.tilt)+G.cam.y;
-      G.p.face=angTo(G.p.x,G.p.y,wx,wy);
+      const w=invProj(e.clientX*DPR,e.clientY*DPR);
+      G.p.face=angTo(G.p.x,G.p.y,w.x,w.y);
       inp.aP=true;inp.aH=true;
     }
   });
@@ -981,7 +1005,7 @@ function bindInputs(){
 function resize(){
   VW=window.innerWidth;VH=window.innerHeight;
   DPR=G.lowfx?1:Math.min(3,window.devicePixelRatio||1);
-  ZM=clamp(Math.min(VW,VH)/420,1,2.2);
+  ZM=clamp(Math.min(VW,VH)/240,1.5,2.7); // close-in ARPG framing
   cv.width=Math.round(VW*DPR);cv.height=Math.round(VH*DPR);
   cv.style.width=VW+'px';cv.style.height=VH+'px';
   const cs=clamp(ZM*DPR,1,2);
@@ -999,7 +1023,8 @@ function frame(t){
   lastT=t;
   G.vt+=dtR;G.ldt=dtR;
   fpsA=fpsA*.96+dtR*1000*.04;
-  if(!G.lowfx&&G.vt>10&&fpsA>27){G.lowfx=true;resize();}
+  /* adaptive quality: badly slow devices get rescued fast, mild ones gently */
+  if(!G.lowfx&&((G.vt>2.5&&fpsA>38)||(G.vt>10&&fpsA>27))){G.lowfx=true;resize();}
   let scale=1;
   if(G.freeze>0){G.freeze-=dtR;scale=0;}
   else if(G.slow>0){G.slow-=dtR;scale=.32;}

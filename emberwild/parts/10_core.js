@@ -340,13 +340,42 @@ const store={
 const $=id=>document.getElementById(id);
 const ew=$('ew'), cv=$('cv'), ctx=cv.getContext('2d');
 let VW=320,VH=568,DPR=1,ZM=1,SCL=2,CS=2;
-/* 2.5D projection: the ground plane is tilted (Y-squashed) so the camera
-   reads as angled down like Diablo/BG3; upright sprites stand on it. */
-G.tilt=0.62;
-function PY(y){return G.cam.y+(y-G.cam.y)*G.tilt;}    // world Y → tilted-ground world Y
-function projDY(y){return PY(y)-y;}                    // translate delta for an upright anchor
-/* run an upright draw so its feet land on the tilted ground at world-Y `y` */
-function upright(y,fn){ctx.save();ctx.translate(0,projDY(y));fn();ctx.restore();}
+/* Diablo camera: the ground plane is rotated 45° (diamond grid) and tilted
+   (Y-squashed) so the view reads as an angled-down isometric; upright sprites
+   are drawn screen-vertical, feet anchored onto the projected floor. */
+G.tilt=0.55;
+const CAMR=Math.PI/4;                       // world +x runs to screen lower-right
+const CAMC=Math.cos(CAMR),CAMS=Math.sin(CAMR);
+const _M={a:1,b:0,c:0,d:1,e:0,f:0,S:1};    // ground matrix, device px
+function setCamMatrix(S,cx,cy,CX,CY,shx,shy){
+  _M.S=S;
+  _M.a=S*CAMC;_M.c=-S*CAMS;
+  _M.b=S*G.tilt*CAMS;_M.d=S*G.tilt*CAMC;
+  _M.e=CX-(_M.a*cx+_M.c*cy)+shx;
+  _M.f=CY-(_M.b*cx+_M.d*cy)+shy;
+}
+const projS=(x,y)=>({x:_M.a*x+_M.c*y+_M.e,y:_M.b*x+_M.d*y+_M.f}); // world→device px
+const projC=(x,y)=>{const p=projS(x,y);return{x:p.x/DPR,y:p.y/DPR};}; // world→css px
+/* set the canvas transform so drawing at world (x,y) lands upright on the floor */
+function uprightAt(x,y){
+  const p=projS(x,y);
+  ctx.setTransform(_M.S,0,0,_M.S,p.x-x*_M.S,p.y-y*_M.S);
+}
+/* world-space delta → screen-space delta (for in-sprite lines to world points) */
+function rotD(dx,dy){
+  return{x:dx*CAMC-dy*CAMS,y:(dx*CAMS+dy*CAMC)*G.tilt};
+}
+/* screen direction → world direction (movement input) */
+function unrotD(dx,dy){
+  return{x:dx*CAMC+dy*CAMS,y:-dx*CAMS+dy*CAMC};
+}
+function invProj(devX,devY){ // device px → world point
+  const det=_M.a*_M.d-_M.b*_M.c;
+  const px=devX-_M.e,py=devY-_M.f;
+  return{x:(_M.d*px-_M.c*py)/det,y:(_M.a*py-_M.b*px)/det};
+}
+/* world angle → on-screen angle of that ground direction (for aim lines etc.) */
+function scrA(a){return Math.atan2(Math.sin(a+CAMR)*G.tilt,Math.cos(a+CAMR));}
 
 const inp={mx:0,my:0,aP:false,aH:false,aR:false,rP:false,rH:false,rT:0,
   bowH:false,bowR:false,bombP:false,intP:false,spellP:false,potP:false};

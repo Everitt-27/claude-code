@@ -324,7 +324,7 @@ function tileArt(g,id,vr,X,Y,s){
       if(vr===2)dot(.5,.5,.06,'#c9b078');break;
     case T_GRASS:fill('#79b855');for(let i=0;i<7;i++)blade(R(i)*.9+.05,R(i+11)*.8+.15,'#67a748');
       for(let i=0;i<2;i++)blade(R(i+20)*.9+.05,R(i+31)*.8+.15,'#8cc766');break;
-    case T_MEADOW:{fill('#8cc463');for(let i=0;i<5;i++)blade(R(i)*.9+.05,R(i+11)*.8+.15,'#77af52');
+    case T_MEADOW:{fill('#79b855');for(let i=0;i<5;i++)blade(R(i)*.9+.05,R(i+11)*.8+.15,'#67a748');
       const fc=['#f6f2e4','#f2d24b','#e08ab8'][vr];
       for(let i=0;i<3;i++){const fx=.2+R(i+40)*.6,fy=.2+R(i+50)*.6;
         dot(fx,fy,.06,fc);dot(fx,fy,.025,'#e8b04a');}break;}
@@ -408,6 +408,20 @@ function renderChunk(c){
         c.trees.push({x:gx*TILE+12,y:gy*TILE+12,t:T_ROCK,s:hashi(gx,gy,NS+810)});
     }
   }
+  /* soft organic mottling breaks the tile grid up into ground */
+  const SOFT={[T_GRASS]:1,[T_MEADOW]:1,[T_FGRASS]:1,[T_SWAMP]:1,[T_DESERT]:2,[T_SAND]:2,[T_SNOW]:3,[T_ASH]:4};
+  for(let i=0;i<10;i++){
+    const hx=hashi(c.cx*9+i,c.cy*3+i,NS+606)%CHUNK,hy=hashi(c.cx*3,c.cy*9+i*5,NS+607)%CHUNK;
+    const f=SOFT[c.tiles[hx+hy*CHUNK]];
+    if(!f)continue;
+    const h=h01(c.cx*CHUNK+hx,c.cy*CHUNK+hy,NS+608+i);
+    const rx=ACELL*(1.2+h*2),ry=rx*(.5+h*.35);
+    g.fillStyle=f===2?((i%2)?'rgba(255,250,230,.06)':'rgba(120,80,30,.06)')
+      :f===3?((i%2)?'rgba(255,255,255,.09)':'rgba(120,140,170,.06)')
+      :f===4?((i%2)?'rgba(200,190,200,.05)':'rgba(0,0,0,.08)')
+      :((i%2)?'rgba(255,255,215,.05)':'rgba(15,40,8,.08)');
+    g.beginPath();g.ellipse((hx+.5)*ACELL,(hy+.5)*ACELL,rx,ry,(h*4)%TAU,0,TAU);g.fill();
+  }
   g.strokeStyle='rgba(255,255,255,.28)';g.lineWidth=ACELL*.06;g.lineCap='round';
   for(let y=0;y<CHUNK;y++)for(let x=0;x<CHUNK;x++){
     const tx=c.cx*CHUNK+x,ty=c.cy*CHUNK+y;
@@ -423,45 +437,55 @@ function renderChunk(c){
 }
 
 /* visible standing trees, gathered from rendered chunks */
-function treesInView(hw,hh){
+function treesInView(){
   const out=[];
-  const c0x=clamp(Math.floor((G.cam.x-hw)/(TILE*CHUNK)),0,NCH-1),
-        c1x=clamp(Math.floor((G.cam.x+hw)/(TILE*CHUNK)),0,NCH-1),
-        c0y=clamp(Math.floor((G.cam.y-hh)/(TILE*CHUNK)),0,NCH-1),
-        c1y=clamp(Math.floor((G.cam.y+hh)/(TILE*CHUNK)),0,NCH-1);
+  const R=(G.cullR||900)+60;
+  const c0x=clamp(Math.floor((G.cam.x-R)/(TILE*CHUNK)),0,NCH-1),
+        c1x=clamp(Math.floor((G.cam.x+R)/(TILE*CHUNK)),0,NCH-1),
+        c0y=clamp(Math.floor((G.cam.y-R)/(TILE*CHUNK)),0,NCH-1),
+        c1y=clamp(Math.floor((G.cam.y+R)/(TILE*CHUNK)),0,NCH-1);
+  const W=cv.width,H=cv.height,MS=52*_M.S,MT=76*_M.S,MB=26*_M.S;
   for(let cy=c0y;cy<=c1y;cy++)for(let cx=c0x;cx<=c1x;cx++){
     const c=G.chunks.get(chunkKey(cx,cy));
     if(!c||!c.trees)continue;
-    for(const t of c.trees)
-      if(Math.abs(t.x-G.cam.x)<hw&&Math.abs(t.y-G.cam.y)<hh)out.push(t);
+    for(const t of c.trees){
+      const qx=_M.a*t.x+_M.c*t.y+_M.e,qy=_M.b*t.x+_M.d*t.y+_M.f;
+      if(qx>-MS&&qx<W+MS&&qy>-MT&&qy<H+MB)out.push(t);
+    }
   }
   return out;
 }
 /* ---- world drawing (called inside camera transform) ---- */
 function drawWorld(){
-  const hw=VW/2/ZM+TILE,hh=VH/2/(ZM*G.tilt)+TILE;
-  const c0x=clamp(Math.floor((G.cam.x-hw)/(TILE*CHUNK)),0,NCH-1),
-        c1x=clamp(Math.floor((G.cam.x+hw)/(TILE*CHUNK)),0,NCH-1),
-        c0y=clamp(Math.floor((G.cam.y-hh)/(TILE*CHUNK)),0,NCH-1),
-        c1y=clamp(Math.floor((G.cam.y+hh)/(TILE*CHUNK)),0,NCH-1);
+  const R=G.cullR||900,R2=R*R,CW=TILE*CHUNK;
+  const c0x=clamp(Math.floor((G.cam.x-R)/CW),0,NCH-1),
+        c1x=clamp(Math.floor((G.cam.x+R)/CW),0,NCH-1),
+        c0y=clamp(Math.floor((G.cam.y-R)/CW),0,NCH-1),
+        c1y=clamp(Math.floor((G.cam.y+R)/CW),0,NCH-1);
   let budget=2;
   for(let cy=c0y;cy<=c1y;cy++)for(let cx=c0x;cx<=c1x;cx++){
+    const nx=clamp(G.cam.x,cx*CW,cx*CW+CW)-G.cam.x,ny=clamp(G.cam.y,cy*CW,cy*CW+CW)-G.cam.y;
+    if(nx*nx+ny*ny>R2)continue;
     const c=getChunk(cx,cy);
     if(!c.canvas&&budget>0){renderChunk(c);budget--;}
-    if(c.canvas)
+    if(c.canvas) /* +.6 bleed hides sub-pixel seams between chunk canvases */
       ctx.drawImage(c.canvas,0,0,c.canvas.width,c.canvas.height,
-        cx*CHUNK*TILE,cy*CHUNK*TILE,CHUNK*TILE,CHUNK*TILE);
+        cx*CHUNK*TILE,cy*CHUNK*TILE,CHUNK*TILE+.6,CHUNK*TILE+.6);
     else{ctx.fillStyle=COLB[c.tiles[136]];
       ctx.fillRect(cx*CHUNK*TILE,cy*CHUNK*TILE,CHUNK*TILE,CHUNK*TILE);}
   }
   // animated water shimmer + ambient tile fx over the static cache
-  const t0x=clamp(Math.floor((G.cam.x-hw)/TILE),0,WORLD-1),
-        t1x=clamp(Math.floor((G.cam.x+hw)/TILE),0,WORLD-1),
-        t0y=clamp(Math.floor((G.cam.y-hh)/TILE),0,WORLD-1),
-        t1y=clamp(Math.floor((G.cam.y+hh)/TILE),0,WORLD-1);
   if(!G.lowfx){
     ctx.strokeStyle='rgba(255,255,255,.16)';ctx.lineWidth=1.6;ctx.lineCap='round';
-    for(let ty=t0y;ty<=t1y;ty++)for(let tx=t0x;tx<=t1x;tx++){
+    const t0y=clamp(Math.floor((G.cam.y-R)/TILE),0,WORLD-1),
+          t1y=clamp(Math.floor((G.cam.y+R)/TILE),0,WORLD-1);
+    for(let ty=t0y;ty<=t1y;ty++){
+      const dy=ty*TILE+12-G.cam.y,rem=R2-dy*dy;
+      if(rem<0)continue;
+      const dxm=Math.sqrt(rem);
+      const t0x=clamp(Math.floor((G.cam.x-dxm)/TILE),0,WORLD-1),
+            t1x=clamp(Math.floor((G.cam.x+dxm)/TILE),0,WORLD-1);
+      for(let tx=t0x;tx<=t1x;tx++){
       const h=(tx*31+ty*17)%7;
       const t=tileAt(tx,ty);
       if(WATERT(t)&&h===0){
@@ -474,6 +498,7 @@ function drawWorld(){
         ctx.beginPath();ctx.arc(tx*TILE+12,ty*TILE+14-ph*16,1.6,0,TAU);ctx.fill();
         ctx.fillStyle='rgba(255,255,255,.16)';
       }
+      }
     }
   }
 }
@@ -481,23 +506,24 @@ function drawWorld(){
 function drawBeams(){
   if(G.inDun)return;
   ctx.save();ctx.globalCompositeOperation='lighter';
-  const draw=(x,y,col,w,hgt,a)=>{
-    const py=PY(y);
-    const gr=ctx.createLinearGradient(0,py-hgt,0,py);
+  const draw=(x,y,lift,col,w,hgt,a)=>{
+    uprightAt(x,y);
+    const b=y-lift;
+    const gr=ctx.createLinearGradient(0,b-hgt,0,b);
     gr.addColorStop(0,'rgba(0,0,0,0)');gr.addColorStop(1,col);
     ctx.globalAlpha=a;ctx.fillStyle=gr;
-    ctx.fillRect(x-w/2,py-hgt,w,hgt);ctx.globalAlpha=1;};
+    ctx.fillRect(x-w/2,b-hgt,w,hgt);ctx.globalAlpha=1;};
   for(const p of POIS){
     const x=p.tx*TILE+12,y=p.ty*TILE+6;
     const d=hyp(x-G.cam.x,y-G.cam.y);
     if(d>1500)continue;
-    if(p.k==='tower')draw(x,y-40,flag('tower:'+p.id)?'rgba(120,190,255,.30)':'rgba(255,150,60,.45)',10,300,.8);
-    else if(p.k==='shrine'&&!flag('shrine:'+p.id))draw(x,y,'rgba(110,190,255,.4)',7,170,.75);
+    if(p.k==='tower')draw(x,y,40,flag('tower:'+p.id)?'rgba(120,190,255,.30)':'rgba(255,150,60,.45)',10,300,.8);
+    else if(p.k==='shrine'&&!flag('shrine:'+p.id))draw(x,y,0,'rgba(110,190,255,.4)',7,170,.75);
   }
   for(const t of questTargets()){
     const x=t.x,y=t.y,d=hyp(x-G.cam.x,y-G.cam.y);
     if(d>2200||d<60)continue;
-    draw(x,y,'rgba(255,214,110,.5)',8,260,.5+.2*Math.sin(G.vt*3));
+    draw(x,y,0,'rgba(255,214,110,.5)',8,260,.5+.2*Math.sin(G.vt*3));
   }
   ctx.restore();
 }

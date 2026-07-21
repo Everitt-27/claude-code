@@ -902,6 +902,7 @@ function updPlayer(dt){
   if(keys.a||keys.arrowleft)mx-=1;if(keys.d||keys.arrowright)mx+=1;
   if(keys.w||keys.arrowup)my-=1;if(keys.s||keys.arrowdown)my+=1;
   const ml=hyp(mx,my);if(ml>1){mx/=ml;my/=ml;}
+  {const wv=unrotD(mx,my);mx=wv.x;my=wv.y;} // stick/keys point in screen space; the world is rotated under it
   const moving=ml>.12;
   const runnerMod=hasSkill('runner')?.7:1;
   const sprint=inp.rH&&(G.vt-inp.rT)>.22&&moving&&!p.exh&&!p.swim&&!p.climb&&!p.mount&&p.st>0;

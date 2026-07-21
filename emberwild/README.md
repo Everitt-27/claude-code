@@ -70,16 +70,24 @@ with four minibosses, a 3-phase final boss, and an ending that heals the map.
   upward, **origins** at creation (Warrior/Rogue/Sorcerer), an optional
   **Hardcore** mode where death erases the save, plus gambling and gear
   vendoring at Zef's.
-- **2.5D tilted-camera view** — the ground plane is projected on a downward tilt
-  (Diablo/BG3-style) rather than flat top-down. Trees, cacti, buildings, props,
-  monsters and heroes are lifted off the baked ground into upright billboards that
-  stand on the tilted floor, cast contact shadows, and depth-sort against each
-  other, so forests become woods you walk *through* and villages have buildings
-  that rise toward the camera. Rocky highlands rise as fields of stone crags and
-  boulders; cave mouths are arched openings in standing rock outcrops; and the
-  wildlife (boar, deer, wolves) are drawn as shaded 3/4 quadrupeds that stand and
-  walk on the ground rather than top-down. Dungeon torchlight and darkness track
-  the same projection.
+- **Diablo camera** — a true isometric-style projection: the ground plane is
+  rotated 45° into a diamond grid *and* tilted down, exactly the angle Diablo
+  and BG3 shoot from, so roads, rivers, coasts and dungeon rooms all run
+  diagonally instead of screen-parallel. Trees, cacti, buildings, props,
+  monsters and heroes stand upright on that projected floor, cast offset
+  directional shadows, and depth-sort along the camera diagonal; movement input
+  is screen-relative (push up = walk into the scene) while combat stays true to
+  the world underneath. The camera sits low and close (heroes ~7% of screen
+  height, scaled up 12%), a cached **personal light radius** vignettes the
+  world away from the hero by day and closes right in at night, and the ground
+  itself is de-gridded — meadow tiles share one grass base and every chunk is
+  baked with soft organic mottling — so the world reads as terrain, not tiles.
+  Rocky highlands rise as fields of stone crags; cave mouths are arched
+  openings in standing outcrops; wildlife are shaded 3/4 quadrupeds. Dungeon
+  floors render as floating lamplit diamonds in the dark — the classic Diablo
+  look — with torchlight and darkness tracking the same projection. World AoE
+  telegraphs (boss slams, frost rings, bow lines) are drawn as ground-true
+  ellipses through the projection, so what you see is what gets hit.
 - **Articulated characters** — an adult-proportioned rig (roughly 1:6 head-to-body,
   broad shoulders tapering to the hips) built on two-bone inverse-kinematics limbs
   with real knees and elbows and shaded, cylindrical volumes. A natural gait drives
@@ -110,4 +118,6 @@ horse and boat mounts, fishing, contextual button states, save round-trips and
 v1 migration — plus the Diablo layer: affix/rarity/unique loot rolls, gear stat
 bonuses, potion quick-use, elite modifiers, a full barrow run (descend two floors,
 portal to town and back, walk out), hero levels, vendoring, origins, and hardcore
-erasure — **70 checks, all passing, zero console errors**, ~17 ms/frame.
+erasure — **70 checks, all passing, zero console errors**, ~17 ms/frame steady
+after the adaptive-quality ramp (slow devices are auto-detected within ~3 s and
+dropped to a lighter render path).

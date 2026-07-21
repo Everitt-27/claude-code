@@ -231,15 +231,20 @@ function usePotion(){
 }
 /* ---- darkness + torchlight: the dungeon render pass ---- */
 function drawDun(){
-  const hw=VW/2/ZM+TILE,hh=VH/2/(ZM*G.tilt)+TILE;
-  const t0x=clamp(Math.floor((G.cam.x-hw)/TILE),0,DUNW-1),
-        t1x=clamp(Math.floor((G.cam.x+hw)/TILE),0,DUNW-1),
-        t0y=clamp(Math.floor((G.cam.y-hh)/TILE),0,DUNW-1),
-        t1y=clamp(Math.floor((G.cam.y+hh)/TILE),0,DUNW-1);
-  for(let ty=t0y;ty<=t1y;ty++)for(let tx=t0x;tx<=t1x;tx++){
-    const t=dunTileAt(tx,ty);
-    const v=hashi(tx,ty,G.dun.seed)%3;
-    ctx.drawImage(G.atlas,(t*3+v)*ACELL,0,ACELL,ACELL,tx*TILE,ty*TILE,TILE,TILE);
+  const R=G.cullR||900,R2=R*R;
+  const t0y=clamp(Math.floor((G.cam.y-R)/TILE),0,DUNW-1),
+        t1y=clamp(Math.floor((G.cam.y+R)/TILE),0,DUNW-1);
+  for(let ty=t0y;ty<=t1y;ty++){
+    const dy=ty*TILE+12-G.cam.y,rem=R2-dy*dy;
+    if(rem<0)continue;
+    const dxm=Math.sqrt(rem);
+    const t0x=clamp(Math.floor((G.cam.x-dxm)/TILE),0,DUNW-1),
+          t1x=clamp(Math.floor((G.cam.x+dxm)/TILE),0,DUNW-1);
+    for(let tx=t0x;tx<=t1x;tx++){
+      const t=dunTileAt(tx,ty);
+      const v=hashi(tx,ty,G.dun.seed)%3;
+      ctx.drawImage(G.atlas,(t*3+v)*ACELL,0,ACELL,ACELL,tx*TILE,ty*TILE,TILE,TILE);
+    }
   }
 }
 let lightCv=null,lightG=null;
@@ -250,7 +255,7 @@ function dunLight(){
   if(lightCv.width!==cv.width||lightCv.height!==cv.height){
     lightCv.width=cv.width;lightCv.height=cv.height;}
   const g=lightG;
-  const w2s=(x,y)=>({x:(x-G.cam.x)*ZM+VW/2,y:(y-G.cam.y)*ZM*G.tilt+VH/2});
+  const w2s=(x,y)=>projC(x,y);
   g.setTransform(DPR,0,0,DPR,0,0);
   g.clearRect(0,0,VW,VH);
   g.fillStyle='rgba(4,3,8,.88)';
