@@ -1,6 +1,6 @@
 # Emberwild — a tale of the shattered crown
 
-A seamless open-world action-RPG in a single ~275 KB HTML file. Runs on iPhone
+A seamless open-world action-RPG in a single ~280 KB HTML file. Runs on iPhone
 (Safari / Add to Home Screen), desktop browsers, and inside a claude.ai Artifact.
 No assets, no dependencies, no network, no load screens. BOTW-style world and art,
 Diablo/Baldur's-Gate-style character growth, loot, and company.
@@ -75,8 +75,11 @@ with four minibosses, a 3-phase final boss, and an ending that heals the map.
   monsters and heroes are lifted off the baked ground into upright billboards that
   stand on the tilted floor, cast contact shadows, and depth-sort against each
   other, so forests become woods you walk *through* and villages have buildings
-  that rise toward the camera. Dungeon torchlight and darkness track the same
-  projection.
+  that rise toward the camera. Rocky highlands rise as fields of stone crags and
+  boulders; cave mouths are arched openings in standing rock outcrops; and the
+  wildlife (boar, deer, wolves) are drawn as shaded 3/4 quadrupeds that stand and
+  walk on the ground rather than top-down. Dungeon torchlight and darkness track
+  the same projection.
 - **Articulated characters** — an adult-proportioned rig (roughly 1:6 head-to-body,
   broad shoulders tapering to the hips) built on two-bone inverse-kinematics limbs
   with real knees and elbows and shaded, cylindrical volumes. A natural gait drives

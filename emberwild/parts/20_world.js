@@ -401,8 +401,12 @@ function renderChunk(c){
     if(TREET(t)){
       g.drawImage(G.atlas,(TREESUB[t]*3+v)*ACELL,0,ACELL,ACELL,x*ACELL,y*ACELL,ACELL,ACELL);
       c.trees.push({x:gx*TILE+12,y:gy*TILE+12,t,s:hashi(gx,gy,NS+808)});
-    }else
+    }else{
       g.drawImage(G.atlas,(t*3+v)*ACELL,0,ACELL,ACELL,x*ACELL,y*ACELL,ACELL,ACELL);
+      // rocky highland relief: crags rise off a subset of rock tiles
+      if(t===T_ROCK&&hashi(gx,gy,NS+909)%100<38)
+        c.trees.push({x:gx*TILE+12,y:gy*TILE+12,t:T_ROCK,s:hashi(gx,gy,NS+810)});
+    }
   }
   g.strokeStyle='rgba(255,255,255,.28)';g.lineWidth=ACELL*.06;g.lineCap='round';
   for(let y=0;y<CHUNK;y++)for(let x=0;x<CHUNK;x++){
