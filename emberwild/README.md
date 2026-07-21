@@ -2,8 +2,9 @@
 
 A seamless open-world action-RPG in a single ~280 KB HTML file. Runs on iPhone
 (Safari / Add to Home Screen), desktop browsers, and inside a claude.ai Artifact.
-No assets, no dependencies, no network, no load screens. BOTW-style world and art,
-Diablo/Baldur's-Gate-style character growth, loot, and company.
+No assets, no dependencies, no network, no load screens. A BOTW-scale open world
+wearing Diablo's skin: grim palette, gothic HUD, and Diablo/Baldur's-Gate-style
+character growth, loot, and company.
 
 ## Play it
 
@@ -88,6 +89,20 @@ with four minibosses, a 3-phase final boss, and an ending that heals the map.
   look — with torchlight and darkness tracking the same projection. World AoE
   telegraphs (boss slams, frost rings, bow lines) are drawn as ground-true
   ellipses through the projection, so what you see is what gets hit.
+- **Diablo presentation** — the whole frame is art-directed after Diablo IV.
+  The world is graded grim: olive-grey grass, murky water, mud roads, muted
+  woods, a cold ash wash over the frame, and long diagonal shadows under every
+  tree, wall and body. Characters wear weathered materials — moss cloth,
+  oxblood leather, dark iron — layered with belt tassets, fur mantles on heavy
+  armor, and war paint. The HUD is the classic layout: a liquid **health orb**
+  and resource orb (mana, or stamina before your first spell) flanking a
+  notched gold **XP bar** with hero level, gothic dark-metal **skill buttons**
+  with gold serif labels, a live **parchment minimap** in a gilt frame (tap it
+  for the full map; below ground it becomes the barrow floor plan), a serif
+  **zone name · day · clock** row, a gold **quest tracker** (title + goal, like
+  a D4 sidebar), and **party frames** — portrait, name, red health bar — for
+  every companion. Dialogue, toasts, titles, and damage numbers all speak the
+  same gold-on-parchment gothic serif.
 - **Articulated characters** — an adult-proportioned rig (roughly 1:6 head-to-body,
   broad shoulders tapering to the hips) built on two-bone inverse-kinematics limbs
   with real knees and elbows and shaded, cylindrical volumes. A natural gait drives

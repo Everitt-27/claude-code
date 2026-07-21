@@ -40,8 +40,8 @@ const T_DEEP=0,T_WATER=1,T_SAND=2,T_GRASS=3,T_MEADOW=4,T_FGRASS=5,T_TREE=6,T_ROC
 const SOLIDT=id=>id===T_TREE||id===T_STREE||id===T_CACTUS||id===T_DWALL;
 const WATERT=id=>id===T_DEEP||id===T_WATER||id===T_SWATER;
 const CLIMBT=id=>id===T_ROCK;
-const COLB=['#24486b','#3f7fae','#e8d29a','#79b855','#8cc463','#4f9147','#2f6d3a','#8d8577',
-  '#e9eff4','#5d7a52','#e3bd77','#8ba055','#64794b','#4a6357','#6f6468','#6d4a85','#c9b48f','#a8a29a','#241f28'];
+const COLB=['#2e4750','#4a6b76','#cfc096','#7d885a','#7d885a','#586741','#3d5537','#8d8577',
+  '#dfe6ea','#557a52','#c3a271','#7e9152','#5b6b45','#43594e','#6f6468','#6d4a85','#b3a180','#a8a29a','#241f28'];
 
 /* ---- weapons: diverse types; instances carry durability + upgrades ---- */
 const WPN={
@@ -116,11 +116,11 @@ const wSpdOf=i=>wDef(i).spd*(1+affix(i,'spd'));
 const wKbOf=i=>wDef(i).kb+affix(i,'kb');
 
 const ARM={
-  cloth:{n:'Traveler Cloth',def:0,c:'#3f8f8a',c2:'#2d6a66',tier:0},
-  leather:{n:'Leather Jerkin',def:1,c:'#8a6b4a',c2:'#6f5638',tier:1},
-  mail:{n:'Soldier Mail',def:2,c:'#8a95a5',c2:'#5c6a7a',tier:2},
-  plate:{n:'Knight Plate',def:3,c:'#c8d3dd',c2:'#9aa8b8',helm:1,tier:3},
-  emberplate:{n:'Ember Plate',def:4,c:'#4a4250',c2:'#e8894a',helm:1,tier:4}};
+  cloth:{n:'Traveler Cloth',def:0,c:'#5d6b45',c2:'#42402c',tier:0},
+  leather:{n:'Leather Jerkin',def:1,c:'#6e4534',c2:'#49301f',tier:1},
+  mail:{n:'Soldier Mail',def:2,c:'#77828f',c2:'#4f5a66',fur:1,tier:2},
+  plate:{n:'Knight Plate',def:3,c:'#9fabb8',c2:'#6b7886',helm:1,fur:1,tier:3},
+  emberplate:{n:'Ember Plate',def:4,c:'#3a3440',c2:'#c8763c',helm:1,fur:1,tier:4}};
 const aDef=i=>(i&&ARM[i.k])?ARM[i.k]:ARM.cloth;
 
 const MATS={wood:{n:'Wood',c:'#8a6b4a'},ore:{n:'Iron Ore',c:'#8d95a5'},leather:{n:'Leather',c:'#a8724a'}};
