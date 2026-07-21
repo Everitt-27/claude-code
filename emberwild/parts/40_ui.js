@@ -718,7 +718,7 @@ function drawHUD(){
     ctx.fillText('⚠ '+wDef(m).n+' failing',16,cy+18);
   }
   if(p.st<p.maxst-.5||p.exh){
-    const sx=(p.x-G.cam.x)*ZM+VW/2,sy=(p.y-G.cam.y)*ZM+VH/2-36;
+    const sx=(p.x-G.cam.x)*ZM+VW/2,sy=(p.y-G.cam.y)*ZM*G.tilt+VH/2-40;
     ctx.lineWidth=4.5;ctx.lineCap='round';
     ctx.strokeStyle='rgba(16,14,13,.45)';
     ctx.beginPath();ctx.arc(sx,sy,15,0,TAU);ctx.stroke();
@@ -824,11 +824,14 @@ function render(vdt){
   ctx.fillStyle='#0c0b0a';ctx.fillRect(0,0,cv.width,cv.height);
   if(!G.p||!SP){return;}
   if(G.mode==='intro'){ctx.setTransform(DPR,0,0,DPR,0,0);drawIntro();return;}
-  const S=ZM*DPR;
+  const S=ZM*DPR,T=G.tilt;
   const shx=(Math.random()-.5)*G.shake*DPR,shy=(Math.random()-.5)*G.shake*DPR;
-  ctx.setTransform(S,0,0,S,cv.width/2-G.cam.x*S+shx,cv.height/2-G.cam.y*S+shy);
+  // ground pass — the floor plane, squashed vertically so it recedes
+  ctx.setTransform(S,0,0,S*T,cv.width/2-G.cam.x*S+shx,cv.height/2-G.cam.y*S*T+shy);
   if(G.inDun)drawDun();else drawWorld();
   drawTrial();
+  // upright pass — sprites drawn at full height, anchored onto the tilted floor
+  ctx.setTransform(S,0,0,S,cv.width/2-G.cam.x*S+shx,cv.height/2-G.cam.y*S+shy);
   drawDrops();
   drawEnts();
   drawPr();
@@ -926,7 +929,7 @@ function bindInputs(){
   cv.addEventListener('pointerdown',e=>{
     if(e.pointerType==='mouse'&&G.mode==='play'){
       ensureAC();
-      const wx=(e.clientX-VW/2)/ZM+G.cam.x,wy=(e.clientY-VH/2)/ZM+G.cam.y;
+      const wx=(e.clientX-VW/2)/ZM+G.cam.x,wy=(e.clientY-VH/2)/(ZM*G.tilt)+G.cam.y;
       G.p.face=angTo(G.p.x,G.p.y,wx,wy);
       inp.aP=true;inp.aH=true;
     }

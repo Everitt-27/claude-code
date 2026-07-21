@@ -386,14 +386,23 @@ function tileArt(g,id,vr,X,Y,s){
   }
   g.restore();
 }
+/* tall tiles become upright billboards over substitute ground */
+const TREESUB={[T_TREE]:T_GRASS,[T_STREE]:T_SNOW,[T_CACTUS]:T_DESERT};
+const TREET=id=>id===T_TREE||id===T_STREE||id===T_CACTUS;
 function renderChunk(c){
   const px=CHUNK*ACELL;
   const cnv=document.createElement('canvas');cnv.width=px;cnv.height=px;
   const g=cnv.getContext('2d');
+  c.trees=[];
   for(let y=0;y<CHUNK;y++)for(let x=0;x<CHUNK;x++){
     const t=c.tiles[x+y*CHUNK];
-    const v=hashi(c.cx*CHUNK+x,c.cy*CHUNK+y,NS+201)%3;
-    g.drawImage(G.atlas,(t*3+v)*ACELL,0,ACELL,ACELL,x*ACELL,y*ACELL,ACELL,ACELL);
+    const gx=c.cx*CHUNK+x,gy=c.cy*CHUNK+y;
+    const v=hashi(gx,gy,NS+201)%3;
+    if(TREET(t)){
+      g.drawImage(G.atlas,(TREESUB[t]*3+v)*ACELL,0,ACELL,ACELL,x*ACELL,y*ACELL,ACELL,ACELL);
+      c.trees.push({x:gx*TILE+12,y:gy*TILE+12,t,s:hashi(gx,gy,NS+808)});
+    }else
+      g.drawImage(G.atlas,(t*3+v)*ACELL,0,ACELL,ACELL,x*ACELL,y*ACELL,ACELL,ACELL);
   }
   g.strokeStyle='rgba(255,255,255,.28)';g.lineWidth=ACELL*.06;g.lineCap='round';
   for(let y=0;y<CHUNK;y++)for(let x=0;x<CHUNK;x++){
@@ -409,9 +418,24 @@ function renderChunk(c){
   freeCanvases();
 }
 
+/* visible standing trees, gathered from rendered chunks */
+function treesInView(hw,hh){
+  const out=[];
+  const c0x=clamp(Math.floor((G.cam.x-hw)/(TILE*CHUNK)),0,NCH-1),
+        c1x=clamp(Math.floor((G.cam.x+hw)/(TILE*CHUNK)),0,NCH-1),
+        c0y=clamp(Math.floor((G.cam.y-hh)/(TILE*CHUNK)),0,NCH-1),
+        c1y=clamp(Math.floor((G.cam.y+hh)/(TILE*CHUNK)),0,NCH-1);
+  for(let cy=c0y;cy<=c1y;cy++)for(let cx=c0x;cx<=c1x;cx++){
+    const c=G.chunks.get(chunkKey(cx,cy));
+    if(!c||!c.trees)continue;
+    for(const t of c.trees)
+      if(Math.abs(t.x-G.cam.x)<hw&&Math.abs(t.y-G.cam.y)<hh)out.push(t);
+  }
+  return out;
+}
 /* ---- world drawing (called inside camera transform) ---- */
 function drawWorld(){
-  const hw=VW/2/ZM+TILE,hh=VH/2/ZM+TILE;
+  const hw=VW/2/ZM+TILE,hh=VH/2/(ZM*G.tilt)+TILE;
   const c0x=clamp(Math.floor((G.cam.x-hw)/(TILE*CHUNK)),0,NCH-1),
         c1x=clamp(Math.floor((G.cam.x+hw)/(TILE*CHUNK)),0,NCH-1),
         c0y=clamp(Math.floor((G.cam.y-hh)/(TILE*CHUNK)),0,NCH-1),
@@ -454,10 +478,11 @@ function drawBeams(){
   if(G.inDun)return;
   ctx.save();ctx.globalCompositeOperation='lighter';
   const draw=(x,y,col,w,hgt,a)=>{
-    const gr=ctx.createLinearGradient(0,y-hgt,0,y);
+    const py=PY(y);
+    const gr=ctx.createLinearGradient(0,py-hgt,0,py);
     gr.addColorStop(0,'rgba(0,0,0,0)');gr.addColorStop(1,col);
     ctx.globalAlpha=a;ctx.fillStyle=gr;
-    ctx.fillRect(x-w/2,y-hgt,w,hgt);ctx.globalAlpha=1;};
+    ctx.fillRect(x-w/2,py-hgt,w,hgt);ctx.globalAlpha=1;};
   for(const p of POIS){
     const x=p.tx*TILE+12,y=p.ty*TILE+6;
     const d=hyp(x-G.cam.x,y-G.cam.y);

@@ -340,6 +340,13 @@ const store={
 const $=id=>document.getElementById(id);
 const ew=$('ew'), cv=$('cv'), ctx=cv.getContext('2d');
 let VW=320,VH=568,DPR=1,ZM=1,SCL=2,CS=2;
+/* 2.5D projection: the ground plane is tilted (Y-squashed) so the camera
+   reads as angled down like Diablo/BG3; upright sprites stand on it. */
+G.tilt=0.62;
+function PY(y){return G.cam.y+(y-G.cam.y)*G.tilt;}    // world Y → tilted-ground world Y
+function projDY(y){return PY(y)-y;}                    // translate delta for an upright anchor
+/* run an upright draw so its feet land on the tilted ground at world-Y `y` */
+function upright(y,fn){ctx.save();ctx.translate(0,projDY(y));fn();ctx.restore();}
 
 const inp={mx:0,my:0,aP:false,aH:false,aR:false,rP:false,rH:false,rT:0,
   bowH:false,bowR:false,bombP:false,intP:false,spellP:false,potP:false};
