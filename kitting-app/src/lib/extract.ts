@@ -4,10 +4,21 @@
 // go through OCR. Runs only in the browser.
 
 import * as pdfjs from "pdfjs-dist";
-// Vite resolves the worker to a URL so pdf.js runs off the main thread.
-import PdfWorker from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 
-pdfjs.GlobalWorkerOptions.workerSrc = PdfWorker;
+// In the default build, pdf.js runs off the main thread with a bundled worker.
+// In the single-file artifact build (sandboxed, no external requests) it runs on
+// the main thread instead so no worker asset or network fetch is needed.
+let workerReady = false;
+async function ensureWorker() {
+  if (workerReady) return;
+  workerReady = true;
+  if (!__ARTIFACT__) {
+    const mod = await import("pdfjs-dist/build/pdf.worker.min.mjs?url");
+    pdfjs.GlobalWorkerOptions.workerSrc = (mod as { default: string }).default;
+  } else {
+    pdfjs.GlobalWorkerOptions.workerSrc = "";
+  }
+}
 
 export interface ExtractionResult {
   text: string;
@@ -24,6 +35,11 @@ async function ocrCanvas(
   canvas: HTMLCanvasElement,
   onProgress?: ProgressFn,
 ): Promise<{ text: string; confidence: number }> {
+  if (__ARTIFACT__) {
+    throw new Error(
+      "On-device OCR isn’t available in this hosted preview (it needs to download a language model, which the sandbox blocks). Enter items manually, or use a text-based PDF / the batch library. The installable version supports photo OCR.",
+    );
+  }
   const Tesseract = await import("tesseract.js");
   const worker = await Tesseract.createWorker("eng", 1, {
     logger: (m: any) => {
@@ -54,6 +70,7 @@ export async function extractFromPdf(
   onProgress?: ProgressFn,
 ): Promise<ExtractionResult> {
   onProgress?.("Reading PDF…", 0.05);
+  await ensureWorker();
   const doc = await pdfjs.getDocument({ data }).promise;
   const pages = doc.numPages;
   let nativeText = "";
@@ -74,6 +91,12 @@ export async function extractFromPdf(
     return { text: nativeText, method: "pdf-text", confidence: 0.95, pages };
   }
 
+  if (__ARTIFACT__) {
+    // No OCR in the sandbox; return whatever native text exists (may be sparse)
+    // so the editable review screen can be completed manually.
+    return { text: nativeText, method: "pdf-text", confidence: 0.25, pages };
+  }
+
   // Scanned / image-only PDF -> OCR each page.
   let ocrText = "";
   let confSum = 0;
@@ -90,6 +113,7 @@ export async function extractFromPdf(
 
 /** Native PDF text only (no OCR) — used to index the batch library quickly. */
 export async function nativePdfText(data: ArrayBuffer): Promise<string> {
+  await ensureWorker();
   const doc = await pdfjs.getDocument({ data }).promise;
   let out = "";
   for (let p = 1; p <= doc.numPages; p++) {

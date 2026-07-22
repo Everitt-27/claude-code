@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:artifact": "tsc -b && vite build --mode artifact",
     "preview": "vite preview",
     "lint": "eslint . --max-warnings 0",
     "typecheck": "tsc -b --noEmit",
@@ -37,6 +38,7 @@
     "typescript": "^5.7.3",
     "vite": "^5.4.11",
     "vite-plugin-pwa": "^0.21.1",
+    "vite-plugin-singlefile": "^2.3.3",
     "vitest": "^2.1.8"
   }
 }

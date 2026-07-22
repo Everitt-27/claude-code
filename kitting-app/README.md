@@ -30,6 +30,18 @@ npm run lint       # eslint (0 warnings)
 npm run typecheck  # tsc project references
 ```
 
+## Build modes
+
+- `npm run build` — installable **PWA** (multi-chunk + service worker) for local
+  use or hosting. pdf.js runs in a worker; on-device OCR (tesseract.js) is
+  available for photo/scan Master Formulas.
+- `npm run build:artifact` (`vite build --mode artifact`) — one **self-contained
+  HTML file** for a sandboxed host (e.g. a claude.ai Artifact) with no external
+  requests. pdf.js runs on the main thread and photo-OCR is disabled (it would
+  need to fetch a language model, which the sandbox blocks); Master Formula
+  intake still works via text-PDF extraction, the batch library and manual entry,
+  and the Kit Form PDF opens in an in-app viewer with Download.
+
 ## Architecture
 
 ```

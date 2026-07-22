@@ -46,8 +46,13 @@ export function NewKitFlow({ onClose }: { onClose: () => void }) {
       setWarnings(parsed.warnings);
       setStep("review");
     } catch (e) {
-      pushToast({ message: `Extraction failed: ${(e as Error).message}`, kind: "error" });
-      setStep("source");
+      // In the sandbox OCR is unavailable; drop into manual review rather than
+      // bouncing back, so the user can key the formula in by hand.
+      pushToast({ message: (e as Error).message, kind: "info" });
+      setMethod("manual");
+      setConfidence(null);
+      setWarnings([(e as Error).message]);
+      setStep("review");
     }
   }
 

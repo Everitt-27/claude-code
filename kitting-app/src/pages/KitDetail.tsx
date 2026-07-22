@@ -49,6 +49,7 @@ export function KitDetail({ kitId }: { kitId: string }) {
   const [showEdit, setShowEdit] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
   const [busyExport, setBusyExport] = useState(false);
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
@@ -74,11 +75,22 @@ export function KitDetail({ kitId }: { kitId: string }) {
     reorderItems(kitId, arrayMove(order, oldIndex, newIndex));
   }
 
+  async function showInAppPdf() {
+    const { generateKitFormPdf } = await import("../lib/kitForm");
+    const bytes = await generateKitFormPdf(kit!);
+    const url = URL.createObjectURL(new Blob([bytes as BlobPart], { type: "application/pdf" }));
+    setPdfUrl(url);
+  }
   async function doPrint() {
     setBusyExport(true);
     try {
-      const { generateKitFormPdf } = await import("../lib/kitForm");
-      printPdf(await generateKitFormPdf(kit!));
+      // In the sandboxed hosted preview, window.open/iframe-print are blocked, so
+      // render the PDF in an in-app viewer; otherwise print the PDF directly.
+      if (__ARTIFACT__) await showInAppPdf();
+      else {
+        const { generateKitFormPdf } = await import("../lib/kitForm");
+        printPdf(await generateKitFormPdf(kit!));
+      }
     } finally {
       setBusyExport(false);
     }
@@ -86,8 +98,11 @@ export function KitDetail({ kitId }: { kitId: string }) {
   async function doPreview() {
     setBusyExport(true);
     try {
-      const { generateKitFormPdf } = await import("../lib/kitForm");
-      openPdf(await generateKitFormPdf(kit!));
+      if (__ARTIFACT__) await showInAppPdf();
+      else {
+        const { generateKitFormPdf } = await import("../lib/kitForm");
+        openPdf(await generateKitFormPdf(kit!));
+      }
     } finally {
       setBusyExport(false);
     }
@@ -97,7 +112,8 @@ export function KitDetail({ kitId }: { kitId: string }) {
     try {
       const { generateKitFormPdf } = await import("../lib/kitForm");
       const bytes = await generateKitFormPdf(kit!);
-      downloadBlob(bytes, `KitForm-${kit!.batch || kit!.id}.pdf`, "application/pdf");
+      if (__ARTIFACT__) await showInAppPdf();
+      else downloadBlob(bytes, `KitForm-${kit!.batch || kit!.id}.pdf`, "application/pdf");
     } finally {
       setBusyExport(false);
     }
@@ -197,6 +213,29 @@ export function KitDetail({ kitId }: { kitId: string }) {
 
       {showEdit && <EditKitSheet kit={kit} onClose={() => setShowEdit(false)} />}
       {showDelete && <DeleteKitSheet kit={kit} onClose={() => setShowDelete(false)} />}
+      {pdfUrl && (
+        <Sheet
+          title="Material & Packaging Kit Form"
+          onClose={() => {
+            URL.revokeObjectURL(pdfUrl);
+            setPdfUrl(null);
+          }}
+          footer={
+            <>
+              <a className="btn btn--primary" style={{ flex: 1 }} href={pdfUrl} download={`KitForm-${kit.batch || kit.id}.pdf`}>
+                Download PDF
+              </a>
+              <a className="btn" style={{ flex: 1 }} href={pdfUrl} target="_blank" rel="noreferrer">
+                Open in new tab
+              </a>
+            </>
+          }
+        >
+          <div style={{ height: "70vh" }}>
+            <iframe title="Kit Form preview" src={pdfUrl} style={{ width: "100%", height: "100%", border: "none" }} />
+          </div>
+        </Sheet>
+      )}
     </>
   );
 }
