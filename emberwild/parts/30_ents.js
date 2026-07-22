@@ -442,11 +442,80 @@ const NPCS={
   1:[{key:'wren',name:'Scholar Wren',ox:-28,oy:-12},{key:'holt',name:'Holt the Hunter',ox:30,oy:22}],
   2:[{key:'rhoa',name:'Captain Rhoa',ox:-30,oy:-14},{key:'zef',name:'Zef',ox:-14,oy:44},
      {key:'juno',name:'Juno',ox:32,oy:24}]};
-function spawnVilNPCs(poi){
-  for(const n of NPCS[poi.vi]||[]){
-    if(G.team.some(m=>m.key===n.key))continue;
-    mkE('npc',poi.tx*TILE+12+n.ox,poi.ty*TILE+12+n.oy,{key:n.key,name:n.name,vi:poi.vi,hp:999,mhp:999});
+/* occupations: every resident lives a day around theirs */
+const VILJOBS={elder:'elder',boro:'smith',pip:'child',sella:'merchant',
+  wren:'scholar',holt:'hunter',rhoa:'captain',zef:'merchant',juno:'child'};
+const VILNAMES=['Tam','Bryn','Odo','Mira','Fenn','Lark','Ivo','Nessa','Corb','Ryla','Dott','Hale','Wick','Sorrel','Petra','Aldous'];
+const JOBTITLE={farmer:'the Farmer',fisher:'the Fisher',guard:'of the Watch',wood:'the Woodcutter',herb:'the Herbalist'};
+const NPCSAY={
+  farmer:['These rows won\u0027t hoe themselves.','Rain would be welcome.','Good soil this year.'],
+  fisher:['They\u0027re biting slow.','The river keeps its own hours.','Caught a boot yesterday.'],
+  guard:['All quiet.','Keep to the lamps after dark.','The watch never sleeps.'],
+  wood:['Timber doesn\u0027t warn twice.','Good ash in the deepwood.'],
+  herb:['Yarrow, feverfew, thistle…','The meadow provides.'],
+  child:['Tag! You\u0027re it!','Have you fought a WOLF?','I\u0027m not tired!'],
+  merchant:['Fresh wares!','Everything\u0027s for sale. Almost.'],
+  smith:['Mind the sparks.','Iron keeps honest hours.'],
+  elder:['Bless the wild.','The fire remembers.'],
+  scholar:['Fascinating…','The old texts were right.'],
+  hunter:['Wind\u0027s from the north.','Tracks by the tree line.'],
+  captain:['Eyes up, wanderer.','Dunewatch stands.'],
+  villager:['Fair morning.','Mind the roads at night.']};
+const _TOOLS={};
+const jobTool=j=>_TOOLS[j]||(_TOOLS[j]=mkInst(j==='smith'?'hammer':(j==='wood'?'axe':'spear')));
+function vilWaterSpot(poi){
+  for(let r=6;r<40;r+=3)for(let a=0;a<14;a++){
+    const tx=Math.round(poi.tx+Math.cos(a/14*TAU)*r),ty=Math.round(poi.ty+Math.sin(a/14*TAU)*r);
+    if(WATERT(baseTileAt(tx,ty)))return{x:tx*TILE+12,y:ty*TILE+12};
   }
+  return null;
+}
+function spawnVilNPCs(poi){
+  const X=poi.tx*TILE+12,Y=poi.ty*TILE+12;
+  const homes=VHUTS.map(h=>({x:X+h[0],y:Y+h[1]+31}));
+  let hi=hashi(poi.tx,poi.ty,NS+701)%homes.length;
+  const water=vilWaterSpot(poi);
+  const add=(key,name,job,look,ox,oy)=>{
+    if(G.team.some(m=>m.key===key))return;
+    const e=mkE('npc',X+ox,Y+oy,{key,name,vi:poi.vi,hp:999,mhp:999,job,
+      home:homes[(hi++)%homes.length],cx:X,cy:Y,look});
+    switch(job){
+      case'elder':e.work={x:X,y:Y-58};break;
+      case'smith':e.work={x:X+46,y:Y-10};break;
+      case'merchant':e.work={x:X-4,y:Y+32};break;
+      case'scholar':e.work={x:X-26,y:Y-54};break;
+      case'captain':case'guard':e.work={x:X,y:Y};e.patrol=rnd(TAU);break;
+      case'hunter':case'wood':{const a=(hashi(poi.tx,key.length*7,NS+702)%628)/100;
+        e.work={x:X+Math.cos(a)*300,y:Y+Math.sin(a)*300};break;}
+      case'farmer':{const f=SP.fields[poi.vi];
+        e.work=f?{x:f.tx*TILE+12,y:f.ty*TILE+12}:{x:X+96,y:Y+74};break;}
+      case'fisher':
+        if(water){e.work={x:water.x-Math.sign(water.x-X)*26,y:water.y-Math.sign(water.y-Y)*26};e.fishSpot=water;}
+        else{e.job='wood';e.work={x:X+270,y:Y-130};}
+        break;
+      case'child':e.work={x:X,y:Y+12};break;
+      default:e.work={x:X,y:Y};
+    }
+    return e;
+  };
+  for(const n of NPCS[poi.vi]||[])add(n.key,n.name,VILJOBS[n.key]||'villager',null,n.ox,n.oy);
+  const JOBSETS=[['farmer','fisher','guard','guard','wood','herb','child'],
+                 ['farmer','guard','guard','wood','herb','child','fisher'],
+                 ['fisher','guard','guard','farmer','herb','child','wood']][poi.vi]||[];
+  const sp2=(h,arr)=>arr[Math.abs(h)%arr.length];
+  JOBSETS.forEach((job,i)=>{
+    const h=hashi(poi.tx*7+i,poi.ty+i*13,NS+703);
+    const nm=sp2(h,VILNAMES)+(JOBTITLE[job]?' '+JOBTITLE[job]:'');
+    const a=(h%628)/100,rr2=44+(h>>4)%56;
+    add('v'+poi.vi+'g'+i,nm,job,{
+      body:sp2(h,['#6a5a44','#5d6b45','#5f4232','#525f6e','#6a5578','#74604a','#4e5a50']),
+      hair:sp2(h>>3,['#3a2d22','#241c16','#6e4228','#7c6142','#9a8a72']),
+      skin:sp2(h>>6,['#d6ad84','#c69a70','#b8834f','#caa27b']),
+      size:job==='child'?.7:1,
+      hat:job==='farmer'?'#8a7448':null,
+      hood:job==='herb'?'#5d5f4a':null},
+      Math.cos(a)*rr2,Math.sin(a)*rr2);
+  });
 }
 function ensureTeam(){
   for(let i=0;i<G.team.length;i++){
@@ -511,14 +580,16 @@ function ensureSpawns(){
       if(e.camp){const c=G.camps.get(e.camp);if(c)c.spawned=false;}}
   }
   const night=G.dayT>.74||G.dayT<.03;
-  if(night&&Math.random()<.3){
-    const ns=G.ents.filter(e=>e.t==='skel'&&!e.dead).length;
-    if(ns<4){
-      const a=rnd(TAU),x=p.x+Math.cos(a)*330,y=p.y+Math.sin(a)*330;
+  if(night&&Math.random()<.35){
+    const ns=G.ents.filter(e=>e.t==='zombie'&&!e.dead).length;
+    if(ns<5){
+      const a=rnd(TAU),x=p.x+Math.cos(a)*rnd(260,360),y=p.y+Math.sin(a)*rnd(260,360);
       const t=tileAtPx(x,y);
       const nearVil=SP.vils.some(v=>hyp(x-v.tx*TILE,y-v.ty*TILE)<300);
-      if(!WATERT(t)&&!SOLIDT(t)&&!CLIMBT(t)&&!nearVil&&t!==T_BLIGHT&&t!==T_STONE)
-        mkE('skel',x,y,{aggro:true});
+      if(!WATERT(t)&&!SOLIDT(t)&&!CLIMBT(t)&&!nearVil&&t!==T_BLIGHT&&t!==T_STONE){
+        mkE('zombie',x,y,{aggro:true,rise:1,spd:46+hashi(Math.round(x),Math.round(y),3)%16});
+        if(Math.random()<.4)mkE('zombie',x+rnd(-44,44),y+rnd(-44,44),{aggro:true,rise:1.4,spd:46+hashi(Math.round(y),Math.round(x),5)%16});
+      }
     }
   }
   if(night&&Math.random()<.18){
@@ -529,7 +600,7 @@ function ensureSpawns(){
       if(t===T_FGRASS){mkE('wolf',x,y,{});mkE('wolf',x+30,y+16,{});}
     }
   }
-  const wild=G.ents.filter(e=>!e.dead&&!e.camp&&!e.trial&&e.t!=='npc'&&e.t!=='ally'&&e.t!=='warden'&&e.t!=='king'&&e.t!=='skel').length;
+  const wild=G.ents.filter(e=>!e.dead&&!e.camp&&!e.trial&&e.t!=='npc'&&e.t!=='ally'&&e.t!=='warden'&&e.t!=='king'&&e.t!=='skel'&&e.t!=='zombie').length;
   if(wild<6&&Math.random()<.4){
     const a=rnd(TAU),x=p.x+Math.cos(a)*400,y=p.y+Math.sin(a)*400;
     const t=tileAtPx(x,y);
@@ -585,8 +656,110 @@ function updEnt(e,dt){
   const edmg=v=>v+(e.elite?1:0);
   switch(e.t){
     case'npc':{
-      if(dp<60){e.vx=0;e.vy=0;e.face=angTo(e.x,e.y,p.x,p.y);}
-      else wander(e,dt,16);
+      if(!e.job){ // wanderers without a livelihood keep the old habits
+        if(dp<60){e.vx=0;e.vy=0;e.face=angTo(e.x,e.y,p.x,p.y);}
+        else wander(e,dt,16);
+        break;}
+      const t2=G.dayT;
+      const night=t2>.74||t2<.04, evening=!night&&t2>.62, dawn=t2>=.04&&t2<.12;
+      const guard=e.job==='guard'||e.job==='captain';
+      /* a passing hero outranks chores (but not sleep or a fight) */
+      if(dp<50&&!e.sleep&&!guard){
+        e.vx=0;e.vy=0;e.working=0;
+        e.face+=angDiff(e.face,angTo(e.x,e.y,p.x,p.y))*Math.min(1,dt*8);
+        if(e.greetCd===undefined)e.greetCd=rnd(3,14);
+        e.greetCd-=dt;
+        if(e.greetCd<=0&&dp<40){e.greetCd=rnd(30,70);
+          addFt(e.x,e.y-26,pick(NPCSAY[e.job]||NPCSAY.villager),'#e8dcc0');}
+        break;}
+      /* trouble near the village: guards close in, everyone else runs home */
+      let threat=null,tdd=1e9;
+      for(const f of G.ents){
+        if(f.dead||f.hp<=0||f.hidden||f.t==='npc'||f.t==='ally')continue;
+        if(f.t==='deer')continue;
+        if((f.t==='boar'||f.t==='blob')&&!f.aggro)continue;
+        if(hyp(f.x-e.cx,f.y-e.cy)>300)continue;
+        const de=hyp(f.x-e.x,f.y-e.y);
+        if(de<tdd){tdd=de;threat=f;}
+      }
+      if(threat&&!guard&&tdd<210&&!e.sleep){
+        const a=angTo(e.x,e.y,e.home.x,e.home.y);
+        e.face=a;e.vx=Math.cos(a)*84;e.vy=Math.sin(a)*84;e.working=0;
+        if(hyp(e.x-e.home.x,e.y-e.home.y)<15){e.sleep=1;e.hidden=true;e.vx=0;e.vy=0;}
+        break;
+      }
+      if(guard&&threat&&tdd<340){
+        const a=angTo(e.x,e.y,threat.x,threat.y);e.face=a;e.working=1;
+        if(e.st==='windup'){e.vx=0;e.vy=0;
+          if(e.tm<=0){e.st='swing';e.tm=.18;sfx('swing');
+            if(hyp(threat.x-e.x,threat.y-e.y)<46)damageE(threat,3,a,1.3);}}
+        else if(e.st==='swing'){if(e.tm<=0)e.st='idle';}
+        else if(tdd>36){e.vx=Math.cos(a)*92;e.vy=Math.sin(a)*92;}
+        else{e.vx=0;e.vy=0;
+          if(e.cd<=0){e.cd=1.2;e.st='windup';e.tm=.3;}}
+        break;
+      }
+      /* wake with the light */
+      if(e.sleep){
+        if(!night&&!(threat&&tdd<210)){e.sleep=0;e.hidden=false;e.x=e.home.x;e.y=e.home.y;
+          if(dp<420)addFt(e.x,e.y-24,'*yawn*','#cbbd9a');}
+        else break;
+      }
+      /* where the day says to be */
+      let tgt,act='walk';
+      if(guard){ // the watch never sleeps, only circles
+        e.patrol=(e.patrol||0)+dt*(night?.16:.12);
+        tgt={x:e.cx+Math.cos(e.patrol)*(night?128:156),y:e.cy+Math.sin(e.patrol)*(night?96:118)};
+      }else if(night){tgt=e.home;act='sleep';}
+      else if(evening){
+        if(!e.fireSpot){const h3=hashi(e.key.length*31+(e.home?e.home.x:0),7,NS+711);
+          const a3=(h3%628)/100;
+          e.fireSpot={x:e.cx+Math.cos(a3)*(26+h3%20),y:e.cy+8+Math.sin(a3)*(20+h3%14)};}
+        tgt=e.fireSpot;act='fire';
+      }else if(dawn){tgt={x:e.home.x,y:e.home.y-26};}
+      else if(e.job==='child'){
+        if(e.tm<=0||!e.play){e.tm=rnd(1.4,3);
+          e.play={x:e.cx+rnd(-92,92),y:e.cy+rnd(-70,84)};}
+        tgt=e.play;
+      }else if(e.job==='herb'){
+        if(!e.gath||e.tm<=0){e.tm=rnd(5,9);
+          const a4=rnd(TAU);e.gath={x:e.cx+Math.cos(a4)*rnd(150,270),y:e.cy+Math.sin(a4)*rnd(130,230)};}
+        tgt=e.gath;act='work';
+      }else{tgt=e.work;act='work';}
+      const td2=hyp(tgt.x-e.x,tgt.y-e.y);
+      if(td2>16){
+        const a=angTo(e.x,e.y,tgt.x,tgt.y);
+        e.face+=angDiff(e.face,a)*Math.min(1,dt*8);
+        const sp=e.job==='child'?66:(act==='sleep'?46:34);
+        e.vx=Math.cos(a)*sp;e.vy=Math.sin(a)*sp;
+        e.working=0;
+      }else{
+        e.vx*=.5;e.vy*=.5;
+        if(act==='sleep'){e.sleep=1;e.hidden=true;e.vx=0;e.vy=0;}
+        else if(act==='work'){
+          e.working=1;
+          e.wkT=(e.wkT||rnd(0,1))+dt;
+          const cyc=e.job==='smith'?1.1:1.5;
+          if(e.wkT>=cyc){e.wkT-=cyc;
+            if(dp<420){
+              if(e.job==='smith'){sfx('thud');spawnP(e.work.x+4,e.work.y-10,'#ffb35c',4,60,.4,1.6,true);}
+              else if(e.job==='farmer')spawnP(e.x+Math.cos(e.face)*10,e.y+6,'#8a7448',3,40,.4,1.5);
+              else if(e.job==='wood'){sfx('thud');spawnP(e.x+Math.cos(e.face)*12,e.y,'#b3a180',3,50,.4,1.5);}
+              else if(e.job==='herb')spawnP(e.x,e.y+4,'#8fce6a',2,30,.5,1.4,true);
+            }
+          }
+          if(e.job==='fisher'&&e.fishSpot)
+            e.face+=angDiff(e.face,angTo(e.x,e.y,e.fishSpot.x,e.fishSpot.y))*Math.min(1,dt*6);
+        }else{e.working=0;
+          if(act==='fire')e.face+=angDiff(e.face,angTo(e.x,e.y,e.cx,e.cy+8))*Math.min(1,dt*5);}
+      }
+      /* neighbourly murmurs */
+      if(e.working&&dp<300){
+        if(e.sayCd===undefined)e.sayCd=rnd(10,40);
+        e.sayCd-=dt;
+        if(e.sayCd<=0){e.sayCd=rnd(40,90);
+          addFt(e.x,e.y-26,pick(NPCSAY[e.job]||NPCSAY.villager),'#cbbd9a');}
+      }
       break;}
     case'ally':{
       if(e.down){
@@ -597,7 +770,7 @@ function updEnt(e,dt){
       let tgt=null,td=240;
       for(const f of G.ents){
         if(f.dead||f.t==='npc'||f.t==='ally'||f.hp<=0||f.hidden)continue;
-        if(!f.aggro&&f.t!=='skel')continue;
+        if(!f.aggro&&f.t!=='skel'&&f.t!=='zombie')continue;
         const dd=hyp(f.x-e.x,f.y-e.y);
         if(dd<td&&hyp(f.x-p.x,f.y-p.y)<340){td=dd;tgt=f;}
       }
@@ -725,6 +898,27 @@ function updEnt(e,dt){
           if(e.cd<=0&&dp<270&&dp>60){e.st='aim';e.tm=.65;}
         }
       }else wander(e,dt,30);
+      break;}
+    case'zombie':{
+      const day2=!G.inDun&&!(G.dayT>.72||G.dayT<.05);
+      if(day2){e.dead=true;spawnP(e.x,e.y,'#6a7a58',10,80,.5,2);break;}
+      if(e.rise>0){e.rise-=dt;e.vx=0;e.vy=0;
+        if(Math.random()<dt*16)spawnP(e.x+rnd(-9,9),e.y+7,'#4a4034',2,44,.5,1.9);
+        break;}
+      e.aggro=dp<(e.ag||380);
+      if(e.st==='grab'){
+        resolveEnemyStrike(e,e.r+p.r+4,1.1,edmg(2));
+        if(e.tm<=0){e.st='idle';e.cd=1.6;e.vx=0;e.vy=0;}}
+      else if(e.st==='windup'){e.vx*=.5;e.vy*=.5;e.face=angTo(e.x,e.y,p.x,p.y);
+        if(e.tm<=0){e.st='grab';e.tm=.35;
+          e.vx=Math.cos(e.face)*150;e.vy=Math.sin(e.face)*150;}}
+      else if(e.aggro){
+        const a=angTo(e.x,e.y,p.x,p.y)+Math.sin(G.vt*1.7+e.anim)*.28;
+        e.face=a;
+        const sp=(e.spd||d.spd)*(1+Math.sin(G.vt*2.3+e.anim*2)*.25);
+        e.vx=Math.cos(a)*sp;e.vy=Math.sin(a)*sp;
+        if(dp<50&&e.cd<=0){e.st='windup';e.tm=.5;}
+      }else wander(e,dt,16);
       break;}
     case'skel':{
       const day=!G.inDun&&!(G.dayT>.72||G.dayT<.05);
@@ -1228,7 +1422,7 @@ function findInteract(){
     if(dd<bd){bd=dd;best={o:pr,label,kind};}
   }
   for(const e of G.ents){
-    if(e.t!=='npc'||e.dead)continue;
+    if(e.t!=='npc'||e.dead||e.hidden)continue;
     const dd=hyp(e.x-p.x,e.y-p.y)-18; // people take priority over furniture
     if(dd<bd){bd=dd;best={o:e,label:'Talk',kind:'npc'};}
   }
@@ -1545,7 +1739,7 @@ const LUMTIPS={
   flurry:[{n:'Lumen',t:'THAT! Dodging at the very last breath — time itself flinched! Strike now, strike fast, while the world is slow!'}],
   shrine1:[{n:'Lumen',t:'A Spirit Orb! Gather four and pray at any village statue — the old crown will trade them for more heart or deeper breath. Your choice!'}],
   warden:[{n:'Lumen',t:'A Warden! Watch the shoulders — they betray every blow. Roll THROUGH the swing, not away, then answer it. And if it charges… sidestep and smile.'}],
-  night1:[{n:'Lumen',t:'Night. The restless dead get bold in the dark — bones, wolves, and bad manners. Fight them, outrun them, or camp by a fire until dawn.'}],
+  night1:[{n:'Lumen',t:'Night. The hungry dead claw out of the soil after dark — slow, stubborn, and very rude. Fight them, outwalk them, or camp by a fire until dawn.'}],
   blight:[{n:'Lumen',t:'Ugh — blight. Sorrow with nowhere to go. The wisps here throw it about, so keep your feet moving. It all ends when HE remembers.'}],
   exhaust:[{n:'Lumen',t:'Breathe! That green ring is your strength — when it empties you can\'t run, climb, or swim. Rest a moment. The wild rewards patience.'}],
   rain:[{n:'Lumen',t:'Rain! Lovely for the meadows, dreadful for climbing — stone drinks your strength twice as fast when wet. Maybe wait it out by a fire.'}],

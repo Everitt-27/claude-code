@@ -199,6 +199,7 @@ const EDEF={
   brute:{r:12,hp:16,spd:70,ag:190,coin:8},
   archer:{r:8,hp:6,spd:92,ag:250,coin:4},
   skel:{r:8,hp:6,spd:120,ag:280,coin:3},
+  zombie:{r:8,hp:9,spd:52,ag:320,coin:3},
   wisp:{r:8,hp:5,spd:64,ag:260,coin:3},
   warden:{r:17,hp:75,spd:96,ag:170,coin:25},
   king:{r:18,hp:170,spd:110,ag:400,coin:0},

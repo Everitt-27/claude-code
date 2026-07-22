@@ -23,8 +23,10 @@ fishing. The wild is yours.
 
 A 512×512-tile seeded continent — meadows, forests, deserts, snowfields, swamps,
 rivers, beaches, mountains, two harbours, and the blighted Citadel — generated
-lazily chunk-by-chunk, so there is never a loading screen. In it: 3 villages
-(9 named NPCs), 6 wayfarer towers, 10 shrine trials, 8 lore stones, ~17 enemy camps
+lazily chunk-by-chunk, so there is never a loading screen. In it: 3 walled-in-life
+villages (~11 residents each: 9 named NPCs plus farmers, fishers, woodcutters,
+herbalists, children and an armed town watch, 8 huts, a well, a plaza with lamps,
+benches and market crates), 6 wayfarer towers, 10 shrine trials, 8 lore stones, ~17 enemy camps
 (some led by elite "Fierce" foes with guaranteed loot), ~15 free chests, groves,
 ore veins, deadfall wood, wildlife (boar, deer, wolves), and a full main-quest arc
 with four minibosses, a 3-phase final boss, and an ending that heals the map.
@@ -111,6 +113,25 @@ with four minibosses, a 3-phase final boss, and an ending that heals the map.
   breathing at idle, and smoothed turning instead of snap-facing. Armor sets, held
   weapons, helmets and hoods are all read at a glance; the same rig drives NPCs,
   companions and enemies. Horses gallop with paired hoofbeats and suspension bob.
+- **Living villages** — every resident is an autonomous agent with an
+  occupation and a daily routine simulated around it. Farmers walk out to the
+  fields at first light and hoe rows; fishers cast from the banks with real
+  rod-and-line; the smith hammers at the forge in showers of sparks;
+  woodcutters and hunters commute to the tree line; herbalists forage the
+  meadows; children chase each other around the plaza; merchants keep their
+  stalls. At dusk everyone drifts to the fire, and at night they walk home,
+  yawn, and disappear indoors — while the **town watch** patrols the lamp-lit
+  ring all night with spears and mail, and marches on any monster that strays
+  near the walls. Villagers flee indoors from danger, murmur occupation-talk
+  as they work, greet you when you stop by, and each carries their own
+  greeting, gossip and trade dialogue. (It's a fully local behavior
+  simulation — schedule-driven agents, no network, still one offline file.)
+- **The restless dead** — when true night falls, **zombies claw up out of the
+  soil** in the wild dark (the old surface skeletons now stay in their
+  barrows). They shamble at half a skeleton's pace with a lurching, weaving
+  gait, arms out, in rot-green rags — slow enough to outwalk, stubborn enough
+  to pile up if you linger. They crumble at dawn. Villages stay clear:
+  lamplight and the watch keep the plaza safe.
 - **Everything from v1** — stamina-gated climbing/swimming/sprinting, towers,
   shrines→orbs→heart/stamina upgrades, perfect-dodge slow-mo, day/night, weather,
   cooking, fast travel to *any* discovered place, autosave (v1 saves migrate).
@@ -133,6 +154,7 @@ horse and boat mounts, fishing, contextual button states, save round-trips and
 v1 migration — plus the Diablo layer: affix/rarity/unique loot rolls, gear stat
 bonuses, potion quick-use, elite modifiers, a full barrow run (descend two floors,
 portal to town and back, walk out), hero levels, vendoring, origins, and hardcore
-erasure — **70 checks, all passing, zero console errors**, ~17 ms/frame steady
+erasure — plus village populations, occupations, night routines and the
+slow-shambling night dead — **73 checks, all passing, zero console errors**, ~17 ms/frame steady
 after the adaptive-quality ramp (slow devices are auto-detected within ~3 s and
 dropped to a lighter render path).

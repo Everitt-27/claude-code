@@ -28,9 +28,9 @@ function talkTo(e){
     if(canRecruit(key))ch.push({t:'Will you travel with me?',f(){recruit(key,e);}});
   }
   ch.push({t:'Never mind',f(){}});
-  startDlg([{n:e.name+trustTag(key),t:greetLine(key)}],{choices:ch.slice(0,5).concat(ch.length>5?[ch[ch.length-1]]:[]).slice(0,6)});
+  startDlg([{n:e.name+trustTag(key),t:greetLine(key,e)}],{choices:ch.slice(0,5).concat(ch.length>5?[ch[ch.length-1]]:[]).slice(0,6)});
 }
-function greetLine(key){
+function greetLine(key,e){
   const t=trustOf(key);
   const g={
     elder:'Stay awhile, and listen. The fire is warm and my ears still work.',
@@ -42,7 +42,13 @@ function greetLine(key){
     rhoa:'Report, wanderer. What do you need of Dunewatch?',
     zef:'Zef trades fair and asks nothing about the bloodstains. Speak, friend.',
     juno:'Did you fight anything TODAY? Tell me everything.'};
-  let s=g[key]||'Fine weather for wandering.';
+  const jg={farmer:'Soil\'s honest work, this. What brings you off the road?',
+    fisher:'Shh — they\'re biting slow today. What is it?',
+    guard:'Move along easy, wanderer. This town\'s under watch.',
+    wood:'Mind the swing. Timber doesn\'t warn twice.',
+    herb:'Smell that? Yarrow. Good for wounds — you look like you collect those.',
+    child:'Are you a REAL adventurer?? Wait — don\'t tell me. YES.'};
+  let s=g[key]||(e&&jg[e.job])||'Fine weather for wandering.';
   if(t>=60)s+=' (They smile when they see you.)';
   else if(t<=-30)s+=' (They watch you carefully.)';
   return s;
@@ -159,8 +165,17 @@ function npcStory(key,e){
     case'juno':
       startDlg([{n:'Juno',t:'A shrine on the dunes had DANCING LIGHTS inside! Papa says never touch shrine-light. Papa is a coward. If you catch one, tell me what it feels like!'}]);
       break;
-    default:
-      startDlg([{n:e?e.name:key,t:'Fine weather for wandering, traveler.'}]);
+    default:{
+      const js={
+        farmer:['The field feeds the village and the village feeds the road. You look like the road.','Rows in the morning, rest at the fire, bed when the lamps go out. It\'s a good life, if the dead keep to their side of dark.'],
+        fisher:['Patience is the whole craft. That, and knowing the water is hungrier than you are.','Calm water, a still heart, and the river handles the rest. The fish disagree, but they\'re outvoted.'],
+        guard:['We keep the lamps lit and the spears sharp. The dead shamble after dark — stay inside the light.','Watch turns at dusk and dawn. Nothing gets past the ring road without me knowing.'],
+        wood:['Deadfall\'s free; standing timber costs sweat. The forge takes both and thanks neither.','An axe is a tool till sundown. After that it\'s a promise.'],
+        herb:['Yarrow for wounds, feverfew for chills. The meadow gives, if you ask it nicely.','The plants near the blight scream when you pick them. So I don\'t.'],
+        child:['One day I\'m going to climb a WHOLE tower and nobody can stop me.','The well is haunted. Probably. Don\'t check. DO check.']};
+      const lines=(e&&js[e.job])||['Fine weather for wandering, traveler.'];
+      startDlg([{n:e?e.name:key,t:lines[G.dayN%lines.length]}]);
+      break;}
   }
 }
 function dlgElder(){

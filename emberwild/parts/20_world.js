@@ -37,7 +37,7 @@ function stampTile(base,tx,ty,stamps){
   for(const p of stamps){
     const d=hyp(tx-p.tx,ty-p.ty);
     switch(p.k){
-      case'vil':if(d<8.5){if(SOLIDT(t)||WATERT(t)||CLIMBT(t))t=T_GRASS;if(d<2.8)t=T_ROAD;}break;
+      case'vil':if(d<11){if(SOLIDT(t)||WATERT(t)||CLIMBT(t))t=T_GRASS;if(d<3.2)t=T_ROAD;}break;
       case'ruins':if(d<5.5)t=T_STONE;else if(d<7.5&&(SOLIDT(t)||WATERT(t)))t=T_FGRASS;break;
       case'shrine':if(d<2.4)t=T_STONE;else if(d<3.6&&SOLIDT(t))t=T_GRASS;break;
       case'tower':if(d<2.2)t=T_STONE;else if(d<3.4&&SOLIDT(t))t=T_GRASS;break;
@@ -189,6 +189,8 @@ function initWorld(){
 }
 
 /* ---- props ---- */
+/* village hut ring, shared with the resident roster in 30_ents */
+const VHUTS=[[-56,-42],[56,-36],[-60,30],[50,42],[-118,-6],[116,4],[-8,-98],[4,100]];
 function buildProps(c){
   const props=[];
   const list=chunkPois.get(chunkKey(c.cx,c.cy))||[];
@@ -215,12 +217,18 @@ function buildProps(c){
         props.push({t:'chest',x:X,y:Y-52,r:9,id:poi.id+'c',ward:poi.id,sol:1});
         break;
       case'vil':{
-        const H=[[-56,-42],[56,-36],[-60,30],[50,42]];
-        H.forEach((h,i)=>props.push({t:'hut',x:X+h[0],y:Y+h[1],w:58,h:46,rect:1,id:poi.id+'h'+i,sol:1,vi:poi.vi,sale:i===0?1:0}));
+        VHUTS.forEach((h,i)=>props.push({t:'hut',x:X+h[0],y:Y+h[1],w:58,h:46,rect:1,id:poi.id+'h'+i,sol:1,vi:poi.vi,sale:i===0?1:0}));
         props.push({t:'fire',x:X,y:Y+8,r:8,id:poi.id+'f'});
         props.push({t:'statue',x:X,y:Y-44,r:9,id:poi.id+'s',sol:1});
         props.push({t:'stall',x:X-4,y:Y+46,r:11,id:poi.id+'m',sol:1,vi:poi.vi});
-        if(poi.vi===0||poi.vi===2)props.push({t:'stable',x:X+72,y:Y+6,r:14,id:poi.id+'st',vi:poi.vi});
+        props.push({t:'well',x:X-38,y:Y-66,r:11,id:poi.id+'wl',sol:1});
+        [[0,-64],[66,22],[0,64],[-64,0]].forEach((l,i2)=>
+          props.push({t:'lamp',x:X+l[0],y:Y+l[1],r:4,id:poi.id+'l'+i2}));
+        props.push({t:'crate',x:X+20,y:Y+54,r:8,id:poi.id+'cr0',sol:1});
+        props.push({t:'crate',x:X-24,y:Y+58,r:8,id:poi.id+'cr1',sol:1});
+        props.push({t:'bench',x:X-28,y:Y+18,r:6,id:poi.id+'bn0'});
+        props.push({t:'bench',x:X+30,y:Y+20,r:6,id:poi.id+'bn1'});
+        if(poi.vi===0||poi.vi===2)props.push({t:'stable',x:X+78,y:Y+6,r:14,id:poi.id+'st',vi:poi.vi});
         if(poi.vi===0)props.push({t:'forge',x:X+46,y:Y-26,r:9,id:poi.id+'fg',sol:1});
         break;}
       case'dock':{
