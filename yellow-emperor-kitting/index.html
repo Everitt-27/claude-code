@@ -1,0 +1,1972 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="YE Kitting">
+<meta name="theme-color" content="#0b3d2e">
+<title>Yellow Emperor · Kitting</title>
+</head>
+<body>
+<!-- ==================== STYLES ==================== -->
+<style>
+/* ---------- iOS design tokens ---------- */
+:root{
+  --accent:#1c7d4d; --accent-press:#166a41; --accent-soft:#e4f3ea;
+  --brand:#0b3d2e; --brand-2:#14603f;
+  --blue:#007aff; --green:#34c759; --red:#ff3b30; --orange:#ff9500; --yellow:#ffcc00; --purple:#af52de; --teal:#30b0c7;
+  --bg:#eef0f2; --bg2:#f7f8f9; --group:#f2f2f7;
+  --card:#ffffff; --card-2:#ffffff;
+  --label:#1c1c1e; --label-2:#6b6f76; --label-3:#9096a0; --sep:#d9dce0; --sep-strong:#c6c9ce;
+  --fill:#7676801f; --fill-2:#78788028; --field:#ffffff; --field-bd:#d9dce0;
+  --shadow:0 1px 3px rgba(16,24,40,.08),0 1px 2px rgba(16,24,40,.04);
+  --shadow-lg:0 12px 40px rgba(16,24,40,.22);
+  --radius:14px; --radius-sm:10px; --radius-lg:22px;
+  --tab-h:56px; --safe-b:env(safe-area-inset-bottom,0px); --safe-t:env(safe-area-inset-top,0px);
+  --sans:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Monaco,"Cascadia Mono","Roboto Mono",monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --accent:#34c46f; --accent-press:#2bb063; --accent-soft:#123122;
+    --brand:#0b3d2e; --brand-2:#0e4a37;
+    --bg:#000000; --bg2:#0b0b0c; --group:#000000;
+    --card:#1c1c1e; --card-2:#2c2c2e;
+    --label:#ffffff; --label-2:#a0a4ad; --label-3:#7c828c; --sep:#38383a; --sep-strong:#48484a;
+    --fill:#7676803d; --fill-2:#7878805c; --field:#1c1c1e; --field-bd:#3a3a3c;
+    --shadow:0 1px 2px rgba(0,0,0,.5); --shadow-lg:0 16px 48px rgba(0,0,0,.6);
+  }
+}
+:root[data-theme="dark"]{
+  --accent:#34c46f; --accent-press:#2bb063; --accent-soft:#123122; --brand:#0b3d2e; --brand-2:#0e4a37;
+  --bg:#000000; --bg2:#0b0b0c; --group:#000000; --card:#1c1c1e; --card-2:#2c2c2e;
+  --label:#ffffff; --label-2:#a0a4ad; --label-3:#7c828c; --sep:#38383a; --sep-strong:#48484a;
+  --fill:#7676803d; --fill-2:#7878805c; --field:#1c1c1e; --field-bd:#3a3a3c;
+  --shadow:0 1px 2px rgba(0,0,0,.5); --shadow-lg:0 16px 48px rgba(0,0,0,.6);
+}
+:root[data-theme="light"]{
+  --accent:#1c7d4d; --accent-press:#166a41; --accent-soft:#e4f3ea; --brand:#0b3d2e; --brand-2:#14603f;
+  --bg:#eef0f2; --bg2:#f7f8f9; --group:#f2f2f7; --card:#ffffff; --card-2:#ffffff;
+  --label:#1c1c1e; --label-2:#6b6f76; --label-3:#9096a0; --sep:#d9dce0; --sep-strong:#c6c9ce;
+  --fill:#7676801f; --fill-2:#78788028; --field:#ffffff; --field-bd:#d9dce0;
+  --shadow:0 1px 3px rgba(16,24,40,.08),0 1px 2px rgba(16,24,40,.04); --shadow-lg:0 12px 40px rgba(16,24,40,.22);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;height:100%}
+body{
+  font-family:var(--sans); background:var(--bg); color:var(--label);
+  font-size:16px; line-height:1.35; -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+  overscroll-behavior-y:none;
+}
+button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit}
+button{cursor:pointer;border:none;background:none}
+input,select,textarea{outline:none}
+:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+a{color:var(--accent);text-decoration:none}
+.mono{font-family:var(--mono)}
+.tnum{font-variant-numeric:tabular-nums}
+.hidden{display:none!important}
+
+/* ---------- App shell ---------- */
+#app{max-width:920px;margin:0 auto;min-height:100%;padding-bottom:calc(var(--tab-h) + var(--safe-b) + 8px)}
+.view{padding:0 0 24px}
+.nav{position:sticky;top:0;z-index:30;background:color-mix(in srgb,var(--bg) 80%,transparent);
+  backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);
+  padding:calc(var(--safe-t) + 6px) 16px 6px;border-bottom:.5px solid var(--sep)}
+.nav-row{display:flex;align-items:center;gap:10px;min-height:36px}
+.nav-title{font-size:17px;font-weight:700;letter-spacing:-.01em;flex:1;text-align:center}
+.nav-btn{color:var(--accent);font-size:16px;font-weight:500;padding:6px 4px;min-width:52px}
+.nav-btn.right{text-align:right}
+.large-title{padding:2px 16px 6px}
+.large-title h1{font-size:32px;font-weight:800;letter-spacing:-.02em;margin:0}
+.large-title .sub{color:var(--label-2);font-size:13.5px;margin-top:2px}
+.brandmark{display:inline-flex;align-items:center;gap:7px;font-weight:800;letter-spacing:-.01em}
+.brandmark svg{width:22px;height:22px;flex:none}
+
+/* ---------- Segmented control ---------- */
+.seg{display:flex;background:var(--fill);border-radius:9px;padding:2px;gap:2px;margin:10px 16px}
+.seg button{flex:1;padding:7px 8px;border-radius:7px;font-size:13.5px;font-weight:600;color:var(--label);transition:.15s}
+.seg button.on{background:var(--card);box-shadow:var(--shadow);color:var(--label)}
+@media(prefers-color-scheme:dark){.seg button.on{background:#636366}}
+:root[data-theme="dark"] .seg button.on{background:#636366}
+
+/* ---------- Search ---------- */
+.search{margin:8px 16px}
+.search input{width:100%;background:var(--fill);border-radius:10px;border:none;padding:9px 12px 9px 34px;font-size:16px;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238e8e93' stroke-width='2.4' stroke-linecap='round'><circle cx='11' cy='11' r='7'/><path d='M21 21l-4.3-4.3'/></svg>");
+  background-repeat:no-repeat;background-position:11px center}
+
+/* ---------- Grouped list / cards ---------- */
+.group{margin:14px 16px}
+.group-h{font-size:12.5px;font-weight:600;color:var(--label-2);text-transform:uppercase;letter-spacing:.03em;margin:0 4px 7px;display:flex;align-items:center;justify-content:space-between}
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+.row{display:flex;align-items:center;gap:12px;padding:12px 14px;position:relative;min-height:44px;background:var(--card)}
+.row+.row::before{content:"";position:absolute;left:14px;right:0;top:0;height:.5px;background:var(--sep)}
+.row.tap{transition:background .1s}
+.row.tap:active{background:var(--fill)}
+.row .grow{flex:1;min-width:0}
+.row .t1{font-size:15.5px;font-weight:600;letter-spacing:-.01em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row .t2{font-size:12.5px;color:var(--label-2);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row .r{text-align:right;flex:none}
+.row .chev{color:var(--label-3);flex:none}
+.row .chev svg{width:9px;height:15px}
+
+/* ---------- Pills / chips / badges ---------- */
+.pill{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;font-weight:700;padding:2px 8px;border-radius:100px;line-height:1.5;white-space:nowrap}
+.pill.green{background:color-mix(in srgb,var(--green) 16%,transparent);color:#1a8a3c}
+.pill.red{background:color-mix(in srgb,var(--red) 15%,transparent);color:#d32f27}
+.pill.orange{background:color-mix(in srgb,var(--orange) 16%,transparent);color:#c26a00}
+.pill.blue{background:color-mix(in srgb,var(--blue) 14%,transparent);color:#0a6cff}
+.pill.gray{background:var(--fill-2);color:var(--label-2)}
+.pill.purple{background:color-mix(in srgb,var(--purple) 15%,transparent);color:#8f3fc7}
+.pill.teal{background:color-mix(in srgb,var(--teal) 16%,transparent);color:#1a8598}
+@media(prefers-color-scheme:dark){.pill.green{color:#4fd97a}.pill.red{color:#ff6a60}.pill.orange{color:#ffb340}.pill.blue{color:#5aa3ff}.pill.purple{color:#cf8ff0}.pill.teal{color:#5fd0e0}}
+:root[data-theme="dark"] .pill.green{color:#4fd97a}
+:root[data-theme="dark"] .pill.red{color:#ff6a60}
+:root[data-theme="dark"] .pill.orange{color:#ffb340}
+:root[data-theme="dark"] .pill.blue{color:#5aa3ff}
+.badge{min-width:18px;height:18px;padding:0 5px;border-radius:100px;background:var(--red);color:#fff;font-size:11.5px;font-weight:800;display:inline-flex;align-items:center;justify-content:center}
+
+/* ---------- Buttons ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;font-weight:600;font-size:16px;
+  padding:12px 16px;border-radius:12px;transition:transform .06s,background .12s;user-select:none}
+.btn:active{transform:scale(.97)}
+.btn.fill{background:var(--accent);color:#fff}
+.btn.fill:active{background:var(--accent-press)}
+.btn.tint{background:var(--accent-soft);color:var(--accent)}
+.btn.gray{background:var(--fill);color:var(--label)}
+.btn.red{background:color-mix(in srgb,var(--red) 14%,transparent);color:var(--red)}
+.btn.redfill{background:var(--red);color:#fff}
+.btn.blue{background:var(--blue);color:#fff}
+.btn.plain{background:none;color:var(--accent);padding:12px 10px}
+.btn.sm{padding:7px 12px;font-size:14px;border-radius:9px}
+.btn.block{width:100%}
+.btn[disabled]{opacity:.4;pointer-events:none}
+.btn svg{width:18px;height:18px;flex:none}
+.btn.sm svg{width:15px;height:15px}
+.nav-btn svg{width:23px;height:23px;flex:none;vertical-align:middle}
+.btn-ico{width:34px;height:34px;border-radius:9px;display:inline-flex;align-items:center;justify-content:center;background:var(--fill);color:var(--accent)}
+.btn-ico svg{width:18px;height:18px}
+
+/* ---------- Toggle switch (iOS) ---------- */
+.sw{position:relative;width:51px;height:31px;flex:none}
+.sw input{opacity:0;width:100%;height:100%;margin:0;position:absolute;z-index:2;cursor:pointer}
+.sw .track{position:absolute;inset:0;background:var(--fill-2);border-radius:100px;transition:.22s}
+.sw .knob{position:absolute;top:2px;left:2px;width:27px;height:27px;background:#fff;border-radius:100px;box-shadow:0 2px 5px rgba(0,0,0,.25);transition:.22s}
+.sw input:checked ~ .track{background:var(--green)}
+.sw input:checked ~ .knob{transform:translateX(20px)}
+
+/* ---------- Fields ---------- */
+.field{display:flex;align-items:center;gap:10px;padding:11px 14px;position:relative;background:var(--card)}
+.field+.field::before{content:"";position:absolute;left:14px;right:0;top:0;height:.5px;background:var(--sep)}
+.field label{font-size:15px;font-weight:500;flex:none;width:118px;color:var(--label)}
+.field .in{flex:1}
+.field input,.field select,.field textarea{width:100%;background:none;border:none;font-size:16px;text-align:right;padding:0}
+.field.stack{flex-direction:column;align-items:stretch;gap:6px}
+.field.stack input,.field.stack select,.field.stack textarea{text-align:left;background:var(--field);border:1px solid var(--field-bd);border-radius:9px;padding:9px 11px}
+.field select{-webkit-appearance:none;appearance:none;text-align:right;padding-right:16px;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238e8e93' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>");
+  background-repeat:no-repeat;background-position:right center}
+.field.stack select{text-align:left;background-position:right 10px center}
+.field .hint{font-size:12px;color:var(--label-3)}
+textarea{resize:vertical;font-family:inherit;line-height:1.4}
+
+/* ---------- Empty state ---------- */
+.empty{text-align:center;padding:48px 28px;color:var(--label-2)}
+.empty .ico{width:60px;height:60px;margin:0 auto 14px;border-radius:16px;background:var(--fill);display:flex;align-items:center;justify-content:center;color:var(--label-3)}
+.empty .ico svg{width:30px;height:30px}
+.empty h3{margin:0 0 5px;font-size:19px;font-weight:700;color:var(--label)}
+.empty p{margin:0 auto;max-width:340px;font-size:14px}
+
+/* ---------- Tab bar ---------- */
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;
+  background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:saturate(180%) blur(22px);-webkit-backdrop-filter:saturate(180%) blur(22px);
+  border-top:.5px solid var(--sep);padding-bottom:var(--safe-b)}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:7px 2px 5px;color:var(--label-3);font-size:10px;font-weight:600}
+.tab svg{width:25px;height:25px}
+.tab.on{color:var(--accent)}
+.tab .tb{position:absolute;top:3px;margin-left:16px}
+
+/* ---------- Kit bubble ---------- */
+#bubble{position:fixed;right:16px;bottom:calc(var(--tab-h) + var(--safe-b) + 16px);z-index:45;
+  width:62px;height:62px;border-radius:50%;background:var(--accent);color:#fff;box-shadow:0 8px 24px rgba(11,61,46,.4);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;transition:transform .18s cubic-bezier(.2,1.3,.5,1)}
+#bubble:active{transform:scale(.9)}
+#bubble.pulse{animation:pulse .5s cubic-bezier(.2,1.4,.5,1)}
+@keyframes pulse{0%{transform:scale(1)}35%{transform:scale(1.22)}100%{transform:scale(1)}}
+#bubble .bico svg{width:26px;height:26px;display:block}
+#bubble .bcount{font-size:10px;font-weight:800;margin-top:1px;letter-spacing:.02em}
+#bubble .bbadge{position:absolute;top:-3px;right:-3px;min-width:22px;height:22px;border-radius:100px;background:var(--red);color:#fff;
+  font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;border:2px solid var(--bg)}
+.paperball{position:fixed;z-index:60;width:20px;height:20px;pointer-events:none;will-change:transform,opacity}
+.paperball svg{width:100%;height:100%}
+
+/* ---------- Sheets / modals ---------- */
+#scrim{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.4);opacity:0;transition:opacity .25s;backdrop-filter:blur(2px);pointer-events:none}
+#scrim.on{opacity:1;pointer-events:auto}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:55;max-height:94vh;background:var(--group);
+  border-radius:16px 16px 0 0;box-shadow:var(--shadow-lg);transform:translateY(100%);transition:transform .32s cubic-bezier(.32,.72,0,1);
+  display:flex;flex-direction:column;padding-bottom:var(--safe-b)}
+.sheet.on{transform:translateY(0)}
+.sheet.full{max-height:100vh;top:0;border-radius:0;padding-top:var(--safe-t)}
+@media(min-width:560px){.sheet{max-width:560px;margin:0 auto;border-radius:16px;bottom:auto;top:50%;transform:translate(0,-40%) scale(.96);opacity:0;left:0;right:0;max-height:88vh}
+  .sheet.on{transform:translate(0,-50%) scale(1);opacity:1}
+  .sheet.full{top:2vh;transform:translateY(20px);max-height:96vh}
+  .sheet.full.on{transform:translateY(0)}
+  .sheet.wide{max-width:min(1160px,96vw)}}
+.kfpage{overflow:hidden;margin:0 auto}
+.grabber{width:38px;height:5px;border-radius:3px;background:var(--sep-strong);margin:8px auto 2px;flex:none}
+.sheet-head{display:flex;align-items:center;gap:10px;padding:8px 16px 10px;flex:none}
+.sheet-head .st{font-size:17px;font-weight:700;flex:1;text-align:center}
+.sheet-head .sb{color:var(--accent);font-size:16px;font-weight:600;min-width:60px}
+.sheet-head .sb.right{text-align:right}
+.sheet-head .sb.strong{font-weight:700}
+.sheet-body{overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 0 16px;flex:1}
+.sheet-foot{flex:none;padding:10px 16px calc(10px);display:flex;gap:10px;border-top:.5px solid var(--sep);background:var(--group)}
+
+/* ---------- Toast ---------- */
+#toast{position:fixed;left:50%;bottom:calc(var(--tab-h) + var(--safe-b) + 78px);transform:translateX(-50%) translateY(20px);
+  z-index:70;background:rgba(30,30,32,.96);color:#fff;padding:11px 18px;border-radius:12px;font-size:14px;font-weight:600;
+  box-shadow:var(--shadow-lg);opacity:0;transition:.28s;pointer-events:none;max-width:88vw;text-align:center}
+#toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ---------- IP grid ---------- */
+.ipgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:8px;padding:4px 2px}
+.ipcell{aspect-ratio:1;border-radius:11px;border:1.5px solid var(--sep-strong);background:var(--card);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;position:relative;transition:.12s;padding:2px}
+.ipcell:active{transform:scale(.94)}
+.ipcell .n{font-size:17px;font-weight:800;letter-spacing:-.02em}
+.ipcell .s{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.02em;color:var(--label-3)}
+.ipcell.occ{background:color-mix(in srgb,var(--orange) 15%,var(--card));border-color:var(--orange)}
+.ipcell.occ .n{color:#c26a00}
+.ipcell.free{border-style:dashed}
+.ipcell.free .n{color:var(--label-2)}
+.ipcell.sel{background:var(--accent);border-color:var(--accent)}
+.ipcell.sel .n,.ipcell.sel .s{color:#fff}
+.ipcell .dot{position:absolute;top:5px;right:6px;width:7px;height:7px;border-radius:50%}
+@media(prefers-color-scheme:dark){.ipcell.occ .n{color:#ffb340}}
+:root[data-theme="dark"] .ipcell.occ .n{color:#ffb340}
+
+/* ---------- Progress ---------- */
+.prog{height:6px;border-radius:100px;background:var(--fill-2);overflow:hidden}
+.prog i{display:block;height:100%;background:var(--accent);border-radius:100px;transition:width .3s}
+.prog.done i{background:var(--green)}
+.prog.over i{background:var(--orange)}
+
+/* ---------- Kit line list ---------- */
+.line{background:var(--card);border-radius:12px;box-shadow:var(--shadow);margin-bottom:9px;padding:11px 12px;position:relative;touch-action:pan-y}
+.line.drag{opacity:.55;transform:scale(1.02);box-shadow:var(--shadow-lg)}
+.line.over{outline:2px dashed var(--accent);outline-offset:-1px}
+.line-top{display:flex;align-items:flex-start;gap:9px}
+.line .drag-h{color:var(--label-3);flex:none;padding-top:2px;cursor:grab;touch-action:none}
+.line .drag-h svg{width:16px;height:16px}
+.line .code{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--accent)}
+.line .desc{font-size:14px;font-weight:600;margin-top:1px;letter-spacing:-.01em}
+.line .meta{font-size:11.5px;color:var(--label-2);margin-top:3px;display:flex;flex-wrap:wrap;gap:3px 10px}
+.line .acts{display:flex;gap:6px;margin-top:9px;flex-wrap:wrap}
+.line .acts .btn.sm{flex:none}
+.lot-line{display:flex;align-items:center;gap:8px;padding:7px 0 0;margin-top:7px;border-top:.5px dashed var(--sep)}
+.lot-line .mono{font-size:11.5px}
+
+/* ---------- Upload / dropzone ---------- */
+.dz{margin:12px 16px;border:2px dashed var(--sep-strong);border-radius:16px;background:var(--card);
+  padding:26px 18px;text-align:center;transition:.15s}
+.dz.hot{border-color:var(--accent);background:var(--accent-soft)}
+.dz .ico{width:52px;height:52px;margin:0 auto 12px;border-radius:14px;background:var(--accent-soft);color:var(--accent);display:flex;align-items:center;justify-content:center}
+.dz .ico svg{width:28px;height:28px}
+.dz h3{margin:0 0 4px;font-size:17px;font-weight:700}
+.dz p{margin:0;color:var(--label-2);font-size:13.5px}
+
+/* ---------- Kanban (Overview) ---------- */
+.kanban{display:flex;gap:12px;overflow-x:auto;padding:8px 16px 16px;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity}
+.kcol{flex:none;width:270px;background:var(--group);border-radius:14px;padding:8px;scroll-snap-align:start;border:.5px solid var(--sep)}
+.kcol-h{display:flex;align-items:center;gap:7px;padding:5px 6px 9px;font-size:13.5px;font-weight:700}
+.kcol-h .dot{width:9px;height:9px;border-radius:50%}
+.kcol-h .ct{margin-left:auto;color:var(--label-3);font-weight:700}
+.kcard{background:var(--card);border-radius:11px;box-shadow:var(--shadow);padding:10px 11px;margin-bottom:8px;transition:.12s}
+.kcard:active{transform:scale(.98)}
+.kcard.drag{opacity:.5}
+.kcard .kt{font-size:14px;font-weight:700;letter-spacing:-.01em}
+.kcard .km{font-size:11.5px;color:var(--label-2);margin-top:3px;display:flex;flex-wrap:wrap;gap:3px 8px}
+.kcard .kf{display:flex;align-items:center;gap:6px;margin-top:8px}
+.kcard .kbar{flex:1}
+
+/* ---------- Misc ---------- */
+.callout{margin:12px 16px;background:var(--card);border-radius:12px;padding:12px 14px;box-shadow:var(--shadow);font-size:13.5px;color:var(--label-2);display:flex;gap:10px}
+.callout .ci{flex:none;color:var(--accent)}
+.callout .ci svg{width:20px;height:20px}
+.stat{display:flex;gap:10px;padding:0 16px;margin:8px 0}
+.stat .s{flex:1;background:var(--card);border-radius:12px;box-shadow:var(--shadow);padding:11px 13px}
+.stat .s .v{font-size:24px;font-weight:800;letter-spacing:-.02em}
+.stat .s .l{font-size:11.5px;color:var(--label-2);font-weight:600;margin-top:1px}
+.hr{height:.5px;background:var(--sep);margin:0 16px}
+.spin{width:20px;height:20px;border:2.5px solid var(--fill-2);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+.filedrop-hint{position:fixed;inset:0;z-index:80;background:color-mix(in srgb,var(--accent) 22%,rgba(0,0,0,.5));display:none;align-items:center;justify-content:center;color:#fff;font-size:22px;font-weight:800}
+.filedrop-hint.on{display:flex}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.001s!important;transition-duration:.001s!important}}
+
+/* ---------- Form preview (on-screen, matches PDF) ---------- */
+.formwrap{background:#8a8d92;padding:14px;overflow:auto;-webkit-overflow-scrolling:touch}
+.kitform{background:#fff;color:#000;width:1040px;margin:0 auto;font-family:Arial,Helvetica,var(--sans);
+  border:2px solid #000;font-size:11px;box-shadow:0 6px 24px rgba(0,0,0,.3)}
+.kitform *{box-sizing:border-box}
+.kitform input,.kitform textarea{border:none;background:transparent;font:inherit;color:#000;width:100%;padding:1px 3px}
+.kitform input:focus,.kitform textarea:focus{background:#fff7d6;outline:1px solid #d9b400}
+.kf-top{display:flex;border-bottom:2px solid #000}
+.kf-logo{width:250px;border-right:2px solid #000;display:flex;align-items:center;justify-content:center;padding:6px}
+.kf-logo svg{width:210px;height:auto}
+.kf-hd{flex:1;display:flex;flex-direction:column}
+.kf-title{font-size:26px;font-weight:800;text-align:center;padding:6px 0 2px;letter-spacing:-.01em}
+.kf-hrows{border-top:2px solid #000;display:grid;grid-template-columns:1.1fr 1.4fr 1fr 1.2fr}
+.kf-hrows .c{border-right:1px solid #000;border-bottom:1px solid #000;padding:3px 6px;display:flex;align-items:center;min-height:26px}
+.kf-hrows .c.lbl{justify-content:flex-end;font-weight:800;font-size:13px;background:#fff}
+.kf-hrows .c:nth-child(4n){border-right:none}
+.kf-detail-h{background:#e6e6e6;text-align:center;font-weight:800;font-size:13px;padding:2px;border-bottom:1px solid #000}
+.kf-table{width:100%;border-collapse:collapse;table-layout:fixed}
+.kf-table th{background:#efefef;border:1px solid #000;font-size:9.5px;font-weight:800;font-style:italic;padding:2px 2px;line-height:1.05;vertical-align:middle}
+.kf-table td{border:1px solid #000;padding:0;height:23px;vertical-align:middle}
+.kf-table td.pcfb{text-align:center;font-weight:700;color:#333;font-size:12px}
+.kf-table td input{font-size:10.5px}
+.kf-notes{border-top:2px solid #000;border-bottom:1px solid #000;padding:3px 6px;min-height:52px;font-weight:800}
+.kf-notes textarea{font-weight:400;min-height:42px;resize:none}
+.kf-sign{display:grid;grid-template-columns:1.4fr 1.2fr 1fr 1fr;background:#efefef;border-bottom:1px solid #000}
+.kf-sign .c{border-right:1px solid #000;padding:3px 6px;display:flex;align-items:center;font-weight:800;min-height:24px;font-size:12px}
+.kf-sign .c.val{background:#fff;font-weight:400}
+.kf-sign .c:last-child{border-right:none}
+.kf-compliance{text-align:center;font-style:italic;font-weight:700;font-size:10.5px;padding:3px}
+.kf-foot{display:grid;grid-template-columns:1.3fr 1fr 1.2fr 1fr;border-top:1px solid #000;font-size:11px}
+.kf-foot .c{border-right:1px solid #000;padding:3px 6px;display:flex;align-items:center;gap:4px}
+.kf-foot .c:last-child{border-right:none}
+.kf-foot b{font-weight:800}
+</style>
+
+<div id="app"></div>
+<div id="bubble" class="hidden" data-act="openKit">
+  <span class="bico"></span>
+  <span class="bcount"></span>
+  <span class="bbadge hidden"></span>
+</div>
+<div id="sheets"></div>
+<div id="scrim" data-act="closeSheet"></div>
+<div id="toast"></div>
+<div id="filedrop" class="filedrop-hint"><div>Drop Fishbowl CSV to import</div></div>
+
+<script>
+/* ================================================================
+   Yellow Emperor · Kitting  —  self-contained kitting tool
+   ================================================================ */
+"use strict";
+
+/* ---------- Icons (inline SVG) ---------- */
+const IC = {
+  box:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5v8l9 5 9-5V8z"/><path d="M3.3 7.5L12 12.5l8.7-5M12 12.5V21.5"/></svg>',
+  layers:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 12l9 5 9-5M3 16l9 5 9-5"/></svg>',
+  grid:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>',
+  doc:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg>',
+  gear:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-2.7 1.1V21a2 2 0 1 1-4 0v-.1A1.6 1.6 0 0 0 7 19.4a1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0-1.1-2.7H1a2 2 0 1 1 0-4h.1A1.6 1.6 0 0 0 2.6 7a1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1A1.6 1.6 0 0 0 7 2.6h.2A1.6 1.6 0 0 0 9 1.1V1a2 2 0 1 1 4 0v.1A1.6 1.6 0 0 0 15 2.6a1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8v.2a1.6 1.6 0 0 0 1.5 1H23a2 2 0 1 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1z"/></svg>',
+  cart:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2 3h2.2l2.3 12.4a1.7 1.7 0 0 0 1.7 1.4h8.8a1.7 1.7 0 0 0 1.7-1.3L21.5 7H6"/></svg>',
+  chev:'<svg viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 2l8 8-8 8"/></svg>',
+  plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+  drag:'<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.6"/><circle cx="15" cy="6" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="18" r="1.6"/><circle cx="15" cy="18" r="1.6"/></svg>',
+  trash:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>',
+  print:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8" rx="1"/></svg>',
+  share:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M8 7l4-4 4 4M20 13v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-6"/></svg>',
+  up:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v13"/></svg>',
+  scan:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2M3 12h18"/></svg>',
+  move:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 9l-3 3 3 3M9 5l3-3 3 3M15 19l-3 3-3-3M19 9l3 3-3 3M2 12h20M12 2v20"/></svg>',
+  cycle:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6M3 12a9 9 0 0 1 15-6.7L21 8M3 22v-6h6M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>',
+  back:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>',
+  check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>',
+  x:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>',
+  info:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>',
+  leaf:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C7 3 3 7 3 13c0 3 1.5 6 4 8 .5-4 2-7 5-9-2 2.5-3 5.5-3.4 9.4C15 20 21 15 21 8c0-3-1-5-1-5-2 1-4 1-6 0-1-.5-2-1-2-1z"/></svg>',
+  drop:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0C6 9.5 12 3 12 3z"/></svg>',
+  paper:'<svg viewBox="0 0 24 24" fill="#f2efe6" stroke="#b9b19a" stroke-width="1"><path d="M5 6l3-2 4 2 3-1 4 3-1 4 2 4-3 2-4-1-3 2-4-2 1-4-2-4z"/><path d="M9 8l3 2m2 1l2-1M8 14l3-1m2 3l3-1" stroke="#c9c1ab" fill="none"/></svg>',
+  return:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 5 5v0a5 5 0 0 1-5 5H9"/></svg>',
+  edit:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>',
+  search:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>',
+  min:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 12h14"/></svg>',
+  clock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+  flame:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2s4 4 4 8a4 4 0 0 1-8 0c0-1 .5-2 .5-2S6 10 6 14a6 6 0 0 0 12 0c0-5-6-12-6-12z"/></svg>',
+};
+
+/* ---------- Brand wordmark (yellow emperor leaf) ---------- */
+const WORDMARK = `<svg viewBox="0 0 320 96" xmlns="http://www.w3.org/2000/svg" aria-label="Yellow Emperor">
+<g fill="currentColor">
+<path d="M188 6c-8 5-14 13-16 24-1 8 1 16 7 21 3-9 8-15 15-19-6 5-9 11-10 19 12-2 22-11 24-24 1-8-2-16-8-20-3-2-6-1-12 0z"/>
+</g>
+<text x="4" y="44" font-family="-apple-system,Segoe UI,Arial" font-size="42" font-weight="800" letter-spacing="-1.5" fill="currentColor">yellow</text>
+<text x="4" y="86" font-family="-apple-system,Segoe UI,Arial" font-size="42" font-weight="800" letter-spacing="-1.5" fill="currentColor">emperor</text>
+</svg>`;
+
+/* ================= SEED DATA ================= */
+const SEED_INV = [{"part":"ZECPM","desc":"Zeolite Clay Powder (Micronized) R02","loc":"Main-In Process 4 (Packaging)","qty":50.1326,"uom":"lbs","cost":"13.60791","qbClass":"","date":"","note":"","exp":"9/1/2030","vlot":"09082025","lot":"26-0353","quality":"Conv","origin":"Serbia","tbd":""},{"part":"ZECPM","desc":"Zeolite Clay Powder (Micronized) R02","loc":"Main-Approved Herbs and Ingredients","qty":33.061,"uom":"lbs","cost":"13.60791","qbClass":"","date":"","note":"","exp":"7/31/2030","vlot":"09082025","lot":"26-0512","quality":"Conv","origin":"Serbia","tbd":""},{"part":"ZECPM","desc":"Zeolite Clay Powder (Micronized) R02","loc":"Main-In Process 4 (Packaging)","qty":32.739,"uom":"lbs","cost":"13.60791","qbClass":"","date":"","note":"","exp":"7/31/2030","vlot":"09082025","lot":"26-0512","quality":"Conv","origin":"Serbia","tbd":""},{"part":"FVLMP","desc":"Fulvic Mineral Powder (MLG-50) R02","loc":"Main-In Process 4 (Packaging)","qty":12.89,"uom":"lbs","cost":"147.41903","qbClass":"","date":"","note":"","exp":"4/30/2030","vlot":"25112","lot":"26-0510","quality":"Conv","origin":"USA","tbd":""},{"part":"FVLMP","desc":"Fulvic Mineral Powder (MLG-50) R02","loc":"Main-In Process 4 (Packaging)","qty":2.31263,"uom":"lbs","cost":"147.41903","qbClass":"","date":"","note":"","exp":"4/30/2030","vlot":"25112","lot":"26-0364","quality":"Conv","origin":"USA","tbd":""},{"part":"CA536","desc":"Citric Acid R02","loc":"Main-In Process 4 (Packaging)","qty":17.509,"uom":"kg","cost":"6.31397","qbClass":"","date":"","note":"","exp":"7/12/2028","vlot":"AA-2507-3564","lot":"26-0145","quality":"Conv","origin":"USA","tbd":""},{"part":"FGLYCKO","desc":"Flax Glycerin (Kosher) (Organic) G04","loc":"Main-Approved Herbs and Ingredients","qty":1556.0166,"uom":"fogl","cost":"23.90889","qbClass":"","date":"","note":"","exp":"6/9/2028","vlot":"AIPN-2/OG/25/9A2","lot":"26-0292","quality":"ORG","origin":"India","tbd":""},{"part":"FGLYCKO","desc":"Flax Glycerin (Kosher) (Organic) G04","loc":"Main-Approved Herbs and Ingredients","qty":1296.6805,"uom":"fogl","cost":"23.90889","qbClass":"","date":"","note":"","exp":"6/9/2028","vlot":"AIPN-2/OG/25/9A2","lot":"26-0520","quality":"Org","origin":"India","tbd":""},{"part":"FGLYCKO","desc":"Flax Glycerin (Kosher) (Organic) G04","loc":"Main-Approved Herbs and Ingredients","qty":518.6722,"uom":"fogl","cost":"23.90889","qbClass":"","date":"","note":"","exp":"6/8/2028","vlot":"AIPN-2/OG/25/8A5","lot":"26-0291","quality":"Org","origin":"India","tbd":""},{"part":"FGLYCKO","desc":"Flax Glycerin (Kosher) (Organic) G04","loc":"Main-Glycerin In Process","qty":400.5166,"uom":"fogl","cost":"23.90889","qbClass":"","date":"","note":"","exp":"6/8/2028","vlot":"AIPN-2/OG/25/8A5","lot":"26-0291","quality":"Org","origin":"India","tbd":""},{"part":"FGLYCKO","desc":"Flax Glycerin (Kosher) (Organic) G04","loc":"Main-Glycerin In Process","qty":17.6622,"uom":"fogl","cost":"23.90889","qbClass":"","date":"","note":"","exp":"1/31/2028","vlot":"AIPN-2/OG/25/1A10","lot":"26-0222","quality":"Org","origin":"India","tbd":""},{"part":"ABOS2","desc":"2oz Amber Boston Round P01","loc":"Main-Back Warehouse","qty":36630,"uom":"ea","cost":"0.08","qbClass":"","date":"","note":"","exp":"","vlot":"NA","lot":"B-7538","quality":"","origin":"","tbd":""},{"part":"ABOS2","desc":"2oz Amber Boston Round P01","loc":"Main-5/A12","qty":8910,"uom":"ea","cost":"0.08","qbClass":"","date":"","note":"","exp":"","vlot":"SS2020-NL","lot":"B-7701","quality":"","origin":"","tbd":""},{"part":"ABOS2","desc":"2oz Amber Boston Round P01","loc":"Main-8/A04","qty":8910,"uom":"ea","cost":"0.08","qbClass":"","date":"","note":"","exp":"","vlot":"NA","lot":"B-7737","quality":"","origin":"","tbd":""},{"part":"ABOS2","desc":"2oz Amber Boston Round P01","loc":"Main-8/A05","qty":8910,"uom":"ea","cost":"0.08","qbClass":"","date":"","note":"","exp":"","vlot":"NA","lot":"B-7737","quality":"","origin":"","tbd":""},{"part":"ABOS2","desc":"2oz Amber Boston Round P01","loc":"Main-8/A06","qty":8910,"uom":"ea","cost":"0.08","qbClass":"","date":"","note":"","exp":"","vlot":"NA","lot":"B-7737","quality":"","origin":"","tbd":""},{"part":"BGGD2","desc":"2oz Black Glass Graduated Dropper (Silicone) P01","loc":"Main-8/C04","qty":25200,"uom":"ea","cost":"0.12","qbClass":"","date":"","note":"","exp":"","vlot":"NA","lot":"B-7610","quality":"","origin":"","tbd":""},{"part":"BGGD2","desc":"2oz Black Glass Graduated Dropper (Silicone) P01","loc":"Main-6/C06","qty":16800,"uom":"ea","cost":"0.12","qbClass":"","date":"","note":"","exp":"","vlot":"NA","lot":"B-7745","quality":"","origin":"","tbd":""},{"part":"BGGD2","desc":"2oz Black Glass Graduated Dropper (Silicone) P01","loc":"Main-6/C06","qty":9800,"uom":"ea","cost":"0.12","qbClass":"","date":"","note":"","exp":"","vlot":"NA","lot":"B-7691","quality":"","origin":"","tbd":""},{"part":"BGGD2","desc":"2oz Black Glass Graduated Dropper (Silicone) P01","loc":"Main-In Process 67 (Packaging)","qty":7146,"uom":"ea","cost":"0.12","qbClass":"","date":"","note":"","exp":"","vlot":"NA","lot":"B-7691","quality":"","origin":"","tbd":""},{"part":"BGGD2","desc":"2oz Black Glass Graduated Dropper (Silicone) P01","loc":"Main-6/C06","qty":4200,"uom":"ea","cost":"0.12","qbClass":"","date":"","note":"","exp":"","vlot":"NA","lot":"B-7755","quality":"","origin":"","tbd":""},{"part":"BIGZ2L","desc":"Zeolite Tincture 2oz Label - 2 x 4.5 -  (Bigly) P01","loc":"Main-Labels At YE","qty":19158,"uom":"Lab","cost":"0.05837","qbClass":"","date":"","note":"","exp":"","vlot":"NA","lot":"BG-7741","quality":"","origin":"","tbd":""},{"part":"BIGZ2L","desc":"Zeolite Tincture 2oz Label - 2 x 4.5 -  (Bigly) P01","loc":"Main-Labels At YE","qty":1542,"uom":"Lab","cost":"0.05837","qbClass":"","date":"","note":"","exp":"","vlot":"NA","lot":"BG-7650","quality":"","origin":"","tbd":""},{"part":"45NOPR","desc":"45mm No Print Roll P01","loc":"Main-Seals and Pallets","qty":6.825,"uom":"roll","cost":"26","qbClass":"","date":"","note":"","exp":"","vlot":"NA","lot":"BG-7478","quality":"","origin":"","tbd":""},{"part":"45NOPR","desc":"45mm No Print Roll P01","loc":"Main-Seals and Pallets","qty":4.88,"uom":"roll","cost":"26","qbClass":"","date":"","note":"","exp":"","vlot":"NA","lot":"JW-7477","quality":"","origin":"","tbd":""},{"part":"45NOPR","desc":"45mm No Print Roll P01","loc":"Main-Seals and Pallets","qty":0.0025,"uom":"roll","cost":"26","qbClass":"","date":"","note":"","exp":"","vlot":"NA","lot":"B-7167","quality":"","origin":"","tbd":""},{"part":"95655524B","desc":"9.5x6.5x5.5 24pk Box P01","loc":"Main-Back Warehouse","qty":5287,"uom":"box","cost":"0.56","qbClass":"","date":"","note":"","exp":"","vlot":"NA","lot":"B-7539","quality":"","origin":"","tbd":""},{"part":"95655524B","desc":"9.5x6.5x5.5 24pk Box P01","loc":"Main-6/B14","qty":904,"uom":"box","cost":"0.56","qbClass":"","date":"","note":"","exp":"","vlot":"PF03179299154","lot":"VM-7502","quality":"","origin":"","tbd":""},{"part":"95655524B","desc":"9.5x6.5x5.5 24pk Box P01","loc":"Main-6/B10","qty":600,"uom":"box","cost":"0.56","qbClass":"","date":"","note":"","exp":"","vlot":"PF03179299154","lot":"VM-7502","quality":"","origin":"","tbd":""},{"part":"95655524B","desc":"9.5x6.5x5.5 24pk Box P01","loc":"Main-In Process 67 (Packaging)","qty":300,"uom":"box","cost":"0.56","qbClass":"","date":"","note":"","exp":"","vlot":"PF03179299154","lot":"VM-7502","quality":"","origin":"","tbd":""},{"part":"95655524B","desc":"9.5x6.5x5.5 24pk Box P01","loc":"Main-In Process 69 (Packaging)","qty":155,"uom":"box","cost":"0.56","qbClass":"","date":"","note":"","exp":"","vlot":"N/A","lot":"B-6678","quality":"","origin":"","tbd":""},{"part":"95655524D","desc":"9.5x6.5x5.5 24pk Divider P01","loc":"Main-7/B01","qty":2041,"uom":"div","cost":"0.56","qbClass":"","date":"","note":"","exp":"","vlot":"NA","lot":"AP-7523","quality":"","origin":"","tbd":""},{"part":"95655524D","desc":"9.5x6.5x5.5 24pk Divider P01","loc":"Main-In Process 67 (Packaging)","qty":300,"uom":"div","cost":"0.56","qbClass":"","date":"","note":"","exp":"","vlot":"NA","lot":"AP-7523","quality":"","origin":"","tbd":""},{"part":"95655524D","desc":"9.5x6.5x5.5 24pk Divider P01","loc":"Loss/Missing-Loss / Breakage","qty":586,"uom":"div","cost":"0.56","qbClass":"","date":"","note":"","exp":"","vlot":"N/A","lot":"B-7408","quality":"","origin":"","tbd":""},{"part":"10388534B","desc":"10 3/8x8x5 3/4 12pk Box P01","loc":"Main-Back Warehouse","qty":1001,"uom":"box","cost":"0.59","qbClass":"","date":"","note":"","exp":"","vlot":"NA","lot":"B-7134","quality":"","origin":"","tbd":""},{"part":"10388534B","desc":"10 3/8x8x5 3/4 12pk Box P01","loc":"Main-10/C11","qty":815,"uom":"box","cost":"0.59","qbClass":"","date":"","note":"","exp":"","vlot":"NA","lot":"B-7134","quality":"","origin":"","tbd":""},{"part":"10388534D","desc":"10 3/8x8x5 3/4 12pk Divider P01","loc":"Main-10/B01","qty":1837,"uom":"div","cost":"0.46","qbClass":"","date":"","note":"","exp":"","vlot":"N/A","lot":"B-7249","quality":"","origin":"","tbd":""},{"part":"10388534D","desc":"10 3/8x8x5 3/4 12pk Divider P01","loc":"Main-10/B01","qty":71,"uom":"div","cost":"0.46","qbClass":"","date":"","note":"","exp":"","vlot":"10897598","lot":"B-7198","quality":"","origin":"","tbd":""},{"part":"10388534D","desc":"10 3/8x8x5 3/4 12pk Divider P01","loc":"Main-7/B07","qty":50,"uom":"div","cost":"0.46","qbClass":"","date":"","note":"","exp":"","vlot":"10897598","lot":"B-7198","quality":"","origin":"","tbd":""},{"part":"107524D","desc":"10x7x5 24pk Divider P01","loc":"Main-6/A08","qty":2400,"uom":"div","cost":"0.49","qbClass":"","date":"","note":"","exp":"","vlot":"N/A","lot":"B-6671","quality":"","origin":"","tbd":""},{"part":"107524D","desc":"10x7x5 24pk Divider P01","loc":"Main-6/A07","qty":2110,"uom":"div","cost":"0.49","qbClass":"","date":"","note":"","exp":"","vlot":"N/A","lot":"B-6960","quality":"","origin":"","tbd":""},{"part":"1075B","desc":"10x7x5 Box P01","loc":"Main-Back Warehouse","qty":2958,"uom":"box","cost":"0.49","qbClass":"","date":"","note":"","exp":"","vlot":"N/A","lot":"B-6959","quality":"","origin":"","tbd":""},{"part":"1075B","desc":"10x7x5 Box P01","loc":"Main-Back Warehouse","qty":2400,"uom":"box","cost":"0.49","qbClass":"","date":"","note":"","exp":"","vlot":"N/A","lot":"B-6670","quality":"","origin":"","tbd":""},{"part":"107656D","desc":"10x7x6.5 6pk Divider P01","loc":"Main-6/C14","qty":1100,"uom":"div","cost":"0.72","qbClass":"","date":"","note":"","exp":"","vlot":"N/A","lot":"B-7406","quality":"","origin":"","tbd":""},{"part":"107656D","desc":"10x7x6.5 6pk Divider P01","loc":"Main-Back Warehouse","qty":1100,"uom":"div","cost":"0.72","qbClass":"","date":"","note":"","exp":"","vlot":"N/A","lot":"B-7351","quality":"","origin":"","tbd":""},{"part":"107656D","desc":"10x7x6.5 6pk Divider P01","loc":"Main-6/C09","qty":1005,"uom":"div","cost":"0.72","qbClass":"","date":"","note":"","exp":"","vlot":"NA","lot":"AP-7470","quality":"","origin":"","tbd":""},{"part":"10765B","desc":"10x7x6.5 Box P01","loc":"Main-Back Warehouse","qty":1000,"uom":"box","cost":"0.87","qbClass":"","date":"","note":"","exp":"","vlot":"N/A","lot":"B-7371","quality":"","origin":"","tbd":""},{"part":"10765B","desc":"10x7x6.5 Box P01","loc":"Main-6/B07","qty":789,"uom":"box","cost":"0.87","qbClass":"","date":"","note":"","exp":"","vlot":"NA","lot":"AP-7469","quality":"","origin":"","tbd":""},{"part":"107725B","desc":"10x7x7.25 Box P01","loc":"Main-10/B11","qty":255,"uom":"box","cost":"1.25","qbClass":"","date":"","note":"","exp":"12/31/2040","vlot":"NA","lot":"OM-7389","quality":"Conv","origin":"USA","tbd":""},{"part":"10ML24B","desc":"10ML 24 count Box 4.25 x 6.25 x 3.25 P01","loc":"Main-9/A12","qty":360,"uom":"box","cost":"1.49","qbClass":"","date":"","note":"","exp":"","vlot":"na","lot":"B-03353","quality":"","origin":"","tbd":""},{"part":"13PRP","desc":"1,3-Propanediol, FCC R02","loc":"Main-1/A01","qty":2.58,"uom":"gal","cost":"210.90086","qbClass":"","date":"","note":"","exp":"1/21/2028","vlot":"LP26A00139","lot":"26-0500","quality":"Conv","origin":"USA","tbd":""},{"part":"13PRP","desc":"1,3-Propanediol, FCC R02","loc":"Main-1/A01","qty":2.58,"uom":"gal","cost":"210.90086","qbClass":"","date":"","note":"","exp":"1/21/2029","vlot":"LP26A00139","lot":"26-0419","quality":"Conv","origin":"USA","tbd":""},{"part":"13PRP","desc":"1,3-Propanediol, FCC R02","loc":"Main-5/A09","qty":0.683,"uom":"gal","cost":"210.90086","qbClass":"","date":"","note":"","exp":"1/21/2028","vlot":"LP26A00139","lot":"26-0418","quality":"Conv","origin":"USA","tbd":""},{"part":"5GBP","desc":"5 Gallon Blue Pail & Cap P01","loc":"Main-11/B12","qty":12,"uom":"pal5","cost":"9.16","qbClass":"","date":"","note":"","exp":"","vlot":"7703520","lot":"BR-7157","quality":"","origin":"","tbd":""},{"part":"5GBP","desc":"5 Gallon Blue Pail & Cap P01","loc":"Main-In Process 41 (Packaging)","qty":3,"uom":"pal5","cost":"9.16","qbClass":"","date":"","note":"","exp":"","vlot":"7703520","lot":"BR-7157","quality":"","origin":"","tbd":""},{"part":"5GBP","desc":"5 Gallon Blue Pail & Cap P01","loc":"Main-Alcohol In Process","qty":1,"uom":"pal5","cost":"9.16","qbClass":"","date":"","note":"","exp":"","vlot":"7703520","lot":"BR-7157","quality":"","origin":"","tbd":""},{"part":"5MTHF","desc":"L-5-Methyltetrahydrofolate Calcium HPLC R02","loc":"Main-Herbs 14 In Process","qty":1.8,"uom":"lbs","cost":"1247.39182","qbClass":"","date":"","note":"","exp":"9/14/2027","vlot":"250901","lot":"26-0001","quality":"Conv","origin":"China","tbd":""},{"part":"5MTHF","desc":"L-5-Methyltetrahydrofolate Calcium HPLC R02","loc":"Main-1/B02","qty":1.5,"uom":"lbs","cost":"1247.39182","qbClass":"","date":"","note":"","exp":"9/14/2027","vlot":"250901","lot":"26-0024","quality":"Conv","origin":"China","tbd":""},{"part":"5MTHF","desc":"L-5-Methyltetrahydrofolate Calcium HPLC R02","loc":"Main-Herbs 49 In Process","qty":0.28,"uom":"lbs","cost":"1247.39182","qbClass":"","date":"","note":"","exp":"9/14/2027","vlot":"250901","lot":"26-0024","quality":"Conv","origin":"China","tbd":""},{"part":"ACFDPO","desc":"Acerola Powder (Freeze Dried) (Organic) R02","loc":"Main-R&D Use Only Racks","qty":0.62,"uom":"lbs","cost":"50.99","qbClass":"","date":"","note":"","exp":"10/8/2026","vlot":"ZOACHFD9658","lot":"25-0295","quality":"Org","origin":"Brazil","tbd":""},{"part":"ACG0172","desc":"Catechu R02","loc":"Main-1/A09","qty":1.7,"uom":"kg","cost":"21.05393","qbClass":"","date":"","note":"","exp":"6/30/2028","vlot":"0606MTEC25","lot":"25-1062","quality":"Conv","origin":"China","tbd":""},{"part":"ACLCAR","desc":"Acetyl-L-Carnitine R02","loc":"Main-1/A13","qty":41.45,"uom":"lbs","cost":"14.5151","qbClass":"","date":"","note":"","exp":"11/22/2026","vlot":"ALC24112325","lot":"26-0021","quality":"Conv","origin":"China","tbd":""},{"part":"ACLCAR","desc":"Acetyl-L-Carnitine R02","loc":"Main-Conventional Quarantine","qty":1.9,"uom":"lbs","cost":"14.5151","qbClass":"","date":"","note":"","exp":"6/9/2027","vlot":"20250624-05","lot":"25-1079","quality":"Conv","origin":"China","tbd":""},{"part":"ACLCAR","desc":"Acetyl-L-Carnitine R02","loc":"Main-Herbs 14 In Process","qty":0.00103,"uom":"lbs","cost":"14.5151","qbClass":"","date":"","note":"","exp":"11/17/2026","vlot":"ALC24111820","lot":"25-1194","quality":"Conv","origin":"China","tbd":""},{"part":"ACPE17","desc":"Acerola Cherry Ext 17% R02","loc":"Main-QC Hold","qty":2.2,"uom":"lbs","cost":"23.58251","qbClass":"","date":"","note":"","exp":"1/30/2026","vlot":"23-12-146","lot":"24-0278","quality":"conv","origin":"Brazil","tbd":""},{"part":"CCLAWB","desc":"Cat's Claw Bark R02","loc":"Main-Herbs 5 In Process","qty":0.2,"uom":"lbs","cost":"15.61","qbClass":"","date":"","note":"","exp":"10/28/2030","vlot":"2505-00845","lot":"25-1048","quality":"Conv","origin":"Peru","tbd":""},{"part":"COCOGLYO","desc":"Coconut Glycerin (Organic) G04","loc":"Main-Back Warehouse","qty":2935.01048,"uom":"cogl","cost":"20.4633","qbClass":"","date":"","note":"","exp":"9/28/2027","vlot":"OGLY092825","lot":"26-0293","quality":"Org","origin":"Philippines","tbd":""},{"part":"COCOGLYO","desc":"Coconut Glycerin (Organic) G04","loc":"Main-Glycerin In Process","qty":358.4,"uom":"cogl","cost":"20.4633","qbClass":"","date":"","note":"","exp":"9/28/2027","vlot":"OGLY092825","lot":"26-0253","quality":"Org","origin":"Usa","tbd":""},{"part":"COCOGLYO","desc":"Coconut Glycerin (Organic) G04","loc":"Loss/Missing-Loss / Breakage","qty":0.5,"uom":"cogl","cost":"20.4633","qbClass":"","date":"","note":"","exp":"10/28/2026","vlot":"140824","lot":"24-0992","quality":"Org","origin":"USA","tbd":""},{"part":"COLRTPW","desc":"Coleus Forskohlii Root (Plectranthus barbatus) Powder R02","loc":"Main-1/A12","qty":18.75,"uom":"lbs","cost":"7.95432","qbClass":"","date":"","note":"","exp":"4/1/2027","vlot":"ZCFRSKP9206","lot":"25-1001","quality":"Conv","origin":"India","tbd":""},{"part":"COLRTPW","desc":"Coleus Forskohlii Root (Plectranthus barbatus) Powder R02","loc":"Main-Herbs 5 In Process","qty":0.29,"uom":"lbs","cost":"7.95432","qbClass":"","date":"","note":"","exp":"4/1/2027","vlot":"ZCFRSKP9206","lot":"25-1001","quality":"Conv","origin":"India","tbd":""},{"part":"COQ10DSK","desc":"Coenzyme Q10 (COQ10) Powder (for DS) (Kosher) R02","loc":"Main-4/A13 (KOSHER)","qty":26.4,"uom":"lbs","cost":"85.27624","qbClass":"","date":"","note":"","exp":"1/18/2028","vlot":"51-2501150","lot":"26-0023","quality":"Kosher","origin":"China","tbd":""},{"part":"COQ10DSK","desc":"Coenzyme Q10 (COQ10) Powder (for DS) (Kosher) R02","loc":"Main-Herbs 14 In Process","qty":0.79396,"uom":"lbs","cost":"85.27624","qbClass":"","date":"","note":"","exp":"7/16/2027","vlot":"20240702","lot":"25-0695","quality":"Kosher","origin":"China","tbd":""},{"part":"COQ10DSK","desc":"Coenzyme Q10 (COQ10) Powder (for DS) (Kosher) R02","loc":"Main-Herbs 49 In Process","qty":0.27213,"uom":"lbs","cost":"85.27624","qbClass":"","date":"","note":"","exp":"1/18/2028","vlot":"51-2501150","lot":"26-0023","quality":"Kosher","origin":"China","tbd":""}];
+
+const SEED_CUSTOMERS = {
+  "Bigly": { batches: {
+    "H-15225": {
+      product:"Zeolite Tincture", kind:"herb", mmr:"BIG-0004-325.4-A-2OZ-FNL",
+      volume:"325.4 Gallons", tanks:"8", cooks:"N/A", totalHerb:"67.878 lbs", lbsGal:"0.2086",
+      ingredients:[
+        {code:"ZECPM", name:"Zeolite Clay Powder (Micronized)", amount:54.303, overage:57.018, uom:"lbs"},
+        {code:"FVLMP", name:"Fulvic Mineral Powder (MLG-50)", amount:13.576, overage:14.254, uom:"lbs"},
+        {code:"CA536", name:"Citric Acid", amount:1.497, overage:1.572, uom:"lbs"},
+        {code:"N/A",   name:"Water", amount:260.32, overage:273.34, uom:"gal"},
+        {code:"FGLYCKO", name:"Flax Glycerin (Kosher) (Organic)", amount:65.08, overage:68.33, uom:"gal"}
+      ],
+      packaging:[
+        {code:"ABOS2", name:"2oz Amber Boston Round", amount:20500, uom:"ea"},
+        {code:"BGGD2", name:"2oz Black Glass Graduated Dropper (Silicone)", amount:20500, uom:"ea"},
+        {code:"BIGZ2L", name:"Zeolite Tincture 2oz Label (Bigly)", amount:20500, uom:"ea"},
+        {code:"45NOPR", name:"45mm No Print Roll", amount:20500, uom:"roll"},
+        {code:"95655524B", name:"9.5 x 6.5 x 5.5 24pk Box", amount:854, uom:"box"},
+        {code:"95655524D", name:"9.5 x 6.5 x 5.5 24pk Divider", amount:854, uom:"div"},
+        {code:"N/A", name:"YE Generated Case Label (Product Name, Brand Name, QTY/Case, LOT#, EXP)", amount:854, uom:"ea"}
+      ]
+    },
+    "P-15226": {
+      product:"Zeolite Tincture", kind:"packaging", mmr:"BIG-0004-325.4-A-2OZ-FNL",
+      volume:"325.4 Gallons", tanks:"8", cooks:"N/A", totalHerb:"67.878 lbs", lbsGal:"0.2086",
+      ingredients:[
+        {code:"ZECPM", name:"Zeolite Clay Powder (Micronized)", amount:54.303, overage:57.018, uom:"lbs"},
+        {code:"FVLMP", name:"Fulvic Mineral Powder (MLG-50)", amount:13.576, overage:14.254, uom:"lbs"},
+        {code:"CA536", name:"Citric Acid", amount:1.497, overage:1.572, uom:"lbs"},
+        {code:"FGLYCKO", name:"Flax Glycerin (Kosher) (Organic)", amount:65.08, overage:68.33, uom:"gal"}
+      ],
+      packaging:[
+        {code:"ABOS2", name:"2oz Amber Boston Round", amount:20500, uom:"ea"},
+        {code:"BGGD2", name:"2oz Black Glass Graduated Dropper (Silicone)", amount:20500, uom:"ea"},
+        {code:"BIGZ2L", name:"Zeolite Tincture 2oz Label (Bigly)", amount:20500, uom:"ea"},
+        {code:"45NOPR", name:"45mm No Print Roll", amount:20500, uom:"roll"},
+        {code:"95655524B", name:"9.5 x 6.5 x 5.5 24pk Box", amount:854, uom:"box"},
+        {code:"95655524D", name:"9.5 x 6.5 x 5.5 24pk Divider", amount:854, uom:"div"}
+      ]
+    }
+  }}
+};
+
+/* ================= STATE ================= */
+const LS_KEY='ye_kit_v1';
+let DB=null, mem=null;
+
+function freshDB(){
+  return {
+    v:1, brand:'Yellow Emperor', imported:false, importMeta:null,
+    inv: SEED_INV.map((r,i)=>Object.assign({id:'s'+i},r)),
+    kits:[], customers:JSON.parse(JSON.stringify(SEED_CUSTOMERS)),
+    activeKitId:null, theme:'auto', movements:[]
+  };
+}
+function loadDB(){
+  try{ const raw=localStorage.getItem(LS_KEY); if(raw){ DB=JSON.parse(raw); return; } }catch(e){}
+  DB=freshDB(); saveDB();
+}
+let saveT=null;
+function saveDB(){
+  try{ localStorage.setItem(LS_KEY, JSON.stringify(DB)); }
+  catch(e){ mem=DB; }
+}
+function saveSoon(){ clearTimeout(saveT); saveT=setTimeout(saveDB,180); }
+
+/* ================= UTILS ================= */
+let _id=0;
+const uid=(p='')=>p+Date.now().toString(36)+(_id++).toString(36)+Math.random().toString(36).slice(2,6);
+const $=(s,r=document)=>r.querySelector(s);
+const $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const escA=s=>esc(s);
+function num(v){ if(v==null||v==='')return 0; const n=parseFloat(String(v).replace(/,/g,'')); return isNaN(n)?0:n; }
+function fmtQty(n){ n=num(n); if(n===0)return '0'; const r=Math.round(n*1000)/1000;
+  return r.toLocaleString('en-US',{maximumFractionDigits:3}); }
+function fmtInt(n){ return Math.round(num(n)).toLocaleString('en-US'); }
+function todayISO(){ const d=new Date(); return d.toISOString().slice(0,10); }
+function nowStr(){ return new Date().toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}); }
+function haptic(){ if(navigator.vibrate){ try{navigator.vibrate(8);}catch(e){} } }
+
+/* ---- Location / In-Process parsing ---- */
+function parseLoc(loc){
+  loc=String(loc||'');
+  const wh = loc.includes('-') ? loc.split('-',1)[0] : loc;
+  const body = loc.includes('-') ? loc.slice(loc.indexOf('-')+1) : loc;
+  let ip=null;
+  let m;
+  if((m=/In\s*Process\s+(\d+)\s*(?:\(?\s*Packaging\s*\)?)/i.exec(loc))) ip={kind:'packaging',n:+m[1]};
+  else if((m=/Herbs?\s+(\d+)\s+In\s*Process/i.exec(loc))) ip={kind:'herb',n:+m[1]};
+  else if(/Alcohol\s+In\s*Process/i.test(loc)) ip={kind:'alcohol',n:0};
+  else if(/Glycerin\s+In\s*Process/i.test(loc)) ip={kind:'glycerin',n:0};
+  else if((m=/In\s*Process\s+(\d+)/i.exec(loc))) ip={kind:'packaging',n:+m[1]};
+  return {wh,body,ip,full:loc};
+}
+function ipLabel(loc){ const p=parseLoc(loc); if(!p.ip)return null;
+  if(p.ip.kind==='alcohol')return 'Alcohol IP'; if(p.ip.kind==='glycerin')return 'Glycerin IP';
+  return (p.ip.kind==='herb'?'Herbs ':'IP ')+p.ip.n; }
+function ipCanonical(kind,n){ return kind==='herb' ? `Main-Herbs ${n} In Process` : `Main-In Process ${n} (Packaging)`; }
+function ipShort(loc){ const p=parseLoc(loc); if(!p.ip)return loc; if(p.ip.kind==='alcohol')return 'Alcohol In Process';
+  if(p.ip.kind==='glycerin')return 'Glycerin In Process'; return (p.ip.kind==='herb'?'Herbs ':'In Process ')+p.ip.n; }
+function isIP(loc){ return !!parseLoc(loc).ip; }
+function locShort(loc){ // trim leading warehouse for display
+  const s=String(loc||''); return s.replace(/^Main-/,'').replace(/^Loss\/Missing-/,'⚠ '); }
+
+/* ---- Expiration ---- */
+function parseDate(s){ if(!s)return null; const m=/(\d{1,2})\/(\d{1,2})\/(\d{2,4})/.exec(String(s)); if(!m)return null;
+  let y=+m[3]; if(y<100)y+=2000; return new Date(y,+m[1]-1,+m[2]); }
+function expState(s){ const d=parseDate(s); if(!d)return {s:'none'}; const now=new Date();
+  const days=Math.round((d-now)/86400000);
+  if(days<0)return {s:'expired',days}; if(days<90)return {s:'soon',days}; return {s:'ok',days}; }
+
+/* ---- Inventory helpers ---- */
+function invById(id){ return DB.inv.find(r=>r.id===id); }
+function invByPart(part){ return DB.inv.filter(r=>r.part===part); }
+function descFor(part){ const r=DB.inv.find(x=>x.part===part); return r?r.desc:''; }
+function totalQty(part){ return invByPart(part).reduce((a,r)=>a+num(r.qty),0); }
+
+/* Move stock: from source row -> destination location, quantity amt.
+   Returns {ok, msg, destId}. Merges into existing dest row (same part+lot+uom). */
+function moveStock(srcId, destLoc, amt, opts={}){
+  const src=invById(srcId); if(!src) return {ok:false,msg:'Source not found'};
+  amt=num(amt); if(amt<=0) return {ok:false,msg:'Enter an amount'};
+  if(amt>num(src.qty)+1e-9) return {ok:false,msg:`Only ${fmtQty(src.qty)} ${src.uom} available`};
+  // find/creat dest
+  let dest=DB.inv.find(r=>r.part===src.part && r.lot===src.lot && r.uom===src.uom && r.loc===destLoc);
+  if(!dest){ dest=Object.assign({},src,{id:uid('m'),loc:destLoc,qty:0}); DB.inv.push(dest); }
+  dest.qty=num(dest.qty)+amt;
+  src.qty=num(src.qty)-amt;
+  if(num(src.qty)<=1e-9){ DB.inv=DB.inv.filter(r=>r.id!==src.id); }
+  DB.movements.unshift({t:Date.now(),part:src.part,from:src.loc,to:destLoc,amt,uom:src.uom,lot:src.lot,kind:opts.kind||'move'});
+  if(DB.movements.length>400)DB.movements.length=400;
+  saveSoon();
+  return {ok:true, destId:dest.id, src};
+}
+function cycleStock(srcId,newQty){
+  const src=invById(srcId); if(!src)return {ok:false};
+  const old=num(src.qty); newQty=num(newQty);
+  src.qty=newQty;
+  DB.movements.unshift({t:Date.now(),part:src.part,from:src.loc,to:src.loc,amt:newQty-old,uom:src.uom,lot:src.lot,kind:'cycle'});
+  if(num(src.qty)<=1e-9 && newQty===0){ /* keep zero rows visible until removed */ }
+  saveSoon(); return {ok:true};
+}
+
+/* ---- IP occupancy across inventory + active kits ---- */
+function ipOccupancy(kind){
+  const map={}; // n -> {parts:Set, qty, kitId}
+  DB.inv.forEach(r=>{ const p=parseLoc(r.loc); if(p.ip&&p.ip.kind===kind&&num(r.qty)>1e-9){
+    const n=p.ip.n; (map[n]=map[n]||{parts:new Set(),qty:0})['parts'].add(r.part); map[n].qty+=num(r.qty); }});
+  DB.kits.forEach(k=>{ if(k.status!=='complete'&&k.ip){ const p=parseLoc(k.ip);
+    if(p.ip&&p.ip.kind===kind){ const n=p.ip.n; (map[n]=map[n]||{parts:new Set(),qty:0}); map[n].kit=k; }}});
+  return map;
+}
+
+/* ================= CSV ================= */
+function parseCSV(text){
+  text=text.replace(/^﻿/,''); const rows=[]; let row=[],cell='',q=false;
+  for(let i=0;i<text.length;i++){ const c=text[i];
+    if(q){ if(c==='"'){ if(text[i+1]==='"'){cell+='"';i++;} else q=false; } else cell+=c; }
+    else{ if(c==='"')q=true; else if(c===','){row.push(cell);cell='';}
+      else if(c==='\n'){row.push(cell);rows.push(row);row=[];cell='';}
+      else if(c==='\r'){} else cell+=c; } }
+  if(cell!==''||row.length){row.push(cell);rows.push(row);}
+  return rows.filter(r=>r.length>1||(r.length===1&&r[0].trim()!==''));
+}
+const FB_COLS=["PartNumber","PartDescription","Location","Qty","UOM","Cost","QbClass","Date","Note","Tracking-Expiration Date","Tracking-Vendor Lot #","Tracking-YE Lot #","Tracking-Quality","Tracking-Country of Origin","Tracking-TBD"];
+function importFishbowlCSV(text, fileName){
+  const rows=parseCSV(text); if(!rows.length) return {ok:false,msg:'Empty file'};
+  let start=0; const h=rows[0].map(x=>x.trim().toLowerCase());
+  const looksHeader = h[0].includes('part') || h.includes('location');
+  if(looksHeader) start=1;
+  const inv=[];
+  for(let i=start;i<rows.length;i++){ const r=rows[i]; if(!r[0]||!r[0].trim())continue;
+    inv.push({ id:uid('i'), part:(r[0]||'').trim(), desc:(r[1]||'').trim(), loc:(r[2]||'').trim(),
+      qty:num(r[3]), uom:(r[4]||'').trim(), cost:(r[5]||'').trim(), qbClass:(r[6]||'').trim(),
+      date:(r[7]||'').trim(), note:(r[8]||'').trim(), exp:(r[9]||'').trim(), vlot:(r[10]||'').trim(),
+      lot:(r[11]||'').trim(), quality:(r[12]||'').trim(), origin:(r[13]||'').trim(), tbd:(r[14]||'').trim() }); }
+  if(!inv.length) return {ok:false,msg:'No inventory rows found'};
+  DB.inv=inv; DB.imported=true;
+  DB.importMeta={name:fileName||'import.csv', date:nowStr(), rows:inv.length,
+    firstPart:inv[0].part, lastPart:inv[inv.length-1].part};
+  saveDB();
+  return {ok:true, rows:inv.length};
+}
+function toCSVField(s){ s=String(s==null?'':s); return /[",\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s; }
+function exportInventoryCSV(){
+  const lines=[FB_COLS.join(',')+','];
+  DB.inv.forEach(r=>{ lines.push([r.part,r.desc,r.loc,r.qty,r.uom,r.cost,r.qbClass,r.date,r.note,r.exp,r.vlot,r.lot,r.quality,r.origin,r.tbd].map(toCSVField).join(',')+','); });
+  return lines.join('\n');
+}
+function downloadBlob(data, name, type){
+  try{
+    const blob=(data instanceof Blob)?data:new Blob([data],{type:type||'text/plain'});
+    const url=URL.createObjectURL(blob); const a=document.createElement('a');
+    a.href=url; a.download=name; document.body.appendChild(a); a.click();
+    setTimeout(()=>{URL.revokeObjectURL(url);a.remove();},1500); return true;
+  }catch(e){ return false; }
+}
+
+/* ================= ROUTER / SHELL ================= */
+let ROUTE='inventory';
+const TABS=[
+  {id:'inventory',label:'Inventory',ic:IC.box},
+  {id:'kits',label:'Kits',ic:IC.layers},
+  {id:'overview',label:'Overview',ic:IC.grid},
+  {id:'formula',label:'Formula',ic:IC.scan},
+  {id:'settings',label:'Settings',ic:IC.gear},
+];
+function go(r){ ROUTE=r; render(); window.scrollTo(0,0); }
+
+function render(){
+  const app=$('#app');
+  let html='';
+  if(ROUTE==='inventory') html=viewInventory();
+  else if(ROUTE==='kits') html=viewKits();
+  else if(ROUTE==='overview') html=viewOverview();
+  else if(ROUTE==='formula') html=viewFormula();
+  else if(ROUTE==='settings') html=viewSettings();
+  app.innerHTML=html + tabbar();
+  updateBubble();
+  if(ROUTE==='overview') mountKanbanDnD();
+}
+function tabbar(){
+  return `<nav class="tabbar">`+TABS.map(t=>`<button class="tab ${ROUTE===t.id?'on':''}" data-act="go" data-r="${t.id}">${t.ic}<span>${t.label}</span></button>`).join('')+`</nav>`;
+}
+
+/* ---------- toast ---------- */
+let toastT=null;
+function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('on'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('on'),1900); }
+
+/* ---------- sheets ---------- */
+let sheetStack=[];
+function openSheet(opts){
+  const {title,body,foot,full,leftBtn,rightBtn,onLeft,onRight,id}=opts;
+  const sid=id||uid('sh');
+  const el=document.createElement('div');
+  el.className='sheet'+(full?' full':'')+(opts.wide?' wide':''); el.dataset.sid=sid;
+  el.innerHTML=`${full?'':'<div class="grabber"></div>'}
+    <div class="sheet-head">
+      <button class="sb" data-act="sheetLeft">${leftBtn||'Cancel'}</button>
+      <div class="st">${esc(title||'')}</div>
+      <button class="sb right ${rightBtn?'strong':''}" data-act="sheetRight">${rightBtn||''}</button>
+    </div>
+    <div class="sheet-body">${body||''}</div>
+    ${foot?`<div class="sheet-foot">${foot}</div>`:''}`;
+  $('#sheets').appendChild(el);
+  const rec={sid,el,onLeft,onRight,opts}; sheetStack.push(rec);
+  $('#scrim').classList.add('on');
+  requestAnimationFrame(()=>requestAnimationFrame(()=>el.classList.add('on')));
+  if(opts.onMount) setTimeout(()=>opts.onMount(el),40);
+  return rec;
+}
+function topSheet(){ return sheetStack[sheetStack.length-1]; }
+function closeSheet(all){
+  const rec=sheetStack.pop(); if(!rec){ $('#scrim').classList.remove('on'); return; }
+  rec.el.classList.remove('on');
+  setTimeout(()=>rec.el.remove(),320);
+  if(all||!sheetStack.length) $('#scrim').classList.remove('on');
+  if(rec.opts&&rec.opts.onClose)rec.opts.onClose();
+}
+function closeAllSheets(){ while(sheetStack.length)closeSheet(true); $('#scrim').classList.remove('on'); }
+function closeSheetById(sid){ const idx=sheetStack.findIndex(s=>s.sid===sid); if(idx<0)return;
+  const rec=sheetStack[idx]; sheetStack.splice(idx,1); rec.el.classList.remove('on');
+  setTimeout(()=>rec.el.remove(),320); if(!sheetStack.length)$('#scrim').classList.remove('on');
+  if(rec.opts&&rec.opts.onClose)rec.opts.onClose(); }
+
+/* confirm dialog */
+function confirmSheet(title,msg,confirmLabel,onYes,danger){
+  openSheet({ title, leftBtn:'Cancel', full:false,
+    body:`<div class="group"><div class="callout"><span class="ci">${IC.info}</span><div>${esc(msg)}</div></div></div>`,
+    foot:`<button class="btn ${danger?'redfill':'fill'} block" data-act="confirmYes">${esc(confirmLabel||'Confirm')}</button>`,
+    onMount:(el)=>{ el._yes=onYes; } });
+}
+
+/* ================= INVENTORY VIEW ================= */
+let invSearch='', invFilter='all';
+function invGroups(){
+  const q=invSearch.trim().toLowerCase();
+  const map=new Map();
+  for(const r of DB.inv){
+    if(invFilter==='ip' && !isIP(r.loc)) continue;
+    if(q && !(r.part.toLowerCase().includes(q)||r.desc.toLowerCase().includes(q)||r.lot.toLowerCase().includes(q)||r.loc.toLowerCase().includes(q))) continue;
+    let g=map.get(r.part); if(!g){ g={part:r.part,desc:r.desc,rows:[],qty:0,locs:new Set(),exp:'ok'}; map.set(r.part,g); }
+    g.rows.push(r); g.qty+=num(r.qty); g.locs.add(r.loc);
+    const es=expState(r.exp).s; if(es==='expired')g.exp='expired'; else if(es==='soon'&&g.exp!=='expired')g.exp='soon';
+  }
+  return Array.from(map.values()).sort((a,b)=>a.part.localeCompare(b.part));
+}
+function viewInventory(){
+  const groups=invGroups();
+  const shown=groups.slice(0,120);
+  const src = DB.imported ? `${esc(DB.importMeta.name)} · ${fmtInt(DB.importMeta.rows)} rows` : 'Sample data — import a Fishbowl report to replace';
+  let rows=shown.map(g=>{
+    const uomSet=new Set(g.rows.map(r=>r.uom)); const uom=uomSet.size===1?[...uomSet][0]:'';
+    const ipCount=g.rows.filter(r=>isIP(r.loc)).length;
+    let badge=''; if(g.exp==='expired')badge=`<span class="pill red">Expired</span>`;
+    else if(g.exp==='soon')badge=`<span class="pill orange">Exp soon</span>`;
+    return `<div class="row tap" data-act="invPart" data-part="${escA(g.part)}">
+      <div class="grow"><div class="t1">${esc(g.part)}</div><div class="t2">${esc(g.desc)}</div></div>
+      <div class="r">
+        <div class="t1 tnum">${fmtQty(g.qty)} <span style="font-weight:500;color:var(--label-2);font-size:12px">${esc(uom)}</span></div>
+        <div class="t2">${g.locs.size} loc${g.locs.size>1?'s':''}${ipCount?` · <span style="color:var(--orange)">${ipCount} IP</span>`:''}</div>
+      </div>${badge?`<div class="r">${badge}</div>`:''}
+      <span class="chev">${IC.chev}</span></div>`;
+  }).join('');
+  if(!shown.length) rows=`<div class="empty"><div class="ico">${IC.box}</div><h3>No items</h3><p>${invSearch?'Nothing matches your search.':'Import a Fishbowl report to get started.'}</p></div>`;
+  return `<section class="view">
+    <div class="nav"><div class="nav-row">
+      <button class="nav-btn" data-act="go" data-r="settings">Import</button>
+      <div class="nav-title brandmark"><span style="color:var(--accent)">${IC.leaf}</span> Yellow Emperor</div>
+      <button class="nav-btn right" data-act="ipMap">IP Map</button>
+    </div></div>
+    <div class="large-title"><h1>Inventory</h1><div class="sub">${src}</div></div>
+    <div class="seg"><button class="${invFilter==='all'?'on':''}" data-act="invFilter" data-f="all">All items</button>
+      <button class="${invFilter==='ip'?'on':''}" data-act="invFilter" data-f="ip">In-Process only</button></div>
+    <div class="search"><input type="search" placeholder="Search part #, description, lot, location" value="${escA(invSearch)}" data-act="invSearch" data-live="1"></div>
+    <div class="stat">
+      <div class="s"><div class="v tnum">${fmtInt(new Set(DB.inv.map(r=>r.part)).size)}</div><div class="l">Distinct parts</div></div>
+      <div class="s"><div class="v tnum">${fmtInt(DB.inv.length)}</div><div class="l">Stock lines</div></div>
+      <div class="s"><div class="v tnum">${fmtInt(DB.inv.filter(r=>isIP(r.loc)).length)}</div><div class="l">In-Process</div></div>
+    </div>
+    <div class="group"><div class="group-h"><span>${groups.length>120?`Showing 120 of ${groups.length}`:`${groups.length} part${groups.length!==1?'s':''}`}</span></div>
+      <div class="card">${rows}</div></div>
+  </section>`;
+}
+
+/* ---- Inventory: part detail sheet ---- */
+function openInvPart(part){
+  const rows=invByPart(part).sort((a,b)=>{ const ai=isIP(a.loc)?0:1, bi=isIP(b.loc)?0:1; return ai-bi || b.qty-a.qty; });
+  const desc=rows.length?rows[0].desc:'';
+  const body=`<div class="group"><div class="group-h"><span>${esc(part)}</span><span class="tnum">${fmtQty(totalQty(part))} total</span></div>
+    <div style="font-size:13px;color:var(--label-2);margin:0 4px 10px">${esc(desc)}</div>
+    ${rows.map(r=>invLineCard(r)).join('')||'<div class="empty"><p>No stock lines.</p></div>'}
+  </div>`;
+  openSheet({ title:part, leftBtn:'Done', body, id:'invpart',
+    rightBtn:'', full:true });
+}
+function invLineCard(r){
+  const ip=isIP(r.loc); const es=expState(r.exp);
+  let expPill=''; if(es.s==='expired')expPill=`<span class="pill red">Expired</span>`;
+  else if(es.s==='soon')expPill=`<span class="pill orange">${es.days}d</span>`;
+  else if(es.s==='ok')expPill=`<span class="pill gray">exp ${esc(r.exp)}</span>`;
+  return `<div class="line">
+    <div class="line-top"><div class="grow">
+      <div class="desc">${esc(locShort(r.loc))} ${ip?'<span class="pill orange">In-Process</span>':''}</div>
+      <div class="meta"><span class="mono">Lot ${esc(r.lot||'—')}</span> ${r.origin?`<span>${esc(r.origin)}</span>`:''} ${r.quality?`<span>${esc(r.quality)}</span>`:''} ${expPill}</div>
+    </div><div class="r"><div class="t1 tnum">${fmtQty(r.qty)} <span style="font-weight:500;font-size:12px;color:var(--label-2)">${esc(r.uom)}</span></div></div></div>
+    <div class="acts">
+      <button class="btn sm tint" data-act="moveStart" data-id="${r.id}">${IC.move}${ip?'Move':'Move'}</button>
+      ${ip?`<button class="btn sm gray" data-act="returnStart" data-id="${r.id}">${IC.return}Return</button>`:''}
+      <button class="btn sm gray" data-act="cycleStart" data-id="${r.id}">${IC.cycle}Cycle</button>
+      ${DB.activeKitId?`<button class="btn sm fill" data-act="pickToKit" data-id="${r.id}">${IC.plus}To kit</button>`:''}
+    </div></div>`;
+}
+
+/* ---- Move sheet ---- */
+function openMove(id, mode){ // mode: 'move' | 'return'
+  const r=invById(id); if(!r)return;
+  const ip=isIP(r.loc);
+  mode = mode || (ip?'return':'move');
+  const body=`<div class="group">
+      <div class="card">
+        <div class="field"><label>Part</label><div class="in" style="text-align:right"><div style="font-weight:600">${esc(r.part)}</div><div style="font-size:12px;color:var(--label-2)">${esc(r.desc)}</div></div></div>
+        <div class="field"><label>From</label><div class="in" style="text-align:right">${esc(locShort(r.loc))}</div></div>
+        <div class="field"><label>Lot</label><div class="in mono" style="text-align:right">${esc(r.lot||'—')}</div></div>
+        <div class="field"><label>Available</label><div class="in tnum" style="text-align:right">${fmtQty(r.qty)} ${esc(r.uom)}</div></div>
+      </div></div>
+    <div class="group"><div class="group-h">Destination</div>
+      <div class="card">
+        <div class="field"><label>${mode==='return'?'Return to':'Move to'}</label><div class="in"><input id="mv-dest" placeholder="${mode==='return'?'e.g. Main-Back Warehouse':'Choose location'}" value="${escA(mode==='return'?'Main-Back Warehouse':'')}"></div></div>
+        ${mode==='move'?`<div class="field" style="justify-content:center"><button class="btn sm tint" data-act="pickIP" data-target="mv-dest">${IC.grid} Pick In-Process (IP) location</button></div>`:''}
+      </div></div>
+    <div class="group">
+      <div class="card"><div class="field"><label>Amount</label><div class="in"><input id="mv-amt" type="number" inputmode="decimal" step="any" placeholder="0" value="${fmtQty(r.qty)}"></div></div>
+        <div class="field"><label></label><div class="in" style="text-align:right"><button class="btn sm gray" data-act="mvAll" data-id="${r.id}">All ${fmtQty(r.qty)} ${esc(r.uom)}</button></div></div></div>
+    </div>`;
+  openSheet({ title: mode==='return'?'Return to Inventory':'Move Stock', leftBtn:'Cancel',
+    rightBtn:'Move', body, id:'move',
+    onRight:()=>{ const dest=$('#mv-dest').value.trim(); const amt=num($('#mv-amt').value);
+      if(!dest){ toast('Choose a destination'); return; }
+      const res=moveStock(r.id, dest, amt, {kind:mode});
+      if(!res.ok){ toast(res.msg); return; }
+      closeSheet(); // move sheet
+      toast(`Moved ${fmtQty(amt)} ${r.uom} → ${locShort(dest)}`);
+      refreshInvPart(r.part);
+    }});
+}
+function refreshInvPart(part){
+  render();
+  const ips=$('.sheet[data-sid="invpart"] .sheet-body');
+  // re-render part detail if open
+  const partSheet=sheetStack.find(s=>s.sid==='invpart');
+  if(partSheet){ const rows=invByPart(part);
+    if(!rows.length){ // nothing left
+      const rec=sheetStack.find(s=>s.sid==='invpart'); if(rec){ rec.el.classList.remove('on'); setTimeout(()=>rec.el.remove(),300); sheetStack=sheetStack.filter(s=>s!==rec); }
+      return; }
+    partSheet.el.querySelector('.sheet-body').innerHTML=`<div class="group"><div class="group-h"><span>${esc(part)}</span><span class="tnum">${fmtQty(totalQty(part))} total</span></div>
+      <div style="font-size:13px;color:var(--label-2);margin:0 4px 10px">${esc(rows[0].desc)}</div>
+      ${rows.sort((a,b)=>{const ai=isIP(a.loc)?0:1,bi=isIP(b.loc)?0:1;return ai-bi||b.qty-a.qty;}).map(r=>invLineCard(r)).join('')}</div>`;
+  }
+}
+
+/* ---- Cycle sheet ---- */
+function openCycle(id){
+  const r=invById(id); if(!r)return;
+  const body=`<div class="group"><div class="callout"><span class="ci">${IC.cycle}</span><div>Adjust or zero the counted quantity for this stock line (cycle count).</div></div>
+    <div class="card">
+      <div class="field"><label>Part</label><div class="in" style="text-align:right;font-weight:600">${esc(r.part)}</div></div>
+      <div class="field"><label>Location</label><div class="in" style="text-align:right">${esc(locShort(r.loc))}</div></div>
+      <div class="field"><label>Lot</label><div class="in mono" style="text-align:right">${esc(r.lot||'—')}</div></div>
+      <div class="field"><label>Current</label><div class="in tnum" style="text-align:right">${fmtQty(r.qty)} ${esc(r.uom)}</div></div>
+      <div class="field"><label>New count</label><div class="in"><input id="cy-amt" type="number" inputmode="decimal" step="any" value="${num(r.qty)}"></div></div>
+    </div></div>
+    <div class="group"><button class="btn red block" data-act="cyZero">Zero out this line</button></div>`;
+  openSheet({ title:'Cycle Count', leftBtn:'Cancel', rightBtn:'Save', body, id:'cycle',
+    onRight:()=>{ cycleStock(r.id, num($('#cy-amt').value)); closeSheet(); toast('Count updated'); refreshInvPart(r.part); }});
+}
+
+/* ================= IP PICKER ================= */
+function ipRange(kind){ // list of slot numbers to show
+  const set=new Set();
+  const max = kind==='herb'?72:72;
+  for(let i=1;i<=max;i++)set.add(i);
+  // include any occupied numbers beyond range
+  DB.inv.forEach(r=>{const p=parseLoc(r.loc); if(p.ip&&p.ip.kind===kind&&p.ip.n)set.add(p.ip.n);});
+  return Array.from(set).sort((a,b)=>a-b);
+}
+function openIPPicker(opts){ // {kind, onPick(loc,n), current}
+  const kind=opts.kind||'packaging';
+  const render=()=>{
+    const occ=ipOccupancy(kind); const nums=ipRange(kind);
+    const cur=opts.current?parseLoc(opts.current):null;
+    const cells=nums.map(n=>{
+      const o=occ[n]; const isOcc=!!o; const selected=cur&&cur.ip&&cur.ip.n===n;
+      const dot=o&&o.kit?`<span class="dot" style="background:var(--blue)"></span>`:(isOcc?`<span class="dot" style="background:var(--orange)"></span>`:'');
+      return `<button class="ipcell ${selected?'sel':isOcc?'occ':'free'}" data-act="ipSel" data-n="${n}" data-kind="${kind}">
+        ${dot}<span class="n">${n}</span><span class="s">${isOcc?(o.kit?'kit':fmtInt(o.qty)):'empty'}</span></button>`;
+    }).join('');
+    return `<div class="seg"><button class="${kind==='packaging'?'on':''}" data-act="ipKind" data-kind="packaging">Packaging IPs</button>
+        <button class="${kind==='herb'?'on':''}" data-act="ipKind" data-kind="herb">Herb IPs</button></div>
+      <div class="callout"><span class="ci">${IC.info}</span><div>Tap a slot to select it. <b style="color:var(--orange)">Amber</b> = occupied (holds stock), <b>dashed</b> = empty, <b style="color:var(--blue)">blue dot</b> = an open kit is using it. You can select an occupied slot to share an IP (e.g. a packaging kit under the same batch as its herb kit).</div></div>
+      <div class="group"><div class="ipgrid">${cells}</div></div>`;
+  };
+  const rec=openSheet({ title:'In-Process Locations', leftBtn:'Cancel', rightBtn:'', full:true, id:'ippick',
+    body: render() });
+  rec._ip={kind,opts,render};
+}
+
+/* ================= KITS ================= */
+function kitById(id){ return DB.kits.find(k=>k.id===id); }
+function activeKit(){ return kitById(DB.activeKitId); }
+const STATUS={ building:{label:'Building',color:'var(--blue)',pill:'blue'},
+  review:{label:'Ready to print',color:'var(--orange)',pill:'orange'},
+  complete:{label:'Complete',color:'var(--green)',pill:'green'} };
+function kitProgress(kit){
+  if(kit.reqs&&kit.reqs.length){
+    let done=0; kit.reqs.forEach(rq=>{ const t=lineSum(kit,rq.id); if(t>=num(rq.suggested)-1e-6&&num(rq.suggested)>0)done++; });
+    return {done,total:kit.reqs.length,frac:kit.reqs.length?done/kit.reqs.length:0};
+  }
+  const n=kit.lines.length; return {done:n,total:n,frac:n?1:0};
+}
+function lineSum(kit,reqId){ return kit.lines.filter(l=>l.reqId===reqId).reduce((a,l)=>a+num(l.transferred),0); }
+
+function viewKits(){
+  const kits=DB.kits.slice().sort((a,b)=>b.updatedAt-a.updatedAt);
+  let body;
+  if(!kits.length){
+    body=`<div class="empty"><div class="ico">${IC.layers}</div><h3>No kits yet</h3>
+      <p>Start a kit by entering the customer, product and batch, then pick an In-Process location.</p>
+      <div style="margin-top:18px"><button class="btn fill" data-act="newKit">${IC.plus} New Kit</button></div></div>`;
+  } else {
+    body=kits.map(k=>{
+      const st=STATUS[k.status]||STATUS.building; const pr=kitProgress(k);
+      const active=k.id===DB.activeKitId;
+      return `<div class="row tap" data-act="openKitId" data-id="${k.id}">
+        <div class="grow"><div class="t1">${esc(k.customer||'Untitled')} ${active?'<span class="pill green">Active</span>':''}</div>
+          <div class="t2">${esc(k.product||'—')} · Batch ${esc(k.batch||'—')} · ${k.type==='herb'?'Herb':'Packaging'} · ${esc(k.ipLabel||'no IP')}</div></div>
+        <div class="r"><span class="pill ${st.pill}">${st.label}</span><div class="t2 tnum" style="margin-top:4px">${k.lines.length} line${k.lines.length!==1?'s':''}${k.reqs&&k.reqs.length?` · ${pr.done}/${pr.total}`:''}</div></div>
+        <span class="chev">${IC.chev}</span></div>`;
+    }).join('');
+    body=`<div class="group"><div class="group-h">${kits.length} kit${kits.length!==1?'s':''}</div><div class="card">${body}</div></div>`;
+  }
+  return `<section class="view">
+    <div class="nav"><div class="nav-row">
+      <div class="nav-btn" style="opacity:0">.</div>
+      <div class="nav-title">Kits</div>
+      <button class="nav-btn right" data-act="newKit">${IC.plus}</button>
+    </div></div>
+    <div class="large-title"><h1>Kits</h1><div class="sub">Build a kit, then print the Material &amp; Packaging Kit Form</div></div>
+    ${body}
+    <div class="group"><button class="btn fill block" data-act="newKit">${IC.plus} Start New Kit</button></div>
+  </section>`;
+}
+
+/* ---- New Kit flow ---- */
+let nk={};
+function openNewKit(){
+  nk={ type:'herb', customer:'', product:'', batch:'', ip:'', ipLabel:'' };
+  renderNewKit();
+}
+function nkBatchFieldHTML(){
+  const batches = nk.customer && DB.customers[nk.customer] ? Object.keys(DB.customers[nk.customer].batches) : [];
+  if(batches.length) return `<label>Batch #</label><select id="nk-batch" data-act="nkBatch"><option value="">— Select batch from ${esc(nk.customer)}'s file —</option>
+      ${batches.map(b=>`<option value="${escA(b)}" ${nk.batch===b?'selected':''}>${esc(b)} · ${esc(DB.customers[nk.customer].batches[b].product||'')}</option>`).join('')}
+      <option value="__new">＋ New batch #…</option></select>`;
+  return `<label>Batch #</label><input id="nk-batch" placeholder="${nk.customer?`No batches on file for ${esc(nk.customer)} — type one`:'Enter customer first, or type a batch #'}" value="${escA(nk.batch)}" data-act="nkBatchText" data-live="1">`;
+}
+function updateNkBatchField(){ const w=$('#nk-batch-wrap'); if(w)w.innerHTML=nkBatchFieldHTML(); }
+function renderNewKit(){
+  const custNames=Object.keys(DB.customers).sort();
+  const batches = nk.customer && DB.customers[nk.customer] ? Object.keys(DB.customers[nk.customer].batches) : [];
+  const body=`
+    <div class="callout"><span class="ci">${IC.info}</span><div>Enter the kit's preliminary details. Choose the kit type first — this controls which Master-Formula section (Ingredients vs Packaging) is used and which In-Process pool you pick from.</div></div>
+    <div class="seg"><button class="${nk.type==='herb'?'on':''}" data-act="nkType" data-t="herb">🌿 Herb Kit</button>
+      <button class="${nk.type==='packaging'?'on':''}" data-act="nkType" data-t="packaging">📦 Packaging Kit</button></div>
+    <div class="group"><div class="card">
+      <div class="field stack"><label>Customer</label>
+        <input id="nk-cust" list="nk-custlist" placeholder="e.g. Bigly" value="${escA(nk.customer)}" data-act="nkCust" data-live="1">
+        <datalist id="nk-custlist">${custNames.map(c=>`<option value="${escA(c)}">`).join('')}</datalist></div>
+      <div class="field stack" id="nk-batch-wrap">${nkBatchFieldHTML()}</div>
+      <div class="field stack"><label>Product</label>
+        <input id="nk-prod" placeholder="Auto-fills from batch, or type" value="${escA(nk.product)}" data-act="nkProd" data-live="1"></div>
+    </div></div>
+    <div class="group"><div class="group-h">In-Process location</div>
+      <div class="card"><div class="field"><label>IP slot</label>
+        <div class="in" style="text-align:right">${nk.ip?`<b>${esc(nk.ipLabel)}</b>`:'<span style="color:var(--label-3)">Not selected</span>'}</div></div>
+        <div class="field" style="justify-content:center"><button class="btn tint sm" data-act="nkPickIP">${IC.grid} ${nk.ip?'Change IP location':'Choose In-Process location'}</button></div>
+      </div>
+      <div style="font-size:12px;color:var(--label-2);margin:8px 4px">Herb kits use Herb IPs, packaging kits use Packaging IPs. You may pick an occupied slot to share it with a matching kit under the same batch.</div>
+    </div>`;
+  const rec=sheetStack.find(s=>s.sid==='newkit');
+  if(rec){ rec.el.querySelector('.sheet-body').innerHTML=body; }
+  else openSheet({ title:'New Kit', leftBtn:'Cancel', rightBtn:'Create', body, id:'newkit',
+    onRight:submitNewKit });
+}
+function submitNewKit(){
+  if(!nk.customer.trim()){ toast('Enter a customer'); return; }
+  if(!nk.batch.trim()){ toast('Enter or select a batch #'); return; }
+  if(!nk.ip){ toast('Choose an In-Process location'); return; }
+  const kit=createKit(nk);
+  closeSheet();
+  // If batch has a formula, offer to load it
+  const cust=DB.customers[nk.customer]; const batch=cust&&cust.batches[nk.batch];
+  if(batch){ loadFormulaIntoKit(kit, batch, kit.type); toast('Kit created — formula loaded'); }
+  else toast('Kit created');
+  openKitBuilder();
+}
+function createKit(o){
+  const kit={ id:uid('k'), name:o.product||o.customer, type:o.type, status:'building',
+    customer:o.customer.trim(), product:o.product.trim(), batch:o.batch.trim(),
+    ip:o.ip, ipLabel:o.ipLabel,
+    fulfillBy:'', approvedBy:'', dateFulfilled:'', dateApproved:'',
+    inspectedBy:'', dateInspected:'', returnBy:'', dateReturn:'', qcSignoff:'', reviewDate:'',
+    notes:'', createdAt:Date.now(), updatedAt:Date.now(), reqs:[], lines:[] };
+  DB.kits.push(kit); DB.activeKitId=kit.id; saveDB(); return kit;
+}
+function loadFormulaIntoKit(kit, batch, kind){
+  const items = kind==='herb' ? (batch.ingredients||[]) : (batch.packaging||[]);
+  kit.reqs = items.filter(it=>it.code&&it.code!=='N/A').map(it=>({ id:uid('r'), code:it.code, name:it.name,
+    suggested: kind==='herb' ? num(it.overage||it.amount) : num(it.amount), uom:it.uom||'' }));
+  // Also keep N/A items (water, case label) as note-only requirements
+  kit.formulaMeta={ product:batch.product, mmr:batch.mmr };
+  if(!kit.product) kit.product=batch.product||'';
+  kit.updatedAt=Date.now(); saveDB();
+}
+function deleteKit(id){
+  const kit=kitById(id); if(!kit)return;
+  // return any transferred stock back to source
+  kit.lines.slice().forEach(l=>returnLine(kit,l.id,true));
+  DB.kits=DB.kits.filter(k=>k.id!==id);
+  if(DB.activeKitId===id) DB.activeKitId=DB.kits.length?DB.kits[DB.kits.length-1].id:null;
+  saveDB();
+}
+
+/* ---- Kit line operations ---- */
+function addPickToKit(kit, srcId, amt, reqId){
+  const src=invById(srcId); if(!src)return {ok:false,msg:'Not found'};
+  const srcLoc=src.loc, srcLot=src.lot, srcUom=src.uom, part=src.part, desc=src.desc;
+  const res=moveStock(srcId, kit.ip, amt, {kind:'kit'});
+  if(!res.ok)return res;
+  const line={ id:uid('l'), reqId:reqId||null, code:part, desc, loc:srcLoc, lot:srcLot, uom:srcUom,
+    transferred:num(amt), invId:res.destId,
+    pc:false, fb:false, amount:'', fuom:'', packages:'', ret:'', units:'', rtn:false, note:'' };
+  kit.lines.push(line); kit.updatedAt=Date.now(); saveDB();
+  return {ok:true, line};
+}
+function returnLine(kit, lineId, silent){
+  const idx=kit.lines.findIndex(l=>l.id===lineId); if(idx<0)return;
+  const l=kit.lines[idx];
+  // find the ip stock row for this part/lot/uom
+  const ipRow=DB.inv.find(r=>r.part===l.code&&r.lot===l.lot&&r.uom===l.uom&&r.loc===kit.ip);
+  const amt=Math.min(num(l.transferred), ipRow?num(ipRow.qty):0);
+  if(ipRow&&amt>0) moveStock(ipRow.id, l.loc||'Main-Back Warehouse', amt, {kind:'return'});
+  kit.lines.splice(idx,1); kit.updatedAt=Date.now(); saveDB();
+  if(!silent){ render(); if(sheetStack.find(s=>s.sid==='kitbuild')) renderKitBuilder(); toast('Returned to inventory'); }
+}
+function deleteLine(kit,lineId){ returnLine(kit,lineId,true); render(); renderKitBuilder(); toast('Line removed & stock returned'); }
+
+/* ---- Bubble ---- */
+function updateBubble(){
+  const b=$('#bubble'); const kit=activeKit();
+  if(!kit || sheetStack.find(s=>s.sid==='kitbuild')){ b.classList.add('hidden'); return; }
+  b.classList.remove('hidden');
+  b.querySelector('.bico').innerHTML=IC.cart;
+  b.querySelector('.bcount').textContent=kit.ipLabel||'';
+  const badge=b.querySelector('.bbadge'); const n=kit.lines.length;
+  if(n>0){ badge.textContent=n; badge.classList.remove('hidden'); } else badge.classList.add('hidden');
+}
+function tossToBubble(fromEl){
+  const b=$('#bubble');
+  if(!fromEl||!b||b.classList.contains('hidden')||window.matchMedia('(prefers-reduced-motion:reduce)').matches){ pulseBubble(); return; }
+  const s=fromEl.getBoundingClientRect(), e=b.getBoundingClientRect();
+  const sx=s.left+s.width/2, sy=s.top+s.height/2, ex=e.left+e.width/2, ey=e.top+e.height/2;
+  const ball=document.createElement('div'); ball.className='paperball'; ball.innerHTML=IC.paper;
+  ball.style.left=(sx-10)+'px'; ball.style.top=(sy-10)+'px'; document.body.appendChild(ball);
+  const peakY=Math.min(sy,ey)-90-Math.random()*40; const t0=performance.now(); const dur=560;
+  function frame(t){ let p=(t-t0)/dur; if(p>1)p=1;
+    const x=sx+(ex-sx)*p;
+    const y=(1-p)*(1-p)*sy + 2*(1-p)*p*peakY + p*p*ey;
+    const sc=1-0.6*p, rot=p*540;
+    ball.style.transform=`translate(${x-sx}px,${y-sy}px) scale(${sc}) rotate(${rot}deg)`;
+    ball.style.opacity=p>0.85?String((1-p)/0.15):'1';
+    if(p<1)requestAnimationFrame(frame); else { ball.remove(); pulseBubble(); }
+  }
+  requestAnimationFrame(frame);
+}
+function pulseBubble(){ const b=$('#bubble'); if(b.classList.contains('hidden'))return; b.classList.remove('pulse'); void b.offsetWidth; b.classList.add('pulse'); haptic(); }
+function tossTo(fromEl, targetEl, cb){
+  if(!fromEl||!targetEl||window.matchMedia('(prefers-reduced-motion:reduce)').matches){ if(cb)cb(); return; }
+  const s=fromEl.getBoundingClientRect(), e=targetEl.getBoundingClientRect();
+  const sx=s.left+s.width/2, sy=s.top+s.height/2, ex=e.left+e.width/2, ey=e.top+e.height/2;
+  const ball=document.createElement('div'); ball.className='paperball'; ball.innerHTML=IC.paper;
+  ball.style.left=(sx-10)+'px'; ball.style.top=(sy-10)+'px'; document.body.appendChild(ball);
+  const peakY=Math.min(sy,ey)-70-Math.random()*40; const t0=performance.now(), dur=520;
+  (function fr(t){ let p=(t-t0)/dur; if(p>1)p=1;
+    const x=sx+(ex-sx)*p, y=(1-p)*(1-p)*sy+2*(1-p)*p*peakY+p*p*ey;
+    ball.style.transform=`translate(${x-sx}px,${y-sy}px) scale(${1-0.55*p}) rotate(${p*500}deg)`;
+    ball.style.opacity=p>0.85?String((1-p)/0.15):'1';
+    if(p<1)requestAnimationFrame(fr); else { ball.remove(); targetEl.classList&&targetEl.classList.add('pulse'); setTimeout(()=>targetEl.classList&&targetEl.classList.remove('pulse'),500); if(cb)cb(); }
+  })(t0);
+}
+
+/* ================= KIT BUILDER ================= */
+let kbSearch='', kbReqFilter=null;
+function openKitBuilder(){
+  const kit=activeKit(); if(!kit){ toast('No active kit'); return; }
+  kbSearch=''; kbReqFilter=null;
+  openSheet({ title:'', leftBtn:'Minimize', rightBtn:'', full:true, id:'kitbuild',
+    body:'<div id="kb-root"></div>',
+    onLeft:()=>{ closeSheet(); },
+    onClose:()=>{ render(); } });
+  renderKitBuilder();
+}
+function kbHeader(kit){
+  const pr=kitProgress(kit); const st=STATUS[kit.status]||STATUS.building;
+  return `<div style="padding:2px 16px 0">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+      <div style="width:44px;height:44px;border-radius:12px;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;flex:none">${IC.cart}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:19px;font-weight:800;letter-spacing:-.02em">${esc(kit.customer||'Untitled kit')}</div>
+        <div style="font-size:12.5px;color:var(--label-2)">${esc(kit.product||'—')} · Batch ${esc(kit.batch||'—')}</div>
+      </div>
+      <span id="kb-badge" class="badge" style="background:var(--accent);min-width:24px;height:24px;font-size:13px">${kit.lines.length}</span>
+    </div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
+      <span class="pill ${kit.type==='herb'?'teal':'purple'}">${kit.type==='herb'?'🌿 Herb kit':'📦 Packaging kit'}</span>
+      <span class="pill orange">${esc(kit.ipLabel)}</span>
+      <span class="pill ${st.pill}">${st.label}</span>
+      ${kit.reqs&&kit.reqs.length?`<span class="pill gray">${pr.done}/${pr.total} required met</span>`:''}
+    </div></div>`;
+}
+function kbSearchResults(kit){
+  const q=kbSearch.trim().toLowerCase();
+  let pool=DB.inv.filter(r=>num(r.qty)>1e-9 && !isIP(r.loc)); // pick from non-IP stock
+  if(kbReqFilter){ const rq=kit.reqs.find(r=>r.id===kbReqFilter); if(rq) pool=pool.filter(r=>r.part===rq.code); }
+  if(q) pool=pool.filter(r=>r.part.toLowerCase().includes(q)||r.desc.toLowerCase().includes(q)||r.lot.toLowerCase().includes(q));
+  else if(!kbReqFilter) return ''; // require a search or req filter to show
+  pool=pool.sort((a,b)=>{ const ae=expState(a.exp),be=expState(b.exp);
+    const ao=ae.s==='expired'?1:0, bo=be.s==='expired'?1:0; return ao-bo || b.qty-a.qty; }).slice(0,40);
+  if(!pool.length) return `<div style="padding:14px 16px;color:var(--label-2);font-size:13px">No available stock matches.</div>`;
+  return pool.map(r=>{
+    const es=expState(r.exp); const exp = es.s==='expired'?`<span class="pill red">Expired</span>`:es.s==='soon'?`<span class="pill orange">exp ${es.days}d</span>`:(r.exp?`<span class="pill gray">exp ${esc(r.exp)}</span>`:'');
+    return `<div class="row tap" data-act="kbPick" data-id="${r.id}" ${kbReqFilter?`data-req="${kbReqFilter}"`:''}>
+      <div class="grow"><div class="t1">${esc(r.part)} <span style="font-weight:500;color:var(--label-2);font-size:12px">${esc(locShort(r.loc))}</span></div>
+        <div class="t2"><span class="mono">Lot ${esc(r.lot||'—')}</span> · ${esc(r.desc)}</div></div>
+      <div class="r"><div class="t1 tnum">${fmtQty(r.qty)} <span style="font-size:12px;font-weight:500;color:var(--label-2)">${esc(r.uom)}</span></div>${exp?`<div style="margin-top:3px">${exp}</div>`:''}</div>
+      <span class="chev">${IC.plus}</span></div>`;
+  }).join('');
+}
+function kbReqPanel(kit){
+  if(!kit.reqs||!kit.reqs.length)return '';
+  return `<div class="group"><div class="group-h">Required from formula · tap to fulfill</div><div class="card">`+
+    kit.reqs.map(rq=>{
+      const got=lineSum(kit,rq.id); const need=num(rq.suggested); const frac=need?Math.min(got/need,1):0;
+      const done=need>0&&got>=need-1e-6; const over=need>0&&got>need+1e-6;
+      const nlines=kit.lines.filter(l=>l.reqId===rq.id).length;
+      return `<div class="row tap" data-act="kbFulfill" data-req="${rq.id}">
+        <div class="grow"><div class="t1"><span class="mono" style="color:var(--accent)">${esc(rq.code)}</span> ${esc(rq.name)}</div>
+          <div class="prog ${done?'done':over?'over':''}" style="margin-top:6px"><i style="width:${(frac*100).toFixed(0)}%"></i></div>
+          <div class="t2" style="margin-top:4px">${fmtQty(got)} of ${fmtQty(need)} ${esc(rq.uom)} transferred${nlines?` · ${nlines} lot${nlines>1?'s':''}`:''}</div></div>
+        <div class="r">${done?`<span class="pill green">✓</span>`:over?`<span class="pill orange">over</span>`:`<span class="pill blue">＋ lot</span>`}</div></div>`;
+    }).join('')+`</div></div>`;
+}
+function kbLineList(kit){
+  if(!kit.lines.length) return `<div class="empty" style="padding:30px 20px"><div class="ico">${IC.cart}</div><h3>Empty kit</h3><p>Search above or tap a required item to transfer stock into this kit.</p></div>`;
+  return `<div id="kb-lines">`+kit.lines.map((l,i)=>kbLineCard(kit,l,i)).join('')+`</div>`;
+}
+function kbLineCard(kit,l,i){
+  const rq=l.reqId?kit.reqs.find(r=>r.id===l.reqId):null;
+  return `<div class="line" data-lid="${l.id}" draggable="false">
+    <div class="line-top">
+      <span class="drag-h" data-drag="1">${IC.drag}</span>
+      <div class="grow">
+        <div class="code">${esc(l.code)}${rq?` · <span style="color:var(--label-3)">for ${esc(rq.code)}</span>`:''}</div>
+        <div class="desc">${esc(l.desc)}</div>
+        <div class="meta"><span>${esc(locShort(l.loc))}</span><span class="mono">Lot ${esc(l.lot||'—')}</span><span class="tnum">${fmtQty(l.transferred)} ${esc(l.uom)} pulled</span></div>
+      </div>
+      <span style="color:var(--label-3);font-size:12px;font-weight:700">#${i+1}</span>
+    </div>
+    <div class="acts">
+      <button class="btn sm gray" data-act="lineEdit" data-lid="${l.id}">${IC.edit}Edit</button>
+      <button class="btn sm gray" data-act="lineReturn" data-lid="${l.id}">${IC.return}Return</button>
+      <button class="btn sm red" data-act="lineDelete" data-lid="${l.id}">${IC.trash}Delete</button>
+    </div></div>`;
+}
+function renderKitBuilder(){
+  const kit=activeKit(); const root=$('#kb-root'); if(!root||!kit)return;
+  const sr=kbSearchResults(kit);
+  root.innerHTML=`${kbHeader(kit)}
+    <div class="search"><input id="kb-search" type="search" placeholder="Search inventory to add (part #, desc, lot)" value="${escA(kbSearch)}" data-act="kbSearch" data-live="1"></div>
+    ${kbReqFilter?`<div style="margin:0 16px 6px"><button class="btn sm gray" data-act="kbClearFilter">${IC.x} Fulfilling ${esc((kit.reqs.find(r=>r.id===kbReqFilter)||{}).code||'')} — show all</button></div>`:''}
+    ${sr?`<div class="group"><div class="card" style="max-height:40vh;overflow:auto">${sr}</div></div>`:''}
+    ${kbReqPanel(kit)}
+    <div class="group"><div class="group-h"><span>Kit list · prints in this order</span><span>${kit.lines.length} line${kit.lines.length!==1?'s':''}</span></div>
+      ${kbLineList(kit)}</div>
+    <div style="height:8px"></div>
+    <div class="group" style="display:flex;gap:10px">
+      <button class="btn gray" style="flex:1" data-act="kbSettings">${IC.gear} Details</button>
+      <button class="btn red" data-act="kbDelete">${IC.trash} Delete kit</button>
+    </div>
+    <div class="group"><button class="btn fill block" data-act="kbPrint">${IC.doc} Review &amp; Print Form</button></div>
+    <div style="height:16px"></div>`;
+  const badge=$('#kb-badge'); if(badge)badge.textContent=kit.lines.length;
+  mountLineSort();
+}
+function kbPickFlow(srcId, reqId, fromEl){
+  const kit=activeKit(); const src=invById(srcId); if(!kit||!src)return;
+  const rq=reqId?kit.reqs.find(r=>r.id===reqId):null;
+  const remain = rq ? Math.max(0, num(rq.suggested)-lineSum(kit,rq.id)) : 0;
+  const suggested = rq ? Math.min(remain||num(rq.suggested), num(src.qty)) : num(src.qty);
+  openSheet({ title:'Transfer to Kit', leftBtn:'Cancel', rightBtn:'Add', id:'kbpick',
+    body:`<div class="group"><div class="card">
+        <div class="field"><label>Part</label><div class="in" style="text-align:right"><b>${esc(src.part)}</b><div style="font-size:12px;color:var(--label-2)">${esc(src.desc)}</div></div></div>
+        <div class="field"><label>From</label><div class="in" style="text-align:right">${esc(locShort(src.loc))}</div></div>
+        <div class="field"><label>Lot</label><div class="in mono" style="text-align:right">${esc(src.lot||'—')}</div></div>
+        <div class="field"><label>Available</label><div class="in tnum" style="text-align:right">${fmtQty(src.qty)} ${esc(src.uom)}</div></div>
+        ${rq?`<div class="field"><label>Still needed</label><div class="in tnum" style="text-align:right;color:var(--accent)">${fmtQty(remain)} ${esc(rq.uom||src.uom)}</div></div>`:''}
+        <div class="field"><label>Transfer</label><div class="in"><input id="kbp-amt" type="number" inputmode="decimal" step="any" value="${suggested>0?fmtQty(suggested).replace(/,/g,''):''}" placeholder="0"></div></div>
+      </div>
+      <div style="margin:8px 16px 0;font-size:12px;color:var(--label-2)">This moves stock from ${esc(locShort(src.loc))} into <b>${esc(kit.ipLabel)}</b> and adds a line to the kit. Inventory updates immediately.</div></div>`,
+    onRight:()=>{ const amt=num($('#kbp-amt').value); if(amt<=0){toast('Enter an amount');return;}
+      const res=addPickToKit(kit, srcId, amt, reqId||null);
+      if(!res.ok){ toast(res.msg); return; }
+      closeSheet();
+      const badge=$('#kb-badge'); tossTo(fromEl, badge||$('#bubble'));
+      haptic(); render(); renderKitBuilder();
+      toast(`Added ${fmtQty(amt)} ${src.uom} to kit`);
+    }});
+}
+
+/* ---- Line drag-reorder (pointer based) ---- */
+function mountLineSort(){
+  const cont=$('#kb-lines'); if(!cont)return;
+  let dragEl=null, placeholder=null, startY=0, offset=0;
+  cont.querySelectorAll('.line').forEach(line=>{
+    const h=line.querySelector('[data-drag]'); if(!h)return;
+    h.addEventListener('pointerdown', e=>{
+      e.preventDefault(); dragEl=line; startY=e.clientY;
+      const r=line.getBoundingClientRect(); offset=e.clientY-r.top;
+      line.classList.add('drag'); line.style.width=r.width+'px'; line.style.position='relative'; line.style.zIndex=5;
+      h.setPointerCapture(e.pointerId);
+      const move=ev=>{
+        const y=ev.clientY;
+        line.style.transform=`translateY(${y-startY}px)`;
+        const sib=Array.from(cont.querySelectorAll('.line')).filter(x=>x!==dragEl);
+        for(const s of sib){ const sr=s.getBoundingClientRect();
+          if(y>sr.top&&y<sr.bottom){ const mid=sr.top+sr.height/2;
+            if(y<mid) cont.insertBefore(dragEl,s); else cont.insertBefore(dragEl,s.nextSibling); break; } }
+      };
+      const up=ev=>{
+        h.releasePointerCapture(e.pointerId);
+        document.removeEventListener('pointermove',move); document.removeEventListener('pointerup',up);
+        line.classList.remove('drag'); line.style.transform=''; line.style.width=''; line.style.zIndex='';
+        // commit order
+        const kit=activeKit(); const order=Array.from(cont.querySelectorAll('.line')).map(x=>x.dataset.lid);
+        kit.lines.sort((a,b)=>order.indexOf(a.id)-order.indexOf(b.id));
+        kit.updatedAt=Date.now(); saveDB(); renderKitBuilder();
+      };
+      document.addEventListener('pointermove',move); document.addEventListener('pointerup',up);
+    });
+  });
+}
+
+/* ---- Kit details editor ---- */
+function openKitDetails(){
+  const kit=activeKit(); if(!kit)return;
+  const F=(label,key,ph,type)=>`<div class="field stack"><label>${label}</label><input data-kf="${key}" value="${escA(kit[key]||'')}" placeholder="${ph||''}" ${type?`type="${type}"`:''}></div>`;
+  const body=`<div class="group"><div class="group-h">Kit header</div><div class="card">
+      ${F('Customer','customer')}${F('Product','product')}${F('Batch #','batch')}
+      <div class="field stack"><label>Fish Bowl (IP) Location</label><div style="display:flex;gap:8px"><input data-kf="ipLabel" value="${escA(kit.ipLabel)}" readonly style="flex:1;background:var(--fill)"><button class="btn sm tint" data-act="kbChangeIP">Change</button></div></div>
+    </div></div>
+    <div class="group"><div class="group-h">Sign-off</div><div class="card">
+      ${F('Kit Fulfillment By','fulfillBy')}${F('Date Fulfilled','dateFulfilled','mm/dd/yy')}
+      ${F('Kit Approved By','approvedBy')}${F('Date Approved','dateApproved','mm/dd/yy')}
+    </div></div>
+    <div class="group"><div class="group-h">Status</div><div class="seg" style="margin:0">
+      ${Object.keys(STATUS).map(s=>`<button class="${kit.status===s?'on':''}" data-act="kbStatus" data-s="${s}">${STATUS[s].label}</button>`).join('')}</div></div>`;
+  openSheet({ title:'Kit Details', leftBtn:'Done', rightBtn:'', body, id:'kitdetails',
+    onMount:(el)=>{ el.querySelectorAll('[data-kf]').forEach(inp=>inp.addEventListener('input',()=>{ kit[inp.dataset.kf]=inp.value; kit.updatedAt=Date.now(); saveSoon(); })); },
+    onClose:()=>{ renderKitBuilder(); render(); } });
+}
+
+/* ================= MATERIAL & PACKAGING KIT FORM ================= */
+const FORM_VERSION='WH-0001-MPKF-A-V5';
+const FORM_QC_DATE='5/4/2026';
+const ROWS_PER_PAGE=16;
+function formPages(kit){ // array of line arrays
+  const lines=kit.lines; if(!lines.length)return [[]];
+  const pages=[]; for(let i=0;i<lines.length;i+=ROWS_PER_PAGE)pages.push(lines.slice(i,i+ROWS_PER_PAGE));
+  return pages;
+}
+function openFormPreview(){
+  const kit=activeKit(); if(!kit)return;
+  kit.status='review'; saveSoon();
+  const body=`<div class="callout" style="margin:10px 16px"><span class="ci">${IC.info}</span>
+      <div>All fields are editable until you print. <b>Amount (In-Process)</b>, <b>UOM</b> and <b># of Packages</b> are intentionally left blank to fill in by hand while kitting. Print &amp; Save PDF output a clean control document with <b>no web address</b> in the margins.</div></div>
+    <div class="formwrap" id="formwrap">${renderFormHTML(kit)}</div>`;
+  openSheet({ title:'Kit Form', leftBtn:'Back', rightBtn:'', full:true, wide:true, id:'formprev',
+    body, foot:`<button class="btn gray" style="flex:1" data-act="formExportCSV">${IC.share} CSV</button>
+      <button class="btn tint" style="flex:1" data-act="formPrint">${IC.print} Print</button>
+      <button class="btn fill" style="flex:1.3" data-act="formPDF">${IC.doc} Save PDF</button>`,
+    onMount:(el)=>bindFormInputs(el,kit),
+    onClose:()=>{ renderKitBuilder(); render(); } });
+}
+function hv(kit,k){ return esc(kit[k]||''); }
+function renderFormHTML(kit){
+  const pages=formPages(kit); const total=pages.length;
+  return pages.map((lines,pi)=>formPageHTML(kit,lines,pi+1,total)).join('<div style="height:16px"></div>');
+}
+function formPageHTML(kit,lines,pageNo,total){
+  const rows=[]; const nrows=Math.max(ROWS_PER_PAGE, lines.length);
+  for(let i=0;i<nrows;i++){ const l=lines[i];
+    if(l){ rows.push(`<tr data-lid="${l.id}">
+      <td class="pcfb">/</td>
+      <td><input data-lf="locTxt" value="${escA(locShort(l.loc))}"></td>
+      <td><input data-lf="descTxt" value="${escA(l.desc)}"></td>
+      <td><input data-lf="codeTxt" value="${escA(l.code)}"></td>
+      <td><input data-lf="lot" value="${escA(l.lot)}"></td>
+      <td><input data-lf="amount" value="${escA(l.amount)}" placeholder=""></td>
+      <td><input data-lf="fuom" value="${escA(l.fuom)}"></td>
+      <td><input data-lf="packages" value="${escA(l.packages)}"></td>
+      <td><input data-lf="ret" value="${escA(l.ret)}"></td>
+      <td><input data-lf="units" value="${escA(l.units)}"></td>
+      <td class="pcfb">${l.rtn?'✓':''}</td></tr>`);
+    } else rows.push(`<tr><td class="pcfb">/</td>${'<td></td>'.repeat(10)}</tr>`);
+  }
+  return `<div class="kfpage"><div class="kitform" data-page="${pageNo}">
+    <div class="kf-top">
+      <div class="kf-logo">${WORDMARK}</div>
+      <div class="kf-hd">
+        <div class="kf-title">Material &amp; Packaging Kit Form</div>
+        <div class="kf-hrows">
+          <div class="c lbl">Customer:</div><div class="c"><input data-hf="customer" value="${hv(kit,'customer')}"></div>
+          <div class="c lbl">Fish Bowl Location:</div><div class="c"><input data-hf="ipLabel" value="${hv(kit,'ipLabel')}"></div>
+          <div class="c lbl">Product:</div><div class="c"><input data-hf="product" value="${hv(kit,'product')}"></div>
+          <div class="c lbl">Batch #:</div><div class="c"><input data-hf="batch" value="${hv(kit,'batch')}"></div>
+          <div class="c lbl">Kit Fulfillment By:</div><div class="c"><input data-hf="fulfillBy" value="${hv(kit,'fulfillBy')}"></div>
+          <div class="c lbl">Date Fulfilled:</div><div class="c"><input data-hf="dateFulfilled" value="${hv(kit,'dateFulfilled')}" placeholder="/     /"></div>
+          <div class="c lbl">Kit Approved By:</div><div class="c"><input data-hf="approvedBy" value="${hv(kit,'approvedBy')}"></div>
+          <div class="c lbl">Date Approved:</div><div class="c"><input data-hf="dateApproved" value="${hv(kit,'dateApproved')}" placeholder="/     /"></div>
+        </div>
+      </div>
+    </div>
+    <div class="kf-detail-h">Kit Details</div>
+    <table class="kf-table"><colgroup>
+      <col style="width:5.2%"><col style="width:8.5%"><col style="width:28.5%"><col style="width:12%"><col style="width:9.2%"><col style="width:7.8%"><col style="width:4.5%"><col style="width:6.2%"><col style="width:9%"><col style="width:5.2%"><col style="width:3.9%"></colgroup>
+      <thead><tr>
+        <th>PC/FB<br>Check</th><th>Inventory<br>Location</th><th>Material/Packaging Description</th><th>Part/Item #</th><th>YE Lot #</th><th>Amount<br>(In-Process)</th><th>UOM</th><th># of<br>Packages</th><th>Return Amount</th><th>Units</th><th>Rtn Chk</th>
+      </tr></thead><tbody>${rows.join('')}</tbody></table>
+    <div class="kf-notes">Notes: <textarea data-hf="notes" rows="2">${esc(kit.notes||'')}</textarea></div>
+    <div class="kf-sign">
+      <div class="c">Kit Inspected &amp; Received By:</div><div class="c val"><input data-hf="inspectedBy" value="${hv(kit,'inspectedBy')}"></div>
+      <div class="c">Date Inspected/Received:</div><div class="c val"><input data-hf="dateInspected" value="${hv(kit,'dateInspected')}" placeholder="/     /"></div>
+    </div>
+    <div class="kf-sign">
+      <div class="c">Return Amount Approved By:</div><div class="c val"><input data-hf="returnBy" value="${hv(kit,'returnBy')}"></div>
+      <div class="c">Date Return Approved:</div><div class="c val"><input data-hf="dateReturn" value="${hv(kit,'dateReturn')}" placeholder="/     /"></div>
+    </div>
+    <div class="kf-compliance">Note: Once filled out, this form will be turned in, reviewed and filed in accordance with the Compliance Department.</div>
+    <div class="kf-sign" style="grid-template-columns:1fr 1fr 1.6fr">
+      <div class="c">QC Signoff:</div><div class="c val"><input data-hf="qcSignoff" value="${hv(kit,'qcSignoff')}"></div>
+      <div class="c">Review Date: <input data-hf="reviewDate" value="${hv(kit,'reviewDate')}" placeholder="/     /" style="max-width:120px"></div>
+    </div>
+    <div class="kf-foot">
+      <div class="c"><b>Version:</b> ${FORM_VERSION}</div>
+      <div class="c"><b>QC Approval:</b> <i style="font-family:cursive">D. Berg</i></div>
+      <div class="c"><b>Date:</b> ${FORM_QC_DATE}</div>
+      <div class="c"><b>page</b> ${pageNo} <b>of</b> ${total}</div>
+    </div>
+  </div></div>`;
+}
+function fitForms(el){
+  const wrap=el.querySelector('#formwrap'); if(!wrap)return;
+  const avail=wrap.clientWidth-28;
+  el.querySelectorAll('.kfpage').forEach(pg=>{ const form=pg.querySelector('.kitform');
+    form.style.transform=''; const natW=form.offsetWidth||1040, natH=form.offsetHeight;
+    const scale=Math.min(1, avail/natW);
+    form.style.transformOrigin='top left'; form.style.transform=`scale(${scale})`;
+    pg.style.width=(natW*scale)+'px'; pg.style.height=(natH*scale)+'px';
+  });
+}
+function bindFormInputs(el,kit){
+  fitForms(el);
+  const ro=()=>fitForms(el); window.addEventListener('resize',ro);
+  el._cleanup=()=>window.removeEventListener('resize',ro);
+  el.querySelectorAll('[data-hf]').forEach(inp=>inp.addEventListener('input',()=>{ kit[inp.dataset.hf]=inp.value; kit.updatedAt=Date.now(); saveSoon(); }));
+  el.querySelectorAll('tr[data-lid]').forEach(tr=>{ const l=kit.lines.find(x=>x.id===tr.dataset.lid); if(!l)return;
+    tr.querySelectorAll('[data-lf]').forEach(inp=>inp.addEventListener('input',()=>{ const f=inp.dataset.lf;
+      if(f==='locTxt')l.loc=inp.value; else if(f==='descTxt')l.desc=inp.value; else if(f==='codeTxt')l.code=inp.value; else l[f]=inp.value;
+      kit.updatedAt=Date.now(); saveSoon(); })); });
+}
+
+/* ---------- Canvas renderer (exact control document) ---------- */
+function renderFormCanvas(kit, lines, pageNo, total, scale){
+  scale=scale||2.4;
+  const W=1040,H=806;
+  const cv=document.createElement('canvas'); cv.width=W*scale; cv.height=H*scale;
+  const c=cv.getContext('2d'); c.scale(scale,scale);
+  c.fillStyle='#fff'; c.fillRect(0,0,W,H); c.strokeStyle='#000'; c.fillStyle='#000';
+  c.lineWidth=1; c.textBaseline='middle';
+  const F='Arial, Helvetica, sans-serif';
+  function ln(x1,y1,x2,y2,w){ c.lineWidth=w||1; c.beginPath(); c.moveTo(x1,y1); c.lineTo(x2,y2); c.stroke(); }
+  function rc(x,y,w,h,lw){ c.lineWidth=lw||1; c.strokeRect(x,y,w,h); }
+  function tx(s,x,y,o){ o=o||{}; c.save(); c.fillStyle=o.color||'#000';
+    c.font=`${o.italic?'italic ':''}${o.bold?'800':o.semi?'600':'400'} ${o.size||11}px ${F}`;
+    c.textAlign=o.align||'left'; s=String(s==null?'':s);
+    if(o.max){ while(c.measureText(s).width>o.max&&s.length>1)s=s.slice(0,-1); }
+    c.fillText(s,x,y); c.restore(); }
+  function txWrap(s,x,y,o){ o=o||{}; const words=String(s).split(/\s+/); const max=o.max||100; const lh=o.lh||(o.size||9)+1;
+    c.save(); c.fillStyle=o.color||'#000'; c.font=`${o.italic?'italic ':''}${o.bold?'800':'400'} ${o.size||9}px ${F}`; c.textAlign=o.align||'center';
+    let line='',yy=y,lines2=[]; for(const w of words){ const t=line?line+' '+w:w; if(c.measureText(t).width>max&&line){lines2.push(line);line=w;}else line=t; } if(line)lines2.push(line);
+    const startY=y-((lines2.length-1)*lh)/2; lines2.forEach((L,i)=>c.fillText(L,x,startY+i*lh)); c.restore(); }
+
+  const M=5; rc(M,M,W-2*M,H-2*M,2);
+  // ---- Top band ----
+  const bandTop=M, logoW=232, bandBot=138;
+  ln(M+logoW,bandTop,M+logoW,bandBot,2); // logo divider
+  // logo wordmark
+  drawWordmark(c, M+14, bandTop+26, logoW-30);
+  // title
+  const hx=M+logoW, hw=(W-M)-hx;
+  tx('Material & Packaging Kit Form', hx+hw/2, bandTop+24, {size:27,bold:true,align:'center'});
+  ln(hx,bandTop+44,W-M,bandTop+44,2);
+  // header rows 4 x
+  const hrTop=bandTop+44, hrH=(bandBot-hrTop)/4;
+  const c1=hx, c2=hx+hw*0.20, c3=hx+hw*0.52, c4=hx+hw*0.74; // label|val|label|val x-starts
+  const cols=[c1,c2,c3,c4,W-M];
+  const hdr=[['Customer:',kit.customer,'Fish Bowl Location:',kit.ipLabel],
+    ['Product:',kit.product,'Batch #:',kit.batch],
+    ['Kit Fulfillment By:',kit.fulfillBy,'Date Fulfilled:',dateOrSlash(kit.dateFulfilled)],
+    ['Kit Approved By:',kit.approvedBy,'Date Approved:',dateOrSlash(kit.dateApproved)]];
+  for(let r=0;r<4;r++){ const y=hrTop+r*hrH;
+    ln(hx,y,W-M,y,1);
+    ln(c2,y,c2,y+hrH,1); ln(c3,y,c3,y+hrH,1); ln(c4,y,c4,y+hrH,1);
+    const my=y+hrH/2;
+    tx(hdr[r][0],c2-6,my,{size:12,bold:true,align:'right'});
+    tx(hdr[r][1],(c2+c3)/2,my,{size:11,align:'center',max:c3-c2-8});
+    tx(hdr[r][2],c4-6,my,{size:12,bold:true,align:'right'});
+    tx(hdr[r][3],(c4+ (W-M))/2,my,{size:11,align:'center',max:(W-M)-c4-8});
+  }
+  // ---- Kit Details bar ----
+  let y=bandBot; const barH=18;
+  c.fillStyle='#e6e6e6'; c.fillRect(M,y,W-2*M,barH); c.fillStyle='#000'; rc(M,y,W-2*M,barH,1);
+  tx('Kit Details',W/2,y+barH/2,{size:12,bold:true,align:'center'});
+  y+=barH;
+  // ---- Table ----
+  const tX=M, tW=W-2*M;
+  const wts=[.052,.085,.285,.12,.092,.078,.045,.062,.09,.052,.039];
+  const cx=[tX]; wts.forEach(w=>cx.push(cx[cx.length-1]+w*tW));
+  const heads=['PC/FB Check','Inventory Location','Material/Packaging Description','Part/Item #','YE Lot #','Amount (In-Process)','UOM','# of Packages','Return Amount','Units','Rtn Chk'];
+  const thH=26;
+  c.fillStyle='#efefef'; c.fillRect(tX,y,tW,thH); c.fillStyle='#000';
+  for(let i=0;i<heads.length;i++){ rc(cx[i],y,cx[i+1]-cx[i],thH,1);
+    txWrap(heads[i],(cx[i]+cx[i+1])/2,y+thH/2,{size:8.5,bold:true,italic:true,max:cx[i+1]-cx[i]-4,lh:9.5}); }
+  y+=thH;
+  const availH=628-y; const rowH=Math.min(24, availH/ROWS_PER_PAGE);
+  for(let r=0;r<ROWS_PER_PAGE;r++){ const l=lines[r]; const ry=y+r*rowH;
+    for(let i=0;i<11;i++)rc(cx[i],ry,cx[i+1]-cx[i],rowH,0.8);
+    tx('/',(cx[0]+cx[1])/2,ry+rowH/2,{size:11,align:'center',color:'#333'});
+    if(l){ const my=ry+rowH/2;
+      tx(locShort(l.loc),cx[1]+3,my,{size:8.5,max:cx[2]-cx[1]-6});
+      tx(l.desc,cx[2]+3,my,{size:8.5,max:cx[3]-cx[2]-6});
+      tx(l.code,cx[3]+4,my,{size:9,semi:true,max:cx[4]-cx[3]-6});
+      tx(l.lot,cx[4]+4,my,{size:9,max:cx[5]-cx[4]-6});
+      tx(l.amount,(cx[5]+cx[6])/2,my,{size:9,align:'center'});
+      tx(l.fuom,(cx[6]+cx[7])/2,my,{size:9,align:'center'});
+      tx(l.packages,(cx[7]+cx[8])/2,my,{size:9,align:'center'});
+      tx(l.ret,(cx[8]+cx[9])/2,my,{size:9,align:'center'});
+      tx(l.units,(cx[9]+cx[10])/2,my,{size:9,align:'center'});
+      tx(l.rtn?'✓':'',(cx[10]+cx[11])/2,my,{size:10,align:'center'});
+    }
+  }
+  y=y+ROWS_PER_PAGE*rowH;
+  // ---- Notes ----
+  const notesH=44; rc(tX,y,tW,notesH,1.5); tx('Notes:',tX+5,y+9,{size:11,bold:true});
+  wrapText(c,kit.notes||'',tX+50,y+9,tW-56,11,9);
+  y+=notesH;
+  // ---- inspected / return rows ----
+  const sgH=20;
+  drawSignRow(c,tX,y,tW,sgH,'Kit Inspected & Received By:',kit.inspectedBy,'Date Inspected/Received:',dateOrSlash(kit.dateInspected),tx,rc,ln); y+=sgH;
+  drawSignRow(c,tX,y,tW,sgH,'Return Amount Approved By:',kit.returnBy,'Date Return Approved:',dateOrSlash(kit.dateReturn),tx,rc,ln); y+=sgH;
+  // ---- compliance ----
+  tx('Note: Once filled out, this form will be turned in, reviewed and filed in accordance with the Compliance Department.',W/2,y+9,{size:9.5,italic:true,bold:true,align:'center'}); y+=17;
+  // ---- QC signoff ----
+  rc(tX,y,tW*0.62,sgH,1); tx('QC Signoff:',tX+5,y+sgH/2,{size:12,bold:true});
+  tx(kit.qcSignoff||'',tX+90,y+sgH/2,{size:10,max:tW*0.30});
+  tx('Review Date:',tX+tW*0.40,y+sgH/2,{size:12,bold:true});
+  tx(dateOrSlash(kit.reviewDate),tX+tW*0.52,y+sgH/2,{size:11}); y+=sgH+2;
+  // ---- footer ----
+  const fY=y, fH=20; const fx=[tX,tX+tW*0.34,tX+tW*0.56,tX+tW*0.80,W-M];
+  for(let i=0;i<4;i++)rc(fx[i],fY,fx[i+1]-fx[i],fH,1);
+  tx('Version:',fx[0]+5,fY+fH/2,{size:10,bold:true}); tx(FORM_VERSION,fx[0]+58,fY+fH/2,{size:10});
+  tx('QC Approval:',fx[1]+5,fY+fH/2,{size:10,bold:true}); tx('D. Berg',fx[1]+78,fY+fH/2,{size:11,italic:true});
+  tx('Date:',fx[2]+5,fY+fH/2,{size:10,bold:true}); tx(FORM_QC_DATE,fx[2]+42,fY+fH/2,{size:10});
+  tx('page',fx[3]+5,fY+fH/2,{size:10,bold:true}); tx(String(pageNo),fx[3]+42,fY+fH/2,{size:10});
+  tx('of',fx[3]+58,fY+fH/2,{size:10,bold:true}); tx(String(total),fx[3]+78,fY+fH/2,{size:10});
+  return cv;
+}
+function drawSignRow(c,x,y,w,h,l1,v1,l2,v2,tx,rc,ln){
+  c.save(); c.fillStyle='#efefef'; c.fillRect(x,y,w,h); c.fillStyle='#000'; c.restore();
+  rc(x,y,w,h,1);
+  const c2=x+w*0.34, c3=x+w*0.62, c4=x+w*0.82;
+  ln(c2,y,c2,y+h,1); ln(c3,y,c3,y+h,1); ln(c4,y,c4,y+h,1);
+  tx(l1,x+5,y+h/2,{size:12,bold:true});
+  tx(v1,(c2+c3)/2,y+h/2,{size:10,align:'center',max:c3-c2-6});
+  tx(l2,c3+5,y+h/2,{size:12,bold:true});
+  tx(v2,(c4+(x+w))/2,y+h/2,{size:10,align:'center'});
+}
+function wrapText(c,s,x,y,maxW,size,realSize){ if(!s)return; c.save(); c.fillStyle='#000'; c.font=`400 ${realSize||9}px Arial`;
+  const words=String(s).split(/\s+/); let line='',yy=y+4; for(const w of words){ const t=line?line+' '+w:w;
+    if(c.measureText(t).width>maxW&&line){ c.fillText(line,x,yy); line=w; yy+=(realSize||9)+2; if(yy>y+34)break; } else line=t; }
+  if(line&&yy<=y+34)c.fillText(line,x,yy); c.restore(); }
+function dateOrSlash(s){ return (s&&s.trim())?s:'      /      /'; }
+function drawWordmark(c,x,y,w){ c.save(); c.fillStyle='#111';
+  c.font='800 40px Arial, Helvetica, sans-serif'; c.textAlign='left'; c.textBaseline='alphabetic';
+  c.fillText('yellow',x,y+16); c.fillText('emperor',x,y+56);
+  // leaf-drop mark
+  c.beginPath(); const lx=x+w-30, ly=y+14;
+  c.moveTo(lx,ly-16); c.bezierCurveTo(lx+18,ly-6,lx+16,ly+16,lx,ly+22);
+  c.bezierCurveTo(lx-16,ly+16,lx-18,ly-6,lx,ly-16); c.closePath(); c.fill();
+  c.strokeStyle='#fff'; c.lineWidth=1.6; c.beginPath(); c.moveTo(lx,ly-10); c.lineTo(lx,ly+16); c.stroke();
+  c.restore(); }
+
+/* ---------- PDF (single full-page JPEG per page; no URL/chrome) ---------- */
+function canvasJPEG(cv,q){ const url=cv.toDataURL('image/jpeg',q||0.92); const b64=url.split(',')[1];
+  const bin=atob(b64); const u=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i); return u; }
+function buildImagePDF(pages){
+  const enc=new TextEncoder(); const parts=[]; let offset=0; const off={};
+  const push=b=>{ if(typeof b==='string')b=enc.encode(b); parts.push(b); offset+=b.length; };
+  const obj=(n,s)=>{ off[n]=offset; push(n+' 0 obj\n'+s+'\nendobj\n'); };
+  push(new Uint8Array([0x25,0x50,0x44,0x46,0x2D,0x31,0x2E,0x34,0x0A,0x25,0xE2,0xE3,0xCF,0xD3,0x0A]));
+  const P=pages.length; const kids=[]; for(let i=0;i<P;i++)kids.push((3+i*3)+' 0 R');
+  obj(1,'<< /Type /Catalog /Pages 2 0 R >>');
+  obj(2,`<< /Type /Pages /Kids [${kids.join(' ')}] /Count ${P} >>`);
+  for(let i=0;i<P;i++){ const pg=pages[i]; const pO=3+i*3,cO=4+i*3,iO=5+i*3;
+    obj(pO,`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 792 612] /Resources << /XObject << /Im0 ${iO} 0 R >> >> /Contents ${cO} 0 R >>`);
+    const content='q 792 0 0 612 0 0 cm /Im0 Do Q';
+    obj(cO,`<< /Length ${enc.encode(content).length} >>\nstream\n${content}\nendstream`);
+    off[iO]=offset;
+    push(`${iO} 0 obj\n<< /Type /XObject /Subtype /Image /Width ${pg.w} /Height ${pg.h} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${pg.bytes.length} >>\nstream\n`);
+    push(pg.bytes); push('\nendstream\nendobj\n');
+  }
+  const N=2+P*3; const xrefOff=offset;
+  let xref='xref\n0 '+(N+1)+'\n0000000000 65535 f \n';
+  for(let n=1;n<=N;n++)xref+=String(off[n]).padStart(10,'0')+' 00000 n \n';
+  push(xref);
+  push(`trailer\n<< /Size ${N+1} /Root 1 0 R >>\nstartxref\n${xrefOff}\n%%EOF`);
+  let total=0; parts.forEach(p=>total+=p.length); const out=new Uint8Array(total); let o=0;
+  parts.forEach(p=>{ out.set(p,o); o+=p.length; }); return out;
+}
+function buildKitPDF(kit){ const pages=formPages(kit); const total=pages.length;
+  const imgs=pages.map((lines,i)=>{ const cv=renderFormCanvas(kit,lines,i+1,total,2.4);
+    return {bytes:canvasJPEG(cv,0.9),w:cv.width,h:cv.height}; });
+  return buildImagePDF(imgs); }
+function savePDF(){ const kit=activeKit(); if(!kit)return;
+  try{ const bytes=buildKitPDF(kit); const name=`KitForm_${String(kit.batch||kit.customer||'kit').replace(/[^a-z0-9]/gi,'_')}.pdf`;
+    const blob=new Blob([bytes],{type:'application/pdf'});
+    if(!downloadBlob(blob,name)){ const url=URL.createObjectURL(blob); window.open(url,'_blank'); }
+    toast('PDF saved — clean control document');
+  }catch(e){ toast('PDF error: '+e.message); }
+}
+function printForm(){ const kit=activeKit(); if(!kit)return;
+  const pages=formPages(kit); const total=pages.length; let imgs='';
+  pages.forEach((lines,i)=>{ const cv=renderFormCanvas(kit,lines,i+1,total,2.4); imgs+=`<img src="${cv.toDataURL('image/jpeg',0.92)}">`; });
+  const w=window.open('','_blank');
+  if(w){ w.document.open();
+    w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Material & Packaging Kit Form</title>
+      <style>@page{size:letter landscape;margin:0}html,body{margin:0;padding:0;background:#fff}img{width:100%;height:auto;display:block;page-break-after:always}img:last-child{page-break-after:auto}</style>
+      </head><body>${imgs}</body></html>`);
+    w.document.close(); w.focus(); setTimeout(()=>{ try{w.print();}catch(e){} },400);
+    toast('Opening print — headers/footers off keeps it URL-free');
+  } else { savePDF(); toast('Popup blocked — saved a clean PDF instead'); }
+}
+function exportFormCSV(){ const kit=activeKit(); if(!kit)return;
+  const L=[];
+  L.push(['Material & Packaging Kit Form'].map(toCSVField).join(','));
+  L.push(['Customer',kit.customer,'','Fish Bowl Location',kit.ipLabel].map(toCSVField).join(','));
+  L.push(['Product',kit.product,'','Batch #',kit.batch].map(toCSVField).join(','));
+  L.push(['Kit Fulfillment By',kit.fulfillBy,'','Date Fulfilled',kit.dateFulfilled].map(toCSVField).join(','));
+  L.push('');
+  L.push(['PC/FB Check','Inventory Location','Material/Packaging Description','Part/Item #','YE Lot #','Amount (In-Process)','UOM','# of Packages','Return Amount','Units','Rtn Chk'].map(toCSVField).join(','));
+  kit.lines.forEach(l=>L.push(['/',locShort(l.loc),l.desc,l.code,l.lot,l.amount,l.fuom,l.packages,l.ret,l.units,l.rtn?'Y':''].map(toCSVField).join(',')));
+  L.push(''); L.push(['Notes',kit.notes].map(toCSVField).join(','));
+  L.push(['Version',FORM_VERSION].map(toCSVField).join(','));
+  downloadBlob(L.join('\n'),`KitForm_${String(kit.batch||'kit').replace(/[^a-z0-9]/gi,'_')}.csv`,'text/csv');
+  toast('CSV exported');
+}
+
+/* ================= MASTER FORMULA (assisted parse) ================= */
+let fx={ kind:'herb', items:[], imgURL:'', imgName:'', customer:'', batch:'', product:'' };
+function parseMasterFormula(text, kind){
+  const lines=text.split(/\r?\n/).map(s=>s.replace(/\s+/g,' ').trim()).filter(Boolean);
+  let sec='ing'; const ing=[], pkg=[];
+  const numRe=/(\d[\d,]*\.?\d*)/g;
+  const uomRe=/\b(lbs?|kgs?|grams?|g|gals?|gallons?|ozs?|ml|mls?|liters?|l|each|ea|rolls?|boxe?s?|divs?|units?|caps?)\b/i;
+  for(let raw of lines){
+    const U=raw.toUpperCase();
+    if(/^\s*PACKAGING/.test(U)){sec='pkg';continue;}
+    if(/OTHER\s+INGREDIENT/.test(U)){sec='ing';continue;}
+    if(/^\s*INGREDIENT/.test(U)){sec='ing';continue;}
+    if(/^(%|NAME|ITEM CODE|AMOUNT|INTENT|QUANTITY|CONVENT|ORGANIC|WILD|MASTER FORMULA|CUSTOMER:|PRODUCT:|MMR|VOLUME|TANKS|COOKS|TOTAL HERB|LBS\/GAL|PRODUCTION)/.test(U)) continue;
+    // tokenize
+    const codeM=raw.match(/\b([A-Z]{1,}[A-Z0-9]{1,11}|[0-9]{5,}[A-Z]?)\b/g)||[];
+    const code=(codeM.find(t=>/[A-Z]/.test(t)&&!/^(NA|USA|ORG|CONV|FCC|HPLC|MLG|PVC|QC|YE)$/.test(t))||codeM[0]||'').trim();
+    const nums=(raw.match(numRe)||[]).map(s=>s.replace(/,/g,''));
+    const uom=(raw.match(uomRe)||[])[0]||'';
+    // name = text with codes & numbers stripped
+    let name=raw.replace(/\b[A-Z]{2,}[A-Z0-9]*\b/g,m=>/[a-z]/.test(m)?m:'').replace(numRe,'').replace(/%/g,'').replace(uomRe,'').replace(/\s{2,}/g,' ').replace(/^[\s.\-–]+|[\s.\-–]+$/g,'').trim();
+    if(sec==='pkg'){
+      if(!code&&!nums.length)continue;
+      pkg.push({code:code||'N/A', name:name||raw, amount:num(nums[0]||0), uom:uom||'ea'});
+    } else {
+      if(!code||!nums.length)continue;
+      // amount often 1st number after %, overage 2nd; use overage if present
+      let amt=num(nums[0]), over=nums.length>1?num(nums[1]):0;
+      // if first num looks like a percent (<=100 and line has %), shift
+      if(/%/.test(raw)&&nums.length>=3){ amt=num(nums[1]); over=num(nums[2]); }
+      ing.push({code, name:name||raw, amount: (kind==='herb'? (over||amt) : amt), uom:uom||'lbs'});
+    }
+  }
+  return kind==='herb'?ing:pkg;
+}
+function fxBatchFieldHTML(){
+  const batches = fx.customer && DB.customers[fx.customer] ? Object.keys(DB.customers[fx.customer].batches) : [];
+  if(batches.length) return `<label>Batch #</label><select id="fx-batch" data-act="fxBatch"><option value="">— pick from ${esc(fx.customer)}'s file (auto-fills items) —</option>
+      ${batches.map(b=>`<option value="${escA(b)}" ${fx.batch===b?'selected':''}>${esc(b)} · ${esc(DB.customers[fx.customer].batches[b].product||'')}</option>`).join('')}
+      <option value="__new">＋ New batch #…</option></select>`;
+  return `<label>Batch #</label><input id="fx-batch" value="${escA(fx.batch)}" data-act="fxBatchText" data-live="1" placeholder="e.g. H-15225">`;
+}
+function updateFxBatchField(){ const w=$('#fx-batch-wrap'); if(w)w.innerHTML=fxBatchFieldHTML(); }
+function viewFormula(){
+  const custNames=Object.keys(DB.customers).sort();
+  const batches = fx.customer && DB.customers[fx.customer] ? Object.keys(DB.customers[fx.customer].batches) : [];
+  const items=fx.items;
+  const itemsHTML = items.length ? items.map((it,i)=>`<div class="line">
+      <div class="line-top"><div class="grow">
+        <input class="mono" data-fi="${i}" data-k="code" value="${escA(it.code)}" style="font-weight:700;color:var(--accent);border:none;background:none;width:100%;font-size:13px">
+        <input data-fi="${i}" data-k="name" value="${escA(it.name)}" style="border:none;background:none;width:100%;font-size:13.5px;font-weight:600;margin-top:2px">
+      </div><div class="r" style="display:flex;gap:6px;align-items:center">
+        <input data-fi="${i}" data-k="amount" value="${escA(it.amount)}" inputmode="decimal" style="width:70px;text-align:right;background:var(--fill);border-radius:7px;border:none;padding:5px 7px" class="tnum">
+        <input data-fi="${i}" data-k="uom" value="${escA(it.uom)}" style="width:44px;background:var(--fill);border-radius:7px;border:none;padding:5px 6px;font-size:12px">
+        <button class="btn-ico" data-act="fxDel" data-i="${i}" style="background:transparent;color:var(--red);width:28px;height:28px">${IC.trash}</button>
+      </div></div></div>`).join('') :
+    `<div class="empty" style="padding:24px"><div class="ico">${IC.scan}</div><h3>No items yet</h3><p>Paste the formula text, use the quick grid, or load the example.</p></div>`;
+  return `<section class="view">
+    <div class="nav"><div class="nav-row"><div class="nav-btn" style="opacity:0">.</div><div class="nav-title">Master Formula</div><div class="nav-btn" style="opacity:0">.</div></div></div>
+    <div class="large-title"><h1>Master Formula</h1><div class="sub">Scan a picking sheet into a kit list</div></div>
+    <div class="group"><div class="group-h">1 · Which kit are you starting?</div>
+      <div class="seg" style="margin:0"><button class="${fx.kind==='herb'?'on':''}" data-act="fxKind" data-k="herb">🌿 Herb Kit — Ingredients</button>
+        <button class="${fx.kind==='packaging'?'on':''}" data-act="fxKind" data-k="packaging">📦 Packaging Kit — Packaging</button></div>
+      <div style="font-size:12px;color:var(--label-2);margin:8px 4px">A herb kit reads the <b>Ingredients</b> sections; a packaging kit reads only the <b>Packaging</b> section.</div>
+    </div>
+    <div class="group"><div class="group-h">2 · Master Formula (reference)</div>
+      <div class="dz" id="fx-dz" data-act="fxUpload"><div class="ico">${IC.up}</div>
+        <h3>${fx.imgName?esc(fx.imgName):'Upload photo or PDF'}</h3><p>${fx.imgName?'Tap to replace · shown below for reference':'Drop or tap — the sheet is displayed so you can confirm the scanned items'}</p></div>
+      ${fx.imgURL?`<div style="margin:10px 16px;text-align:center"><img src="${fx.imgURL}" style="max-width:100%;max-height:280px;border-radius:12px;box-shadow:var(--shadow)"></div>`:''}
+      <div class="callout"><span class="ci">${IC.info}</span><div>Photo OCR can't run offline in a private web app, so the sheet is shown for you to confirm. Paste the formula text below (from the digital MMR) for auto-parsing, or type items into the grid.</div></div>
+    </div>
+    <div class="group"><div class="group-h">3 · Get the required items</div>
+      <div class="card"><div class="field stack"><label>Paste formula text (optional)</label>
+        <textarea id="fx-paste" rows="3" placeholder="Paste the Ingredients / Packaging rows here, then tap Parse"></textarea></div></div>
+      <div style="display:flex;gap:8px;margin:10px 16px 0;flex-wrap:wrap">
+        <button class="btn tint sm" data-act="fxParse">${IC.scan} Parse pasted text</button>
+        <button class="btn gray sm" data-act="fxAddRow">${IC.plus} Add row</button>
+        <button class="btn gray sm" data-act="fxExample">Load Bigly example</button>
+        ${items.length?`<button class="btn gray sm" data-act="fxClear">Clear</button>`:''}
+      </div>
+    </div>
+    <div class="group"><div class="group-h"><span>Required items · ${items.length}</span><span>tap to edit</span></div>${itemsHTML}</div>
+    <div class="group"><div class="group-h">4 · Customer &amp; batch</div><div class="card">
+      <div class="field stack"><label>Customer</label><input id="fx-cust" list="fx-custlist" value="${escA(fx.customer)}" data-act="fxCust" data-live="1" placeholder="e.g. Bigly">
+        <datalist id="fx-custlist">${custNames.map(c=>`<option value="${escA(c)}">`).join('')}</datalist></div>
+      <div class="field stack" id="fx-batch-wrap">${fxBatchFieldHTML()}</div>
+      <div class="field stack"><label>Product</label><input id="fx-prod" value="${escA(fx.product)}" data-act="fxProd" data-live="1" placeholder="e.g. Zeolite Tincture"></div>
+    </div></div>
+    <div class="group"><button class="btn fill block" data-act="fxStart">${IC.cart} Start Kit from this Formula (${items.length} items)</button>
+      <div style="font-size:12px;color:var(--label-2);text-align:center;margin-top:8px">Saves the formula to the customer's file, then opens the kit list where you pick lots &amp; locations.</div></div>
+    <div style="height:12px"></div>
+  </section>`;
+}
+
+/* ================= OVERVIEW (Asana-style board) ================= */
+const BOARD=[ {id:'building',label:'Building',color:'var(--blue)'},
+  {id:'review',label:'Ready to Print',color:'var(--orange)'},
+  {id:'complete',label:'Complete',color:'var(--green)'} ];
+function viewOverview(){
+  const kits=DB.kits;
+  const byStatus=s=>kits.filter(k=>k.status===s);
+  const totalLines=kits.reduce((a,k)=>a+k.lines.length,0);
+  const cols=BOARD.map(col=>{
+    const list=byStatus(col.id);
+    const cards=list.map(k=>{ const pr=kitProgress(k);
+      return `<div class="kcard" draggable="true" data-kid="${k.id}" data-act="openKitId" data-id="${k.id}">
+        <div class="kt">${esc(k.customer||'Untitled')}</div>
+        <div class="km"><span>${esc(k.product||'—')}</span></div>
+        <div class="km"><span class="pill ${k.type==='herb'?'teal':'purple'}">${k.type==='herb'?'Herb':'Pkg'}</span><span class="pill orange">${esc(k.ipLabel||'')}</span><span>Batch ${esc(k.batch||'—')}</span></div>
+        <div class="kf"><div class="kbar prog ${pr.frac>=1?'done':''}"><i style="width:${Math.round(pr.frac*100)}%"></i></div><span style="font-size:11px;color:var(--label-2);font-weight:700">${k.reqs&&k.reqs.length?pr.done+'/'+pr.total:k.lines.length+' ln'}</span></div>
+      </div>`;
+    }).join('')||`<div style="padding:14px 8px;color:var(--label-3);font-size:12.5px;text-align:center">Drop kits here</div>`;
+    return `<div class="kcol" data-col="${col.id}"><div class="kcol-h"><span class="dot" style="background:${col.color}"></span>${col.label}<span class="ct">${list.length}</span></div><div class="kcol-body" data-col="${col.id}">${cards}</div></div>`;
+  }).join('');
+  const expSoon=DB.inv.filter(r=>{const e=expState(r.exp);return e.s==='expired'||e.s==='soon';}).length;
+  return `<section class="view">
+    <div class="nav"><div class="nav-row"><div class="nav-btn" style="opacity:0">.</div><div class="nav-title">Overview</div><button class="nav-btn right" data-act="newKit">${IC.plus}</button></div></div>
+    <div class="large-title"><h1>Overview</h1><div class="sub">Your kits, board-style — drag cards to change status</div></div>
+    <div class="stat">
+      <div class="s"><div class="v tnum">${kits.length}</div><div class="l">Active kits</div></div>
+      <div class="s"><div class="v tnum">${byStatus('review').length}</div><div class="l">Ready to print</div></div>
+      <div class="s"><div class="v tnum">${totalLines}</div><div class="l">Lines kitted</div></div>
+    </div>
+    ${expSoon?`<div class="callout" style="border-left:3px solid var(--orange)"><span class="ci" style="color:var(--orange)">${IC.flame}</span><div><b>${expSoon}</b> stock line${expSoon>1?'s':''} expired or expiring within 90 days.</div></div>`:''}
+    ${kits.length?`<div class="kanban">${cols}</div>`:`<div class="empty"><div class="ico">${IC.grid}</div><h3>No kits to show</h3><p>Start a kit and it'll appear here as a card you can move across the board — just like Asana.</p><div style="margin-top:16px"><button class="btn fill" data-act="newKit">${IC.plus} New Kit</button></div></div>`}
+    <div class="group"><div class="group-h">Recent activity</div><div class="card">
+      ${(DB.movements||[]).slice(0,8).map(m=>`<div class="row"><div class="grow"><div class="t1">${esc(m.part)} <span class="pill ${m.kind==='kit'?'blue':m.kind==='return'?'gray':m.kind==='cycle'?'purple':'teal'}">${m.kind}</span></div><div class="t2">${esc(locShort(m.from))} → ${esc(locShort(m.to))}</div></div><div class="r"><div class="t1 tnum">${m.amt>0?'+':''}${fmtQty(m.amt)} ${esc(m.uom)}</div></div></div>`).join('')||'<div style="padding:16px;color:var(--label-3);font-size:13px;text-align:center">No activity yet</div>'}
+    </div></div>
+    <div style="height:12px"></div>
+  </section>`;
+}
+function mountKanbanDnD(){
+  let dragId=null;
+  $$('.kcard').forEach(card=>{
+    card.addEventListener('dragstart',e=>{ dragId=card.dataset.kid; card.classList.add('drag'); e.dataTransfer.effectAllowed='move'; });
+    card.addEventListener('dragend',e=>{ card.classList.remove('drag'); dragId=null; });
+  });
+  $$('.kcol-body').forEach(body=>{
+    body.addEventListener('dragover',e=>{ e.preventDefault(); body.style.background='var(--fill)'; });
+    body.addEventListener('dragleave',e=>{ body.style.background=''; });
+    body.addEventListener('drop',e=>{ e.preventDefault(); body.style.background='';
+      if(!dragId)return; const kit=kitById(dragId); const col=body.dataset.col;
+      if(kit&&kit.status!==col){ kit.status=col; kit.updatedAt=Date.now(); saveDB(); render(); toast('Moved to '+(STATUS[col]||{}).label); }
+    });
+  });
+  // pointer fallback for touch
+  $$('.kcard').forEach(card=>{
+    let sx,sy,moved,ghost,curCol;
+    card.addEventListener('pointerdown',e=>{ if(e.pointerType==='mouse')return; sx=e.clientX;sy=e.clientY;moved=false;
+      const id=card.dataset.kid;
+      const mv=ev=>{ if(!moved&&Math.hypot(ev.clientX-sx,ev.clientY-sy)>10){moved=true;card.style.opacity='.4';}
+        if(moved){ const el=document.elementFromPoint(ev.clientX,ev.clientY); const col=el&&el.closest('.kcol-body'); $$('.kcol-body').forEach(b=>b.style.background=''); if(col){col.style.background='var(--fill)';curCol=col.dataset.col;} else curCol=null; } };
+      const up=ev=>{ document.removeEventListener('pointermove',mv);document.removeEventListener('pointerup',up);
+        card.style.opacity=''; $$('.kcol-body').forEach(b=>b.style.background='');
+        if(moved&&curCol){ const kit=kitById(id); if(kit&&kit.status!==curCol){kit.status=curCol;kit.updatedAt=Date.now();saveDB();render();toast('Moved to '+(STATUS[curCol]||{}).label);} }
+      };
+      document.addEventListener('pointermove',mv); document.addEventListener('pointerup',up);
+    });
+  });
+}
+
+/* ================= SETTINGS ================= */
+function viewSettings(){
+  const im=DB.importMeta;
+  return `<section class="view">
+    <div class="nav"><div class="nav-row"><div class="nav-btn" style="opacity:0">.</div><div class="nav-title">Settings</div><div class="nav-btn" style="opacity:0">.</div></div></div>
+    <div class="large-title"><h1 class="brandmark"><span style="color:var(--accent)">${IC.leaf}</span> ${esc(DB.brand)}</h1><div class="sub">Kitting workspace</div></div>
+    <div class="group"><div class="group-h">Fishbowl import</div>
+      <div class="dz" id="set-dz" data-act="doImport"><div class="ico">${IC.up}</div><h3>Import inventory report (.csv)</h3>
+        <p>Drop or tap. Same columns as your Fishbowl <b>InvQtys.csv</b> export — no editing needed. Replaces all current data including locations.</p></div>
+      ${DB.imported&&im?`<div class="card"><div class="field"><label>File</label><div class="in" style="text-align:right">${esc(im.name)}</div></div>
+        <div class="field"><label>Imported</label><div class="in" style="text-align:right">${esc(im.date)}</div></div>
+        <div class="field"><label>Rows</label><div class="in tnum" style="text-align:right">${fmtInt(im.rows)}</div></div></div>`
+        :`<div class="callout"><span class="ci">${IC.info}</span><div>Currently showing <b>sample data</b> (${fmtInt(DB.inv.length)} lines). Import a report to replace it.</div></div>`}
+    </div>
+    <div class="group"><div class="group-h">Data</div><div class="card">
+      <div class="row tap" data-act="exportInv"><div class="grow"><div class="t1">Export inventory CSV</div><div class="t2">Fishbowl-format snapshot of current stock</div></div><span class="chev">${IC.chev}</span></div>
+      <div class="row tap" data-act="backup"><div class="grow"><div class="t1">Back up everything</div><div class="t2">Download a JSON of inventory, kits &amp; customers</div></div><span class="chev">${IC.chev}</span></div>
+      <div class="row tap" data-act="doRestore"><div class="grow"><div class="t1">Restore from backup</div><div class="t2">Load a previously saved JSON</div></div><span class="chev">${IC.chev}</span></div>
+    </div></div>
+    <div class="group"><div class="group-h">Appearance</div>
+      <div class="seg" style="margin:0">${['auto','light','dark'].map(t=>`<button class="${DB.theme===t?'on':''}" data-act="setTheme" data-t="${t}">${t[0].toUpperCase()+t.slice(1)}</button>`).join('')}</div></div>
+    <div class="group"><div class="group-h">In-Process map</div><div class="card">
+      <div class="row tap" data-act="ipMap"><div class="grow"><div class="t1">View IP occupancy</div><div class="t2">See which In-Process locations are used or open</div></div><span class="chev">${IC.chev}</span></div></div></div>
+    <div class="group"><div class="card">
+      <div class="row tap" data-act="resetSample"><div class="grow"><div class="t1" style="color:var(--red)">Reset to sample data</div><div class="t2">Clears kits &amp; restores the demo inventory</div></div></div>
+    </div></div>
+    <div class="callout"><span class="ci">${IC.info}</span><div>Runs entirely on your device — data stays in this browser. Add to Home Screen on iOS for an app-like experience. Built as a dedicated tool for kitting.</div></div>
+    <div style="height:16px"></div>
+  </section>`;
+}
+function openIPMap(){
+  const render=(kind)=>{
+    const occ=ipOccupancy(kind); const nums=ipRange(kind);
+    const cells=nums.map(n=>{ const o=occ[n]; const isOcc=!!o;
+      return `<button class="ipcell ${isOcc?'occ':'free'}" data-act="ipInfo" data-n="${n}" data-kind="${kind}">
+        ${o&&o.kit?`<span class="dot" style="background:var(--blue)"></span>`:''}<span class="n">${n}</span><span class="s">${isOcc?(o.kit?'kit':fmtInt(o.qty)):'open'}</span></button>`;
+    }).join('');
+    const used=nums.filter(n=>occ[n]).length;
+    return `<div class="seg"><button class="${kind==='packaging'?'on':''}" data-act="ipmKind" data-kind="packaging">Packaging</button>
+        <button class="${kind==='herb'?'on':''}" data-act="ipmKind" data-kind="herb">Herbs</button></div>
+      <div style="text-align:center;font-size:13px;color:var(--label-2);margin:2px 0 6px"><b>${used}</b> occupied · <b>${nums.length-used}</b> open</div>
+      <div class="group"><div class="ipgrid">${cells}</div></div>`;
+  };
+  const rec=openSheet({ title:'In-Process Map', leftBtn:'Done', full:true, id:'ipmap', body:render('packaging') });
+  rec._ipm={render};
+}
+
+/* ================= ACTION DISPATCH ================= */
+function fileInput(accept,cb){ const i=document.createElement('input'); i.type='file'; i.accept=accept;
+  i.onchange=()=>{ if(i.files&&i.files[0])cb(i.files[0]); }; i.click(); }
+function readCSVFile(file){ const rd=new FileReader(); rd.onload=()=>{ doImportText(rd.result, file.name); }; rd.readAsText(file); }
+function doImportText(text,name){
+  confirmSheet('Import report?', `This replaces all current inventory and locations with the ${name?'"'+name+'"':'imported'} report. Kits already started are kept.`,'Replace & Import',()=>{
+    const res=importFishbowlCSV(text,name); closeSheet();
+    if(res.ok){ invSearch=''; go('inventory'); toast(`Imported ${fmtInt(res.rows)} rows`); }
+    else toast(res.msg||'Import failed');
+  });
+}
+
+const ACT={
+  go:el=>go(el.dataset.r),
+  closeSheet:()=>closeSheet(),
+  sheetLeft:()=>{ const t=topSheet(); if(t&&t.onLeft)t.onLeft(); else closeSheet(); },
+  sheetRight:()=>{ const t=topSheet(); if(t&&t.onRight)t.onRight(); },
+  confirmYes:()=>{ const t=topSheet(); const fn=t&&t.el._yes; closeSheet(); if(fn)fn(); },
+  openKit:()=>openKitBuilder(),
+  openKitId:el=>{ DB.activeKitId=el.dataset.id; saveDB(); openKitBuilder(); },
+  newKit:()=>openNewKit(),
+  // inventory
+  invPart:el=>openInvPart(el.dataset.part),
+  invFilter:el=>{ invFilter=el.dataset.f; render(); },
+  ipMap:()=>openIPMap(),
+  moveStart:el=>openMove(el.dataset.id,'move'),
+  returnStart:el=>openMove(el.dataset.id,'return'),
+  cycleStart:el=>openCycle(el.dataset.id),
+  mvAll:el=>{ const r=invById(el.dataset.id); if(r)$('#mv-amt').value=num(r.qty); },
+  cyZero:()=>{ $('#cy-amt').value='0'; },
+  pickIP:el=>{ const target=el.dataset.target; openIPPicker({kind:'packaging',current:$('#'+target)?$('#'+target).value:'',
+    onPick:(loc,label)=>{ const t=$('#'+target); if(t)t.value=loc; } }); },
+  pickToKit:(el,ev)=>{ const kit=activeKit(); if(!kit){toast('Start a kit first');return;} kbPickFlow(el.dataset.id,null, el); },
+  // IP picker
+  ipKind:el=>{ const rec=sheetStack.find(s=>s.sid==='ippick'); if(rec){ rec._ip.kind=el.dataset.kind; rec.el.querySelector('.sheet-body').innerHTML=rec._ip.render.call(null); rec._ip=Object.assign(rec._ip,{}); reRenderIP(rec); } },
+  ipSel:el=>{ const rec=sheetStack.find(s=>s.sid==='ippick'); if(!rec)return; const kind=el.dataset.kind, n=+el.dataset.n;
+    const loc=ipCanonical(kind,n); const label=(kind==='herb'?'Herbs ':'In Process ')+n;
+    const onPick=rec._ip.opts.onPick; closeSheetById('ippick'); if(onPick)onPick(loc,label); },
+  ipmKind:el=>{ const rec=sheetStack.find(s=>s.sid==='ipmap'); if(rec){ rec.el.querySelector('.sheet-body').innerHTML=rec._ipm.render(el.dataset.kind); } },
+  ipInfo:el=>{ ipSlotInfo(el.dataset.kind,+el.dataset.n); },
+  // new kit
+  nkType:el=>{ nk.type=el.dataset.t; renderNewKit(); },
+  nkPickIP:()=>{ openIPPicker({kind:nk.type==='herb'?'herb':'packaging',current:nk.ip,
+    onPick:(loc,label)=>{ nk.ip=loc; nk.ipLabel=label; renderNewKit(); } }); },
+  nkBatch:el=>{ const v=el.value; if(v==='__new'){ nk.batch=''; nk._newBatch=true; renderNewKit(); const i=$('#nk-batch'); return; }
+    nk.batch=v; const b=DB.customers[nk.customer]&&DB.customers[nk.customer].batches[v]; if(b){ nk.product=b.product||nk.product; } renderNewKit(); },
+  // kit builder
+  kbSearch:()=>{}, // handled live
+  kbPick:(el)=>{ kbPickFlow(el.dataset.id, el.dataset.req||null, el); },
+  kbFulfill:el=>{ kbReqFilter=el.dataset.req; kbSearch=''; renderKitBuilder(); },
+  kbClearFilter:()=>{ kbReqFilter=null; renderKitBuilder(); },
+  kbSettings:()=>openKitDetails(),
+  kbChangeIP:()=>{ const kit=activeKit(); openIPPicker({kind:kit.type==='herb'?'herb':'packaging',current:kit.ip,
+    onPick:(loc,label)=>{ kit.ip=loc; kit.ipLabel=label; kit.updatedAt=Date.now(); saveDB(); const s=$('.sheet[data-sid="kitdetails"] [data-kf="ipLabel"]'); if(s)s.value=label; renderKitBuilder(); } }); },
+  kbStatus:el=>{ const kit=activeKit(); kit.status=el.dataset.s; kit.updatedAt=Date.now(); saveDB();
+    $$('.sheet[data-sid="kitdetails"] .seg button').forEach(b=>b.classList.toggle('on',b.dataset.s===el.dataset.s)); },
+  kbDelete:()=>{ const kit=activeKit(); confirmSheet('Delete kit?',`This deletes "${kit.customer||'kit'}" and returns any pulled stock to inventory.`,'Delete kit',()=>{ deleteKit(kit.id); closeAllSheets(); go('kits'); toast('Kit deleted'); },true); },
+  kbPrint:()=>openFormPreview(),
+  lineEdit:el=>openLineEdit(el.dataset.lid),
+  lineReturn:el=>{ const kit=activeKit(); returnLine(kit,el.dataset.lid); },
+  lineDelete:el=>{ const kit=activeKit(); const l=kit.lines.find(x=>x.id===el.dataset.lid);
+    confirmSheet('Remove line?',`Remove ${l?l.code:'this line'} and return ${l?fmtQty(l.transferred)+' '+l.uom:'stock'} to ${l?locShort(l.loc):'inventory'}?`,'Remove & return',()=>{ deleteLine(kit,el.dataset.lid); closeSheet(); },true); },
+  // form
+  formPrint:()=>printForm(),
+  formPDF:()=>savePDF(),
+  formExportCSV:()=>exportFormCSV(),
+  // formula
+  fxKind:el=>{ fx.kind=el.dataset.k; render(); },
+  fxUpload:()=>fileInput('image/*,application/pdf,.pdf',f=>{ const rd=new FileReader(); rd.onload=()=>{ fx.imgURL=rd.result; fx.imgName=f.name; render(); }; if(f.type==='application/pdf'){ fx.imgURL=''; fx.imgName=f.name+' (PDF — shown as reference not supported inline; paste its text below)'; render(); } else rd.readAsDataURL(f); }),
+  fxParse:()=>{ const t=$('#fx-paste')?$('#fx-paste').value:''; if(!t.trim()){toast('Paste some formula text first');return;}
+    const items=parseMasterFormula(t,fx.kind); if(!items.length){toast('Could not find items — try the grid');return;}
+    fx.items=fx.items.concat(items); render(); toast(`Parsed ${items.length} item${items.length>1?'s':''}`); },
+  fxAddRow:()=>{ fx.items.push({code:'',name:'',amount:'',uom:fx.kind==='herb'?'lbs':'ea'}); render(); },
+  fxDel:el=>{ fx.items.splice(+el.dataset.i,1); render(); },
+  fxClear:()=>{ fx.items=[]; render(); },
+  fxExample:()=>{ const b=DB.customers['Bigly'].batches['H-15225']; fx.customer='Bigly'; fx.product='Zeolite Tincture';
+    fx.batch=fx.kind==='herb'?'H-15225':'P-15226';
+    const src=fx.kind==='herb'?b.ingredients:b.packaging;
+    fx.items=src.filter(i=>i.code&&i.code!=='N/A').map(i=>({code:i.code,name:i.name,amount:fx.kind==='herb'?(i.overage||i.amount):i.amount,uom:i.uom}));
+    render(); toast('Loaded Bigly example'); },
+  fxBatch:el=>{ const v=el.value; if(v==='__new'){fx.batch='';fx.items=[];render();return;} fx.batch=v;
+    const b=DB.customers[fx.customer]&&DB.customers[fx.customer].batches[v];
+    if(b){ fx.product=b.product||''; const src=fx.kind==='herb'?(b.ingredients||[]):(b.packaging||[]);
+      fx.items=src.filter(i=>i.code&&i.code!=='N/A').map(i=>({code:i.code,name:i.name,amount:fx.kind==='herb'?(i.overage||i.amount):i.amount,uom:i.uom})); }
+    render(); toast('Loaded formula from '+fx.customer+'’s file'); },
+  fxStart:()=>startKitFromFormula(),
+  // settings
+  doImport:()=>fileInput('.csv,text/csv',readCSVFile),
+  exportInv:()=>{ downloadBlob(exportInventoryCSV(),'YE_Inventory_'+todayISO()+'.csv','text/csv'); toast('Inventory exported'); },
+  backup:()=>{ downloadBlob(JSON.stringify(DB),'YE_Kitting_Backup_'+todayISO()+'.json','application/json'); toast('Backup downloaded'); },
+  doRestore:()=>fileInput('.json,application/json',f=>{ const rd=new FileReader(); rd.onload=()=>{ try{ const d=JSON.parse(rd.result);
+    if(!d.inv)throw new Error('bad'); DB=d; if(!DB.movements)DB.movements=[]; saveDB(); applyTheme(); go('inventory'); toast('Backup restored'); }
+    catch(e){ toast('Invalid backup file'); } }; rd.readAsText(f); }),
+  setTheme:el=>{ DB.theme=el.dataset.t; saveDB(); applyTheme(); render(); },
+  resetSample:()=>confirmSheet('Reset to sample?','This clears all kits and restores the demo inventory. Back up first if needed.','Reset',()=>{ DB=freshDB(); saveDB(); applyTheme(); closeSheet(); go('inventory'); toast('Reset to sample data'); },true),
+};
+function reRenderIP(rec){ /* re-render ip picker body with current kind */
+  const body=rec._ip.render.call(null); rec.el.querySelector('.sheet-body').innerHTML=body; }
+// fix ipKind to use stored kind
+ACT.ipKind=el=>{ const rec=sheetStack.find(s=>s.sid==='ippick'); if(!rec)return; rec._ip.kind=el.dataset.kind;
+  const kind=el.dataset.kind; const opts=rec._ip.opts;
+  rec._ip.render=makeIPRender(kind,opts); rec.el.querySelector('.sheet-body').innerHTML=rec._ip.render(); };
+
+function ipSlotInfo(kind,n){
+  const loc=ipCanonical(kind,n); const rows=DB.inv.filter(r=>{ const p=parseLoc(r.loc); return p.ip&&p.ip.kind===kind&&p.ip.n===n&&num(r.qty)>1e-9; });
+  const kit=DB.kits.find(k=>k.status!=='complete'&&parseLoc(k.ip).ip&&parseLoc(k.ip).ip.kind===kind&&parseLoc(k.ip).ip.n===n);
+  const body=`<div class="group">${kit?`<div class="callout"><span class="ci">${IC.cart}</span><div>Open kit here: <b>${esc(kit.customer)}</b> · Batch ${esc(kit.batch)}</div></div>`:''}
+    <div class="group-h">${rows.length} stock line${rows.length!==1?'s':''} in ${(kind==='herb'?'Herbs ':'In Process ')+n}</div>
+    <div class="card">${rows.map(r=>`<div class="row"><div class="grow"><div class="t1">${esc(r.part)}</div><div class="t2 mono">Lot ${esc(r.lot||'—')} · ${esc(r.desc)}</div></div><div class="r"><div class="t1 tnum">${fmtQty(r.qty)} ${esc(r.uom)}</div></div></div>`).join('')||'<div style="padding:16px;color:var(--label-3);text-align:center;font-size:13px">Empty — available for a new kit</div>'}</div></div>`;
+  openSheet({title:(kind==='herb'?'Herbs ':'In Process ')+n, leftBtn:'Close', body, id:'ipslot'});
+}
+function makeIPRender(kind,opts){
+  return function(){
+    const occ=ipOccupancy(kind); const nums=ipRange(kind);
+    const cur=opts.current?parseLoc(opts.current):null;
+    const cells=nums.map(n=>{ const o=occ[n]; const isOcc=!!o; const selected=cur&&cur.ip&&cur.ip.n===n&&cur.ip.kind===kind;
+      const dot=o&&o.kit?`<span class="dot" style="background:var(--blue)"></span>`:(isOcc?`<span class="dot" style="background:var(--orange)"></span>`:'');
+      return `<button class="ipcell ${selected?'sel':isOcc?'occ':'free'}" data-act="ipSel" data-n="${n}" data-kind="${kind}">${dot}<span class="n">${n}</span><span class="s">${isOcc?(o.kit?'kit':fmtInt(o.qty)):'empty'}</span></button>`;
+    }).join('');
+    return `<div class="seg"><button class="${kind==='packaging'?'on':''}" data-act="ipKind" data-kind="packaging">Packaging IPs</button>
+        <button class="${kind==='herb'?'on':''}" data-act="ipKind" data-kind="herb">Herb IPs</button></div>
+      <div class="callout"><span class="ci">${IC.info}</span><div>Tap a slot to select. <b style="color:var(--orange)">Amber</b> = occupied, <b>dashed</b> = empty, <b style="color:var(--blue)">blue</b> = an open kit. You may pick an occupied slot to share an IP (e.g. a packaging kit under the same batch as its herb kit).</div></div>
+      <div class="group"><div class="ipgrid">${cells}</div></div>`;
+  };
+}
+// redefine openIPPicker to use makeIPRender
+function openIPPicker(opts){ const kind=opts.kind||'packaging'; const render=makeIPRender(kind,opts);
+  const rec=openSheet({ title:'In-Process Locations', leftBtn:'Cancel', full:true, id:'ippick', body:render() });
+  rec._ip={kind,opts,render}; }
+
+function openLineEdit(lid){
+  const kit=activeKit(); const l=kit.lines.find(x=>x.id===lid); if(!l)return;
+  const src=DB.inv.filter(r=>r.part===l.code); const avail=src.reduce((a,r)=>a+ (isIP(r.loc)?0:num(r.qty)),0);
+  openSheet({ title:'Edit Line', leftBtn:'Cancel', rightBtn:'Save', id:'lineedit',
+    body:`<div class="group"><div class="card">
+        <div class="field"><label>Part</label><div class="in" style="text-align:right"><b>${esc(l.code)}</b></div></div>
+        <div class="field stack"><label>Description</label><input id="le-desc" value="${escA(l.desc)}"></div>
+        <div class="field stack"><label>Source location</label><input id="le-loc" value="${escA(l.loc)}"></div>
+        <div class="field stack"><label>YE Lot #</label><input id="le-lot" value="${escA(l.lot)}"></div>
+        <div class="field"><label>Pulled amount</label><div class="in"><input id="le-amt" type="number" inputmode="decimal" step="any" value="${num(l.transferred)}"></div></div>
+      </div>
+      <div style="margin:8px 16px;font-size:12px;color:var(--label-2)">Changing the pulled amount reconciles inventory: increasing pulls more from ${esc(locShort(l.loc))}, decreasing returns the difference.</div></div>`,
+    onRight:()=>{ const newAmt=num($('#le-amt').value); const delta=newAmt-num(l.transferred);
+      if(delta>0){ // pull more from source loc
+        const srcRow=DB.inv.find(r=>r.part===l.code&&r.lot===l.lot&&r.uom===l.uom&&r.loc===l.loc);
+        if(!srcRow||num(srcRow.qty)<delta){ toast('Not enough at source to add '+fmtQty(delta)); return; }
+        moveStock(srcRow.id,kit.ip,delta,{kind:'kit'});
+      } else if(delta<0){ const ipRow=DB.inv.find(r=>r.part===l.code&&r.lot===l.lot&&r.uom===l.uom&&r.loc===kit.ip);
+        if(ipRow)moveStock(ipRow.id,l.loc,Math.min(-delta,num(ipRow.qty)),{kind:'return'}); }
+      l.transferred=newAmt; l.desc=$('#le-desc').value; l.loc=$('#le-loc').value; l.lot=$('#le-lot').value;
+      kit.updatedAt=Date.now(); saveDB(); closeSheet(); renderKitBuilder(); toast('Line updated'); }});
+}
+function startKitFromFormula(){
+  if(!fx.items.length){ toast('Add at least one required item'); return; }
+  if(!fx.customer.trim()){ toast('Enter a customer'); return; }
+  if(!fx.batch.trim()){ toast('Enter a batch #'); return; }
+  // save formula to customer file
+  const cust=DB.customers[fx.customer]||(DB.customers[fx.customer]={batches:{}});
+  const key=fx.kind==='herb'?'ingredients':'packaging';
+  const batch=cust.batches[fx.batch]||(cust.batches[fx.batch]={product:fx.product,kind:fx.kind});
+  batch.product=fx.product||batch.product;
+  batch[key]=fx.items.map(i=>({code:i.code,name:i.name,amount:num(i.amount),overage:num(i.amount),uom:i.uom}));
+  saveDB();
+  // pick IP then create
+  openIPPicker({kind:fx.kind==='herb'?'herb':'packaging',current:'',
+    onPick:(loc,label)=>{
+      const kit=createKit({type:fx.kind,customer:fx.customer,product:fx.product,batch:fx.batch,ip:loc,ipLabel:label});
+      kit.reqs=fx.items.map(i=>({id:uid('r'),code:i.code,name:i.name,suggested:num(i.amount),uom:i.uom}));
+      kit.formulaMeta={product:fx.product}; saveDB();
+      openKitBuilder(); toast('Kit started from formula');
+    }});
+}
+
+/* ================= EVENT WIRING ================= */
+function applyTheme(){ const t=DB.theme||'auto'; const r=document.documentElement;
+  if(t==='auto'){ if(r.getAttribute('data-theme-ye')){ r.removeAttribute('data-theme'); r.removeAttribute('data-theme-ye'); } }
+  else { r.setAttribute('data-theme',t); r.setAttribute('data-theme-ye','1'); } }
+document.addEventListener('click',e=>{
+  const el=e.target.closest('[data-act]'); if(!el)return;
+  const act=el.dataset.act; if(ACT[act]){ e.preventDefault(); ACT[act](el,e); }
+},false);
+document.addEventListener('input',e=>{
+  const el=e.target; if(!el.dataset)return; const act=el.dataset.act;
+  if(el.dataset.live){
+    if(act==='invSearch'){ invSearch=el.value; const pos=el.selectionStart; render(); const n=document.querySelector('[data-act="invSearch"]'); if(n){n.focus();try{n.setSelectionRange(pos,pos);}catch(_){}} }
+    else if(act==='kbSearch'){ kbSearch=el.value; const pos=el.selectionStart; renderKitBuilder(); const n=$('#kb-search'); if(n){n.focus();try{n.setSelectionRange(pos,pos);}catch(_){}} }
+    else if(act==='nkCust'){ nk.customer=el.value; updateNkBatchField(); }
+    else if(act==='nkBatchText'){ nk.batch=el.value; }
+    else if(act==='nkProd'){ nk.product=el.value; }
+    else if(act==='fxCust'){ fx.customer=el.value; updateFxBatchField(); }
+    else if(act==='fxBatchText'){ fx.batch=el.value; }
+    else if(act==='fxProd'){ fx.product=el.value; }
+    return;
+  }
+  // formula grid inline edits
+  if(el.dataset.fi!=null){ const i=+el.dataset.fi, k=el.dataset.k; if(fx.items[i])fx.items[i][k]=el.value; }
+},false);
+document.addEventListener('change',e=>{
+  const el=e.target; if(!el.dataset)return; const act=el.dataset.act;
+  if(act==='nkBatch'){ ACT.nkBatch(el); }
+  else if(act==='fxBatch'){ ACT.fxBatch(el); }
+},false);
+
+/* ---- global file drag & drop (CSV import) ---- */
+let dragDepth=0;
+window.addEventListener('dragover',e=>{ e.preventDefault(); });
+window.addEventListener('dragenter',e=>{ e.preventDefault(); dragDepth++;
+  if(e.dataTransfer&&Array.from(e.dataTransfer.types||[]).includes('Files')) $('#filedrop').classList.add('on'); });
+window.addEventListener('dragleave',e=>{ dragDepth--; if(dragDepth<=0){dragDepth=0;$('#filedrop').classList.remove('on');} });
+window.addEventListener('drop',e=>{ e.preventDefault(); dragDepth=0; $('#filedrop').classList.remove('on');
+  const f=e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files[0]; if(!f)return;
+  if(/\.csv$/i.test(f.name)||f.type==='text/csv'){ readCSVFile(f); }
+  else if(ROUTE==='formula'&&/^image\//.test(f.type)){ const rd=new FileReader(); rd.onload=()=>{fx.imgURL=rd.result;fx.imgName=f.name;render();}; rd.readAsDataURL(f); }
+  else toast('Drop a Fishbowl .csv to import'); });
+
+/* ---- swipe-down to close top sheet ---- */
+(function(){ let sy=0,dragEl=null;
+  document.addEventListener('touchstart',e=>{ const g=e.target.closest('.grabber'); if(g){ dragEl=g.closest('.sheet'); sy=e.touches[0].clientY; } },{passive:true});
+  document.addEventListener('touchmove',e=>{ if(!dragEl)return; const dy=e.touches[0].clientY-sy; if(dy>0)dragEl.style.transform=`translateY(${dy}px)`; },{passive:true});
+  document.addEventListener('touchend',e=>{ if(!dragEl)return; const m=/translateY\((\d+)/.exec(dragEl.style.transform); dragEl.style.transform='';
+    if(m&&+m[1]>110)closeSheet(); dragEl=null; },{passive:true});
+})();
+
+/* ================= INIT ================= */
+loadDB(); applyTheme(); render();
+window.YE={get DB(){return DB;}, render, go, kitById, activeKit}; // debug handle
+</script>
+</body>
+</html>
