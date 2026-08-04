@@ -1,0 +1,19 @@
+{
+  "name": "corrigible-town",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "apps/web",
+    "packages/api-schema",
+    "tests/browser"
+  ],
+  "scripts": {
+    "schema": "node scripts/generate-api-schema.mjs",
+    "dev": "npm run dev --workspace @corrigible/web",
+    "build": "npm run build --workspace @corrigible/web",
+    "typecheck": "npm run typecheck --workspace @corrigible/web",
+    "lint": "npm run typecheck",
+    "test:browser": "npm run test --workspace @corrigible/browser-tests"
+  }
+}

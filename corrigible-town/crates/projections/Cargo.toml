@@ -1,0 +1,18 @@
+[package]
+name = "ct-projections"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+
+[dependencies]
+ct-economy.workspace = true
+ct-events.workspace = true
+ct-governance.workspace = true
+ct-policies.workspace = true
+ct-population.workspace = true
+ct-sim-core.workspace = true
+ct-spatial.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+ts-rs.workspace = true

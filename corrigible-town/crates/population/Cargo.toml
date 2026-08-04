@@ -1,0 +1,12 @@
+[package]
+name = "ct-population"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+
+[dependencies]
+ct-economy.workspace = true
+ct-spatial.workspace = true
+serde.workspace = true
+ts-rs.workspace = true

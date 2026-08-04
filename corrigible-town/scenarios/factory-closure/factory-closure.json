@@ -1,0 +1,646 @@
+{
+  "id": "factory-closure",
+  "version": 1,
+  "rulesetVersion": "1.0.0",
+  "title": "The Northgate Works closes",
+  "description": "Corrigible is a town of roughly two hundred people built around one factory. On day thirty the Northgate Works closes and sixty people lose their jobs at once. Household income falls, rent arrears build, and the town's institutions have to notice, decide, and act — through the process the decision actually calls for.",
+  "seed": "0x00c0ffee1533d0a1",
+  "startDate": "2027-01-04",
+  "town": {
+    "name": "Corrigible",
+    "width": 120,
+    "height": 88,
+    "districts": [
+      {
+        "id": 1,
+        "name": "Millside",
+        "bounds": [
+          0,
+          0,
+          60,
+          44
+        ],
+        "housingUnits": 34,
+        "rentMonthlyMin": 98000,
+        "rentMonthlyMax": 124000
+      },
+      {
+        "id": 2,
+        "name": "Old Town",
+        "bounds": [
+          60,
+          0,
+          60,
+          44
+        ],
+        "housingUnits": 30,
+        "rentMonthlyMin": 112000,
+        "rentMonthlyMax": 148000
+      },
+      {
+        "id": 3,
+        "name": "Riverside",
+        "bounds": [
+          0,
+          44,
+          120,
+          44
+        ],
+        "housingUnits": 32,
+        "rentMonthlyMin": 105000,
+        "rentMonthlyMax": 132000
+      }
+    ],
+    "employers": [
+      {
+        "key": "northgate-works",
+        "name": "Northgate Works",
+        "kind": "factory",
+        "jobs": 60,
+        "wageDaily": 11800,
+        "district": 1
+      },
+      {
+        "key": "riverside-grocers",
+        "name": "Riverside Grocers",
+        "kind": "smallBusiness",
+        "jobs": 9,
+        "wageDaily": 9600,
+        "district": 3
+      },
+      {
+        "key": "old-town-bakery",
+        "name": "Old Town Bakery",
+        "kind": "smallBusiness",
+        "jobs": 6,
+        "wageDaily": 8800,
+        "district": 2
+      },
+      {
+        "key": "millside-garage",
+        "name": "Millside Garage",
+        "kind": "smallBusiness",
+        "jobs": 7,
+        "wageDaily": 10400,
+        "district": 3
+      },
+      {
+        "key": "corrigible-clinic",
+        "name": "Corrigible Clinic",
+        "kind": "smallBusiness",
+        "jobs": 8,
+        "wageDaily": 13200,
+        "district": 2
+      },
+      {
+        "key": "municipal-services",
+        "name": "Municipal Services",
+        "kind": "municipal",
+        "jobs": 12,
+        "wageDaily": 11200,
+        "district": 2
+      },
+      {
+        "key": "corrigible-school",
+        "name": "Corrigible School",
+        "kind": "municipal",
+        "jobs": 10,
+        "wageDaily": 12000,
+        "district": 3
+      }
+    ],
+    "shelter": {
+      "name": "Riverside Emergency Shelter",
+      "district": 3
+    },
+    "population": {
+      "residentCount": 200,
+      "householdSizeWeights": [
+        22,
+        30,
+        24,
+        16,
+        8
+      ],
+      "childShareBp": 2000,
+      "seniorShareBp": 1700,
+      "outOfLabourForceBp": 700,
+      "baselineUnemploymentBp": 500,
+      "landlordHouseholds": 5,
+      "councilAffiliateHouseholds": 4,
+      "carerHouseholdBp": 3000
+    }
+  },
+  "params": {
+    "labour": {
+      "jobSearchSuccessBp": 1800,
+      "jobSearchScarringBpPerMonth": 150,
+      "jobSearchFloorBp": 400,
+      "smallBusinessVacanciesPerPeriod": 1,
+      "vacancyRefreshDays": 28,
+      "unemploymentBenefitWeekly": 19000,
+      "unemploymentBenefitMaxWeeks": 26,
+      "pensionWeekly": 42000,
+      "outOfLabourForceSupportWeekly": 34000
+    },
+    "economy": {
+      "incomeTaxBp": 1200,
+      "propertyTaxBp": 900,
+      "employerRevenueBp": 11500,
+      "essentialsWeeklyPerAdult": 13000,
+      "essentialsWeeklyPerChild": 6000,
+      "municipalMonthlyOperating": 5200000,
+      "municipalBorrowingLimit": 15000000,
+      "initialCashWeeks": 2,
+      "initialMunicipalCash": 22000000,
+      "employerInitialCapitalWeeks": 4,
+      "savingsBufferWeeks": 3,
+      "discretionarySpendBp": 6000
+    },
+    "housing": {
+      "rentBurdenThresholdBp": 4000,
+      "arrearsNoticeMonths": 1,
+      "evictionNoticeDays": 21,
+      "evictionProbabilityBp": 900,
+      "rehousingProbabilityBp": 250,
+      "writeOffArrearsOnEviction": true,
+      "shelterBaseCapacity": 6,
+      "shelterNightlyCost": 3400
+    },
+    "detection": {
+      "publicationIntervalDays": 10,
+      "lagDays": 10,
+      "hardshipUnemploymentBp": 1200,
+      "hardshipArrearsHouseholds": 8
+    },
+    "trust": {
+      "gainOnBenefitReceivedBp": 90,
+      "lossOnJobLossBp": 400,
+      "lossOnEvictionBp": 1500,
+      "lossOnShelterDeniedBp": 900,
+      "gainOnPolicySuccessBp": 600,
+      "lossOnPolicyFailureBp": 700,
+      "reversionBpPerDay": 6
+    },
+    "governance": {
+      "noticePeriodDays": 14,
+      "jurySeats": 12,
+      "juryServiceDays": 4,
+      "juryDailyCompensation": 12000,
+      "juryLostHoursPerServiceDay": 7,
+      "juryAcceptanceBaseBp": 7200,
+      "juryAcceptanceWorkingPenaltyBp": 1400,
+      "juryAcceptanceCarerPenaltyBp": 2000,
+      "evidencePreparationDays": 5,
+      "councilSeats": 9,
+      "councilFiscalFloor": 4000000,
+      "routing": {
+        "elevatedFiscalCost": 6000000,
+        "longDurationDays": 180,
+        "wideImpactResidents": 60
+      },
+      "juryWeights": {
+        "personalStake": 35,
+        "trust": 20,
+        "briefStrength": 35,
+        "riskAversion": 10,
+        "budgetConcern": 8,
+        "solidarity": 18,
+        "jitter": 10,
+        "abstainBand": 300
+      }
+    },
+    "policyExecution": {
+      "wageSubsidyDeadweightBp": 4500,
+      "publicProgramSetupDays": 21,
+      "baseNonTakeupBp": 500
+    }
+  },
+  "policyCatalogue": [
+    {
+      "id": "emergency-income-support",
+      "version": 1,
+      "title": "Emergency Income Support",
+      "description": "A weekly payment to every resident who has lost work, paid for ten weeks from the municipal general fund, intended to keep households in their homes while the labour market absorbs the redundancies.",
+      "legalAuthority": "authority.council.enact",
+      "applicablePopulation": {
+        "kind": "unemployedResidents"
+      },
+      "fundingSource": "municipalGeneralFund",
+      "administrativeOwner": "institution.municipal-administration",
+      "effects": [
+        {
+          "primitive": "transferMoney",
+          "to": {
+            "kind": "unemployedResidents"
+          },
+          "amount_per_period": 16000,
+          "period_days": 7,
+          "max_periods": 10
+        },
+        {
+          "primitive": "modifyEligibility",
+          "program": "emergency-income-support",
+          "rule": "arrearsRequired"
+        },
+        {
+          "primitive": "requireDisclosure",
+          "subject": "weekly caseload and spend",
+          "cadence_days": 14
+        }
+      ],
+      "implementationDelayDays": 14,
+      "successCriteria": [
+        {
+          "id": "eis.evictions",
+          "description": "no more than two evictions in the ninety days after enactment",
+          "metric": "evictionsSinceEnactment",
+          "comparator": "atMost",
+          "threshold": 2,
+          "evaluateAtOffsetDays": 90
+        },
+        {
+          "id": "eis.homelessness",
+          "description": "no more than three residents left without a roof",
+          "metric": "homelessResidents",
+          "comparator": "atMost",
+          "threshold": 3,
+          "evaluateAtOffsetDays": 90
+        }
+      ],
+      "failureCriteria": [
+        {
+          "id": "eis.debt",
+          "description": "municipal borrowing must not exceed 120,000",
+          "metric": "municipalDebtMinor",
+          "comparator": "greaterThan",
+          "threshold": 12000000,
+          "evaluateAtOffsetDays": 90
+        }
+      ],
+      "dataPlan": {
+        "indicators": [
+          "householdsInArrears",
+          "evictionsSinceEnactment",
+          "municipalCashMinor",
+          "policySpendMinor"
+        ],
+        "cadenceDays": 14,
+        "publication": "municipal dashboard and council minutes"
+      },
+      "reviewOffsetDays": 90,
+      "expiration": {
+        "kind": "atOffsetDays",
+        "days": 120
+      },
+      "appealRoute": {
+        "id": "appeal.municipal-appeals-panel",
+        "body": "Municipal Appeals Panel",
+        "deadlineDays": 30,
+        "description": "A resident affected by this policy may put written grounds to the Municipal Appeals Panel within 30 days of the decision that affected them."
+      },
+      "profile": {
+        "coerciveness": "none",
+        "reversibility": "easy",
+        "uncertainty": "medium",
+        "durationDays": 120,
+        "geographicScope": "townwide",
+        "rightsImpact": "medium",
+        "costConcentration": "low",
+        "benefitConcentration": "medium",
+        "measurableOutcomes": true,
+        "estimatedFiscalCost": 9600000,
+        "estimatedAffectedResidents": 66
+      },
+      "tradeoffNote": "Reaches households fastest and directly, but spends the general fund on transfers rather than on anything that outlasts the payments."
+    },
+    {
+      "id": "employer-wage-subsidy",
+      "version": 1,
+      "title": "Employer Wage Subsidy",
+      "description": "The town pays a fifth of the wage bill of every employer that keeps at least three people on, for twelve weeks, to stop a second wave of redundancies following the factory closure.",
+      "legalAuthority": "authority.council.enact",
+      "applicablePopulation": {
+        "kind": "employersRetainingJobs",
+        "min_headcount": 3
+      },
+      "fundingSource": "municipalGeneralFund",
+      "administrativeOwner": "institution.municipal-administration",
+      "effects": [
+        {
+          "primitive": "subsidiseWages",
+          "to": {
+            "kind": "employersRetainingJobs",
+            "min_headcount": 3
+          },
+          "subsidy_bp": 2000,
+          "period_days": 7
+        },
+        {
+          "primitive": "requireDisclosure",
+          "subject": "subsidised headcount by employer",
+          "cadence_days": 28
+        }
+      ],
+      "implementationDelayDays": 7,
+      "successCriteria": [
+        {
+          "id": "ews.employment",
+          "description": "at least sixty residents in work ninety days on",
+          "metric": "residentsEmployed",
+          "comparator": "atLeast",
+          "threshold": 60,
+          "evaluateAtOffsetDays": 90
+        },
+        {
+          "id": "ews.evictions",
+          "description": "no more than four evictions in the ninety days after enactment",
+          "metric": "evictionsSinceEnactment",
+          "comparator": "atMost",
+          "threshold": 4,
+          "evaluateAtOffsetDays": 90
+        }
+      ],
+      "failureCriteria": [
+        {
+          "id": "ews.debt",
+          "description": "municipal borrowing must not exceed 120,000",
+          "metric": "municipalDebtMinor",
+          "comparator": "greaterThan",
+          "threshold": 12000000,
+          "evaluateAtOffsetDays": 90
+        }
+      ],
+      "dataPlan": {
+        "indicators": [
+          "residentsEmployed",
+          "municipalCashMinor",
+          "policySpendMinor"
+        ],
+        "cadenceDays": 28,
+        "publication": "municipal dashboard"
+      },
+      "reviewOffsetDays": 90,
+      "expiration": {
+        "kind": "atOffsetDays",
+        "days": 100
+      },
+      "appealRoute": {
+        "id": "appeal.municipal-appeals-panel",
+        "body": "Municipal Appeals Panel",
+        "deadlineDays": 30,
+        "description": "A resident affected by this policy may put written grounds to the Municipal Appeals Panel within 30 days of the decision that affected them."
+      },
+      "profile": {
+        "coerciveness": "none",
+        "reversibility": "moderate",
+        "uncertainty": "high",
+        "durationDays": 100,
+        "geographicScope": "townwide",
+        "rightsImpact": "none",
+        "costConcentration": "medium",
+        "benefitConcentration": "high",
+        "measurableOutcomes": true,
+        "estimatedFiscalCost": 9200000,
+        "estimatedAffectedResidents": 52
+      },
+      "tradeoffNote": "Protects jobs that still exist, but a large share of the money goes to employers for staff they were never going to let go."
+    },
+    {
+      "id": "municipal-jobs-programme",
+      "version": 1,
+      "title": "Municipal Public Works Programme",
+      "description": "The town hires twelve people directly for ninety days on street repair, grounds maintenance and the shelter, paying a wage rather than a benefit.",
+      "legalAuthority": "authority.council.enact",
+      "applicablePopulation": {
+        "kind": "unemployedResidents"
+      },
+      "fundingSource": "municipalGeneralFund",
+      "administrativeOwner": "institution.municipal-administration",
+      "effects": [
+        {
+          "primitive": "createTemporaryJobs",
+          "employer_name": "Corrigible Public Works",
+          "count": 12,
+          "wage_daily": 8800,
+          "duration_days": 90
+        },
+        {
+          "primitive": "requireDisclosure",
+          "subject": "placements made and work completed",
+          "cadence_days": 28
+        }
+      ],
+      "implementationDelayDays": 14,
+      "successCriteria": [
+        {
+          "id": "mjp.employment",
+          "description": "at least sixty-two residents in work ninety days on",
+          "metric": "residentsEmployed",
+          "comparator": "atLeast",
+          "threshold": 62,
+          "evaluateAtOffsetDays": 90
+        },
+        {
+          "id": "mjp.evictions",
+          "description": "no more than four evictions in the ninety days after enactment",
+          "metric": "evictionsSinceEnactment",
+          "comparator": "atMost",
+          "threshold": 4,
+          "evaluateAtOffsetDays": 90
+        }
+      ],
+      "failureCriteria": [
+        {
+          "id": "mjp.debt",
+          "description": "municipal borrowing must not exceed 130,000",
+          "metric": "municipalDebtMinor",
+          "comparator": "greaterThan",
+          "threshold": 13000000,
+          "evaluateAtOffsetDays": 90
+        }
+      ],
+      "dataPlan": {
+        "indicators": [
+          "residentsEmployed",
+          "municipalCashMinor",
+          "policySpendMinor"
+        ],
+        "cadenceDays": 28,
+        "publication": "municipal dashboard"
+      },
+      "reviewOffsetDays": 90,
+      "expiration": {
+        "kind": "atOffsetDays",
+        "days": 130
+      },
+      "appealRoute": {
+        "id": "appeal.municipal-appeals-panel",
+        "body": "Municipal Appeals Panel",
+        "deadlineDays": 30,
+        "description": "A resident affected by this policy may put written grounds to the Municipal Appeals Panel within 30 days of the decision that affected them."
+      },
+      "profile": {
+        "coerciveness": "none",
+        "reversibility": "moderate",
+        "uncertainty": "medium",
+        "durationDays": 130,
+        "geographicScope": "townwide",
+        "rightsImpact": "none",
+        "costConcentration": "low",
+        "benefitConcentration": "medium",
+        "measurableOutcomes": true,
+        "estimatedFiscalCost": 9500000,
+        "estimatedAffectedResidents": 12
+      },
+      "tradeoffNote": "Produces real work and a wage rather than a transfer, but takes the longest to reach anybody: three weeks of setup on top of the implementation delay, by which time some households are already in arrears."
+    },
+    {
+      "id": "shelter-surge-capacity",
+      "version": 1,
+      "title": "Emergency Shelter Surge Capacity",
+      "description": "Ten additional emergency beds at the Riverside shelter for six months, so that a household evicted this winter is not left with nowhere to go.",
+      "legalAuthority": "authority.council.enact",
+      "applicablePopulation": {
+        "kind": "housingInsecureHouseholds"
+      },
+      "fundingSource": "municipalGeneralFund",
+      "administrativeOwner": "institution.municipal-administration",
+      "effects": [
+        {
+          "primitive": "createServiceCapacity",
+          "service": "emergencyShelter",
+          "additional_capacity": 10,
+          "duration_days": 180
+        }
+      ],
+      "implementationDelayDays": 7,
+      "successCriteria": [
+        {
+          "id": "ssc.unsheltered",
+          "description": "nobody left unsheltered after an eviction",
+          "metric": "homelessResidents",
+          "comparator": "atMost",
+          "threshold": 0,
+          "evaluateAtOffsetDays": 90
+        }
+      ],
+      "failureCriteria": [],
+      "dataPlan": {
+        "indicators": [
+          "homelessResidents",
+          "municipalCashMinor"
+        ],
+        "cadenceDays": 28,
+        "publication": "municipal dashboard"
+      },
+      "reviewOffsetDays": 90,
+      "expiration": {
+        "kind": "atOffsetDays",
+        "days": 180
+      },
+      "appealRoute": {
+        "id": "appeal.municipal-appeals-panel",
+        "body": "Municipal Appeals Panel",
+        "deadlineDays": 30,
+        "description": "A resident affected by this policy may put written grounds to the Municipal Appeals Panel within 30 days of the decision that affected them."
+      },
+      "profile": {
+        "coerciveness": "none",
+        "reversibility": "easy",
+        "uncertainty": "low",
+        "durationDays": 180,
+        "geographicScope": "district",
+        "rightsImpact": "low",
+        "costConcentration": "low",
+        "benefitConcentration": "low",
+        "measurableOutcomes": true,
+        "estimatedFiscalCost": 2400000,
+        "estimatedAffectedResidents": 25
+      },
+      "tradeoffNote": "Cheap, quick and clearly within the council's own authority — but it catches people after they have lost their home rather than keeping them in it."
+    },
+    {
+      "id": "no-intervention",
+      "version": 1,
+      "title": "No Intervention, With Monitoring",
+      "description": "The town takes no fiscal action and instead publishes a monthly hardship report, preserving the general fund and letting the labour market absorb the redundancies.",
+      "legalAuthority": "authority.council.enact",
+      "applicablePopulation": {
+        "kind": "allHouseholds"
+      },
+      "fundingSource": "municipalGeneralFund",
+      "administrativeOwner": "institution.municipal-administration",
+      "effects": [
+        {
+          "primitive": "requireDisclosure",
+          "subject": "monthly hardship report",
+          "cadence_days": 30
+        }
+      ],
+      "implementationDelayDays": 1,
+      "successCriteria": [
+        {
+          "id": "ni.reserves",
+          "description": "the general fund still holds at least 50,000 after ninety days",
+          "metric": "municipalCashMinor",
+          "comparator": "atLeast",
+          "threshold": 5000000,
+          "evaluateAtOffsetDays": 90
+        }
+      ],
+      "failureCriteria": [
+        {
+          "id": "ni.homelessness",
+          "description": "more than six residents left without a roof",
+          "metric": "homelessResidents",
+          "comparator": "greaterThan",
+          "threshold": 6,
+          "evaluateAtOffsetDays": 90
+        }
+      ],
+      "dataPlan": {
+        "indicators": [
+          "householdsInArrears",
+          "homelessResidents",
+          "municipalCashMinor"
+        ],
+        "cadenceDays": 30,
+        "publication": "municipal dashboard"
+      },
+      "reviewOffsetDays": 90,
+      "expiration": {
+        "kind": "atOffsetDays",
+        "days": 180
+      },
+      "appealRoute": {
+        "id": "appeal.municipal-appeals-panel",
+        "body": "Municipal Appeals Panel",
+        "deadlineDays": 30,
+        "description": "A resident affected by this policy may put written grounds to the Municipal Appeals Panel within 30 days of the decision that affected them."
+      },
+      "profile": {
+        "coerciveness": "none",
+        "reversibility": "easy",
+        "uncertainty": "low",
+        "durationDays": 180,
+        "geographicScope": "townwide",
+        "rightsImpact": "none",
+        "costConcentration": "low",
+        "benefitConcentration": "low",
+        "measurableOutcomes": true,
+        "estimatedFiscalCost": 0,
+        "estimatedAffectedResidents": 0
+      },
+      "tradeoffNote": "Costs nothing and keeps the town solvent. The cost lands on the households that lost their income, and it is not recorded in the budget."
+    }
+  ],
+  "timeline": [
+    {
+      "atDay": 30,
+      "kind": "closeEmployer",
+      "employer": "northgate-works",
+      "reason": "The parent company consolidated production at its coastal plant."
+    }
+  ]
+}

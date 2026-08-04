@@ -1,0 +1,18 @@
+[package]
+name = "ct-governance"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+
+[dependencies]
+ct-economy.workspace = true
+ct-policies.workspace = true
+ct-population.workspace = true
+ct-spatial.workspace = true
+serde.workspace = true
+thiserror.workspace = true
+ts-rs.workspace = true
+
+[dev-dependencies]
+serde_json.workspace = true

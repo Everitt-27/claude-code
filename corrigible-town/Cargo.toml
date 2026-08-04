@@ -1,0 +1,65 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/economy",
+    "crates/spatial",
+    "crates/population",
+    "crates/policies",
+    "crates/governance",
+    "crates/events",
+    "crates/sim-core",
+    "crates/projections",
+    "apps/server",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.79"
+license = "MIT"
+publish = false
+
+[workspace.dependencies]
+# --- shared, dependency-light building blocks (safe for wasm) ---
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["preserve_order"] }
+sha2 = "0.10"
+thiserror = "2"
+ts-rs = { version = "12", features = ["serde-compat", "no-serde-warnings"] }
+
+# --- host-only ---
+anyhow = "1"
+async-trait = "0.1"
+futures = "0.3"
+axum = { version = "0.8", features = ["ws", "macros"] }
+tokio = { version = "1", features = ["full"] }
+tower-http = { version = "0.6", features = ["cors", "fs", "trace"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+sqlx = { version = "0.8", default-features = false, features = [
+    "runtime-tokio",
+    "tls-rustls-ring",
+    "postgres",
+    "json",
+    "macros",
+    "migrate",
+] }
+uuid = { version = "1", features = ["v4", "serde"] }
+
+# --- test-only ---
+proptest = "1"
+tower = { version = "0.5", features = ["util"] }
+http-body-util = "0.1"
+
+# --- internal crates ---
+ct-economy = { path = "crates/economy" }
+ct-spatial = { path = "crates/spatial" }
+ct-population = { path = "crates/population" }
+ct-policies = { path = "crates/policies" }
+ct-governance = { path = "crates/governance" }
+ct-events = { path = "crates/events" }
+ct-sim-core = { path = "crates/sim-core" }
+ct-projections = { path = "crates/projections" }
+
+[profile.release]
+opt-level = 2

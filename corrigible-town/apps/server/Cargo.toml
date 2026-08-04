@@ -1,0 +1,46 @@
+[package]
+name = "ct-server"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+
+[dependencies]
+ct-economy.workspace = true
+ct-events.workspace = true
+ct-governance.workspace = true
+ct-policies.workspace = true
+ct-population.workspace = true
+ct-projections.workspace = true
+ct-sim-core.workspace = true
+ct-spatial.workspace = true
+
+anyhow.workspace = true
+async-trait.workspace = true
+axum.workspace = true
+futures.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+sqlx.workspace = true
+thiserror.workspace = true
+tokio.workspace = true
+tower-http.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+uuid.workspace = true
+
+[dev-dependencies]
+tower.workspace = true
+http-body-util.workspace = true
+
+[[bin]]
+name = "ct-server"
+path = "src/main.rs"
+
+[[bin]]
+name = "ct-migrate"
+path = "src/bin/migrate.rs"
+
+[[bin]]
+name = "ct-seed"
+path = "src/bin/seed.rs"

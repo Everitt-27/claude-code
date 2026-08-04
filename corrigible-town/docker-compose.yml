@@ -1,0 +1,27 @@
+# PostgreSQL for local development.
+#
+# The application does not require Docker — with no DATABASE_URL set the server
+# falls back to an in-memory store and everything still runs, including the
+# browser tests. Docker is here so that persistence, snapshots and reload
+# recovery can be exercised the way they will be in production.
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: corrigible-postgres
+    environment:
+      POSTGRES_USER: corrigible
+      POSTGRES_PASSWORD: corrigible
+      POSTGRES_DB: corrigible_town
+    ports:
+      - "5432:5432"
+    volumes:
+      - corrigible-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U corrigible -d corrigible_town"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  corrigible-pgdata:

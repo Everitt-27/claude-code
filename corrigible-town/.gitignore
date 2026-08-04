@@ -1,0 +1,17 @@
+/target
+target/
+# Stray ts-rs output when TS_RS_EXPORT_DIR is not set (use `make schema`).
+crates/*/bindings/
+apps/*/bindings/
+node_modules/
+dist/
+.env
+*.local
+/tmp
+/data
+/apps/web/dist
+/tests/browser/test-results
+/tests/browser/playwright-report
+/playwright-report
+/test-results
+.DS_Store
