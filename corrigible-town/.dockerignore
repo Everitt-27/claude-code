@@ -1,0 +1,9 @@
+target/
+node_modules/
+apps/web/dist/
+tests/browser/test-results/
+tests/browser/playwright-report/
+.git/
+.env
+docs/
+*.md

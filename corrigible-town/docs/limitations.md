@@ -107,6 +107,12 @@ actor cannot enact policy — but there is nothing stopping a client from *sendi
 a command as `actor.council`. Authorisation is structured so real authentication
 can be added at the boundary; it has not been.
 
+`CT_ACCESS_TOKEN` is a shared secret for the whole server, not authentication.
+It stops strangers reaching a deployed instance. It does not separate one user
+from another: everyone holding the token sees and controls the same towns, and
+the "player-scoped" privacy boundary in the projections is therefore scoped to a
+session's own choices rather than to an identity anyone has proved.
+
 ## Known sources of bias in the results
 
 * **Doing nothing looks cheap.** The no-intervention branch ends with a healthier

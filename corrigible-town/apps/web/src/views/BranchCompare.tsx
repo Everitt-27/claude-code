@@ -107,85 +107,89 @@ export function BranchScreen({ revision }: { revision: number }) {
 
       <section className="panel">
         <h2>Branches</h2>
-        <table className="data-table" data-testid="branch-table">
-          <thead>
-            <tr>
-              <th>Compare</th>
-              <th>Label</th>
-              <th>Forked from</th>
-              <th>At sequence</th>
-              <th />
-            </tr>
-          </thead>
-          <tbody>
-            {(branches?.branches ?? []).map((branch) => (
-              <tr key={branch.id} className={branch.id === branchId ? "current" : ""}>
-                <td>
-                  <input
-                    type="checkbox"
-                    data-testid={`compare-${branch.label}`}
-                    checked={compareBranchIds.includes(branch.id)}
-                    onChange={() => toggle(branch.id)}
-                  />
-                </td>
-                <td>
-                  {branch.label}
-                  {branch.id === branchId && " (viewing)"}
-                </td>
-                <td className="muted small">{branch.parentBranchId ?? "—"}</td>
-                <td>{branch.forkSeq}</td>
-                <td>
-                  <button
-                    type="button"
-                    className="link"
-                    data-testid={`switch-${branch.label}`}
-                    onClick={() => setBranch(branch.id)}
-                  >
-                    Switch to this branch
-                  </button>
-                </td>
+        <div className="table-scroll">
+          <table className="data-table" data-testid="branch-table">
+            <thead>
+              <tr>
+                <th>Compare</th>
+                <th>Label</th>
+                <th>Forked from</th>
+                <th>At sequence</th>
+                <th />
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {(branches?.branches ?? []).map((branch) => (
+                <tr key={branch.id} className={branch.id === branchId ? "current" : ""}>
+                  <td>
+                    <input
+                      type="checkbox"
+                      data-testid={`compare-${branch.label}`}
+                      checked={compareBranchIds.includes(branch.id)}
+                      onChange={() => toggle(branch.id)}
+                    />
+                  </td>
+                  <td>
+                    {branch.label}
+                    {branch.id === branchId && " (viewing)"}
+                  </td>
+                  <td className="muted small">{branch.parentBranchId ?? "—"}</td>
+                  <td>{branch.forkSeq}</td>
+                  <td>
+                    <button
+                      type="button"
+                      className="link"
+                      data-testid={`switch-${branch.label}`}
+                      onClick={() => setBranch(branch.id)}
+                    >
+                      Switch to this branch
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </section>
 
       {comparison && (
         <section className="panel" data-testid="comparison">
           <h2>Side by side</h2>
-          <table className="data-table comparison">
-            <thead>
-              <tr>
-                <th>Metric</th>
-                {comparison.branches.map((b) => (
-                  <th key={b.branchId}>
-                    {b.label}
-                    <div className="muted small">day {b.metrics.tick}</div>
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {comparison.rows.map((row) => {
-                const best = row.lowerIsBetter
-                  ? Math.min(...row.values)
-                  : Math.max(...row.values);
-                return (
-                  <tr key={row.metric}>
-                    <td>{row.metric}</td>
-                    {row.values.map((value, i) => (
-                      <td
-                        key={i}
-                        className={value === best && new Set(row.values).size > 1 ? "better" : ""}
-                      >
-                        {MONEY_METRICS.has(row.metric) ? money(value) : value}
-                      </td>
-                    ))}
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+          <div className="table-scroll">
+            <table className="data-table comparison">
+              <thead>
+                <tr>
+                  <th>Metric</th>
+                  {comparison.branches.map((b) => (
+                    <th key={b.branchId}>
+                      {b.label}
+                      <div className="muted small">day {b.metrics.tick}</div>
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {comparison.rows.map((row) => {
+                  const best = row.lowerIsBetter
+                    ? Math.min(...row.values)
+                    : Math.max(...row.values);
+                  return (
+                    <tr key={row.metric}>
+                      <td>{row.metric}</td>
+                      {row.values.map((value, i) => (
+                        <td
+                          key={i}
+                          className={value === best && new Set(row.values).size > 1 ? "better" : ""}
+                        >
+                          {MONEY_METRICS.has(row.metric) ? money(value) : value}
+                        </td>
+                      ))}
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
           <div className="verdicts">
             {comparison.branches.map((b) => (
               <div key={b.branchId}>

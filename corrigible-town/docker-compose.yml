@@ -23,5 +23,25 @@ services:
       timeout: 3s
       retries: 20
 
+  # The whole application in one container, serving the API and the built web
+  # client from a single origin. Started only with `--profile app`, so the
+  # default `docker compose up` still just brings up the database for local
+  # development against `make dev`.
+  app:
+    profiles: ["app"]
+    build:
+      context: .
+    container_name: corrigible-app
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://corrigible:corrigible@postgres:5432/corrigible_town
+      CT_BIND: 0.0.0.0:8787
+      # Set this before exposing the container beyond your own machine.
+      CT_ACCESS_TOKEN: ${CT_ACCESS_TOKEN:-}
+    ports:
+      - "8787:8787"
+
 volumes:
   corrigible-pgdata:

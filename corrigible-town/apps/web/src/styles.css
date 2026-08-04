@@ -11,6 +11,13 @@
   --bad: #e0603e;
   font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   color-scheme: dark;
+
+  /* Padding that keeps content clear of the notch and the home indicator.
+     Zero everywhere else, so the same rules work on a desktop. */
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 * { box-sizing: border-box; }
@@ -20,6 +27,9 @@ body {
   background: var(--bg);
   color: var(--text);
   font-size: 14px;
+  /* Stop iOS from rubber-banding the whole page behind the fixed layout. */
+  overscroll-behavior-y: none;
+  -webkit-text-size-adjust: 100%;
 }
 
 button {
@@ -30,6 +40,9 @@ button {
   border-radius: 6px;
   padding: 6px 10px;
   cursor: pointer;
+  /* Removes the 300ms tap delay and the grey flash on iOS. */
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 button:hover:not(:disabled) { border-color: var(--accent); }
 button:disabled { opacity: 0.4; cursor: not-allowed; }
@@ -44,21 +57,33 @@ input, select {
   border: 1px solid var(--edge);
   border-radius: 6px;
   padding: 5px 8px;
+  touch-action: manipulation;
 }
 
-.app { display: flex; flex-direction: column; height: 100vh; }
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh;
+  padding-left: var(--safe-left);
+  padding-right: var(--safe-right);
+}
 
 .app-header {
   display: flex;
   align-items: center;
   gap: 20px;
   padding: 10px 16px;
+  padding-top: calc(10px + var(--safe-top));
   border-bottom: 1px solid var(--edge);
   background: var(--panel);
+  flex: none;
 }
 .app-header h1 { font-size: 15px; margin: 0; letter-spacing: 0.02em; }
 .brand { display: flex; flex-direction: column; min-width: 220px; }
-.app-header nav { display: flex; gap: 6px; flex: 1; }
+.app-header nav { display: flex; gap: 6px; flex: 1; overflow-x: auto; scrollbar-width: none; }
+.app-header nav::-webkit-scrollbar { display: none; }
+.app-header nav button { white-space: nowrap; }
 .status { display: flex; align-items: center; gap: 10px; }
 
 .banner { padding: 8px 16px; display: flex; justify-content: space-between; gap: 12px; }
@@ -73,6 +98,7 @@ main { flex: 1; min-height: 0; overflow: hidden; }
 
 .map-column { flex: 1; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
 .map-host { flex: 1; min-height: 320px; border: 1px solid var(--edge); border-radius: 10px; overflow: hidden; background: #0e1117; }
+.map-host canvas { display: block; touch-action: manipulation; }
 .side-column { width: 380px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
 .timeline-column { flex: 1; display: flex; flex-direction: column; min-width: 0; overflow: hidden; }
 
@@ -119,6 +145,7 @@ main { flex: 1; min-height: 0; overflow: hidden; }
 .bar-fill { display: block; height: 100%; background: var(--accent); }
 .bar-value { text-align: right; color: var(--muted); }
 
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%; }
 .data-table { width: 100%; border-collapse: collapse; font-size: 12px; }
 .data-table th { text-align: left; color: var(--muted); font-weight: 500; padding: 5px 6px; border-bottom: 1px solid var(--edge); }
 .data-table td { padding: 5px 6px; border-bottom: 1px solid #1d2330; vertical-align: top; }
@@ -196,3 +223,107 @@ summary { cursor: pointer; color: var(--accent); font-size: 12px; }
 
 .spinner { width: 12px; height: 12px; border: 2px solid var(--edge); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; display: inline-block; }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+
+/* ---------------------------------------------------------------------------
+   Narrow screens.
+   
+   The desktop layout is a map beside a 380px column. Below ~820px there is no
+   room for that, so every screen becomes a single scrolling column: the map
+   takes a fixed share of the viewport and everything else stacks beneath it.
+   --------------------------------------------------------------------------- */
+@media (max-width: 820px) {
+  body { font-size: 15px; }
+
+  .app-header {
+    flex-wrap: wrap;
+    gap: 6px 12px;
+    padding: 6px 12px;
+    padding-top: calc(6px + var(--safe-top));
+  }
+  .brand { min-width: 0; flex: 1; }
+  .app-header h1 { font-size: 13px; }
+  .app-header nav { order: 3; flex-basis: 100%; padding-bottom: 2px; }
+  .app-header nav button { padding: 8px 12px; min-height: 40px; }
+  .status { order: 2; }
+
+  /* Scrolling moves from the inner panes to the screen itself. */
+  main { overflow: hidden; display: flex; }
+  .screen {
+    flex-direction: column;
+    height: auto;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 12px;
+    padding-bottom: calc(12px + var(--safe-bottom));
+    gap: 12px;
+  }
+  .screen.scroll { display: flex; }
+
+  .map-column { flex: none; }
+  .map-host { flex: none; height: 48dvh; min-height: 260px; }
+  .side-column { width: 100%; overflow: visible; }
+  .timeline-column { flex: none; overflow: visible; }
+  .timeline { overflow-y: visible; max-height: none; }
+
+  /* Two compact rows instead of four tall ones: date and overlay above, time
+     controls below. Every row of chrome here is a row the map does not get. */
+  .toolbar { gap: 8px 10px; }
+  .clock { order: 1; flex-direction: row; align-items: baseline; gap: 8px; }
+  .clock-day { font-size: 15px; }
+  .overlay-select { order: 2; margin-left: auto; flex-basis: auto; }
+  .overlay-select label { font-size: 12px; color: var(--muted); }
+  .overlay-select select { padding: 6px 8px; }
+  .controls { order: 3; flex-basis: 100%; }
+  .controls button { padding: 8px 12px; }
+
+  /* 16px is the threshold below which iOS zooms the page on focus. */
+  input, select { font-size: 16px; padding: 8px 10px; }
+
+  /* Comfortable tap targets. 40px is about the smallest that is reliably
+     hittable with a thumb. */
+  .controls button,
+  .alert button,
+  .timeline-item button,
+  .institutional button,
+  .fork-form button { min-height: 40px; }
+  .controls { gap: 8px; }
+
+  .panel { padding: 12px; }
+  .panel-grid,
+  .catalogue,
+  .briefs { grid-template-columns: 1fr; }
+  .headline-grid { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+  .metric-value { font-size: 20px; }
+
+  .inline-stats { gap: 12px; }
+  .bar-row { grid-template-columns: 110px 1fr 34px; }
+
+  .proposal-header { flex-direction: column; gap: 6px; }
+  .stage-track { gap: 3px; }
+  .fork-form { flex-direction: column; align-items: stretch; }
+  .fork-form label { width: 100%; }
+
+  .event-meta div { flex-direction: column; gap: 0; }
+  .event-meta dt { min-width: 0; }
+
+  .timeline-item button { grid-template-columns: 60px 1fr; }
+  .legend { font-size: 11px; gap: 10px; }
+  .legend-note { margin-left: 0; flex-basis: 100%; }
+}
+
+/* Phones in portrait: the map needs to give up a little more room. */
+@media (max-width: 480px) {
+  .map-host { height: 44dvh; min-height: 240px; }
+  .headline-grid { grid-template-columns: 1fr 1fr; }
+  .status .mono { display: none; }
+  .screen { padding: 10px; }
+}
+
+/* A pointer that cannot hover should not be offered hover-only affordances. */
+@media (hover: none) {
+  button:hover:not(:disabled) { border-color: var(--edge); }
+  button.active:hover { border-color: var(--accent); }
+}

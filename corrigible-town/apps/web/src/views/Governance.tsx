@@ -11,29 +11,31 @@ function RoutingWorksheet({ rules, summary }: { rules: RoutingReason[]; summary?
   return (
     <div className="routing" data-testid="routing-worksheet">
       {summary && <p className="routing-summary">{summary}</p>}
-      <table className="data-table">
-        <thead>
-          <tr>
-            <th>Rule</th>
-            <th>Observed</th>
-            <th>Elevates when</th>
-            <th>Fired</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rules.map((rule) => (
-            <tr key={rule.ruleId} className={rule.triggered ? "fired" : ""}>
-              <td>
-                <strong>{rule.title}</strong>
-                <div className="muted small">{rule.explanation}</div>
-              </td>
-              <td>{rule.observed}</td>
-              <td className="muted">{rule.threshold}</td>
-              <td>{rule.triggered ? "yes" : "no"}</td>
+      <div className="table-scroll">
+        <table className="data-table">
+          <thead>
+            <tr>
+              <th>Rule</th>
+              <th>Observed</th>
+              <th>Elevates when</th>
+              <th>Fired</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {rules.map((rule) => (
+              <tr key={rule.ruleId} className={rule.triggered ? "fired" : ""}>
+                <td>
+                  <strong>{rule.title}</strong>
+                  <div className="muted small">{rule.explanation}</div>
+                </td>
+                <td>{rule.observed}</td>
+                <td className="muted">{rule.threshold}</td>
+                <td>{rule.triggered ? "yes" : "no"}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
@@ -133,28 +135,30 @@ function Jury({ proposal, onRefresh }: { proposal: ProposalView; onRefresh: () =
 
       <details>
         <summary>How the jury was drawn ({jury.strata.length} strata)</summary>
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th>District</th>
-              <th>Age</th>
-              <th>In work</th>
-              <th>Eligible</th>
-              <th>Seats</th>
-            </tr>
-          </thead>
-          <tbody>
-            {jury.strata.map((s, i) => (
-              <tr key={i}>
-                <td>{s.stratum.district}</td>
-                <td>{s.stratum.ageCohort}</td>
-                <td>{s.stratum.working ? "yes" : "no"}</td>
-                <td>{s.eligible}</td>
-                <td>{s.seats}</td>
+        <div className="table-scroll">
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>District</th>
+                <th>Age</th>
+                <th>In work</th>
+                <th>Eligible</th>
+                <th>Seats</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {jury.strata.map((s, i) => (
+                <tr key={i}>
+                  <td>{s.stratum.district}</td>
+                  <td>{s.stratum.ageCohort}</td>
+                  <td>{s.stratum.working ? "yes" : "no"}</td>
+                  <td>{s.eligible}</td>
+                  <td>{s.seats}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </details>
 
       {jury.briefs.length > 0 && (

@@ -127,6 +127,76 @@ npm run build
 CT_STATIC_DIR=apps/web/dist make dev-server
 ```
 
+## Using it from a phone
+
+The interface is built for a phone as well as a desktop: below 820px every
+screen becomes a single scrolling column, the map keeps a fixed share of the
+viewport, tap targets are at least 40px, tables scroll inside their own
+containers, and map markers get hit areas sized in screen pixels so a thumb can
+actually land on one. The `mobile` Playwright project runs the whole flow at an
+iPhone viewport with touch input, so this is tested rather than asserted.
+
+### On your own Wi-Fi — one command
+
+```bash
+make phone
+```
+
+This builds the client, serves it and the API from a single port, binds to all
+interfaces, and prints the URL to open. Both devices need to be on the same
+network. Serving from one origin is what makes this simple: no CORS, no dev
+proxy, one address.
+
+`make phone` runs without a database so that it works on a clean checkout. For a
+town that survives a restart:
+
+```bash
+make db-up
+make phone PHONE_DATABASE_URL="postgres://corrigible:corrigible@127.0.0.1:5432/corrigible_town"
+```
+
+If your machine sleeps, so does the town — it is your laptop serving it.
+
+### Add it to the home screen
+
+In Safari, **Share → Add to Home Screen**. It launches without browser chrome,
+gets its own icon, and keeps the town it was last looking at. The layout already
+accounts for the notch and the home indicator.
+
+### Reachable from anywhere
+
+The repository ships a `Dockerfile` that builds one image serving the API and
+the client together on port 8787 — which is what most hosts want.
+
+```bash
+make docker-build
+make docker-up          # database + app, http://localhost:8787
+```
+
+To put that on the internet, push the image to any container host and give it a
+`DATABASE_URL`. On Fly.io that is roughly `fly launch --no-deploy`, then
+`fly postgres create && fly postgres attach`, then `fly deploy`; on Render, a
+Web Service from the Dockerfile plus a managed Postgres. Both read the
+`Dockerfile` as-is. I have not run either from here, so treat the exact
+commands as a starting point rather than a tested recipe.
+
+**Set an access token before you do.** The prototype has no user accounts, so
+anyone who finds the address can create towns and spend your CPU:
+
+```bash
+CT_ACCESS_TOKEN=$(openssl rand -hex 16)
+```
+
+With it set, every API call must present the secret as an `x-ct-access-token`
+header or a `k` query parameter. Open the app once as
+`https://your-host/?k=<token>` — the client stores it, strips it from the address
+bar, and sends it thereafter, including on the WebSocket, which cannot carry
+custom headers. `/api/health` stays open so platform health checks keep working.
+
+It is a door lock, not an authentication system. It keeps strangers out; it does
+not separate one user from another, and everyone who has the token shares the
+same towns.
+
 ## Testing
 
 ```bash

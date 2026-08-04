@@ -70,10 +70,38 @@ export class ApiError extends Error {
 
 const base = "/api";
 
+// When the server is started with CT_ACCESS_TOKEN, every API call has to carry
+// the secret. It arrives once in the URL — which is what makes a link you can
+// text to your own phone work — and is then kept in local storage so a reload
+// or a home-screen launch does not need it again.
+const TOKEN_KEY = "ct.accessToken";
+
+function readAccessToken(): string | null {
+  const fromUrl = new URLSearchParams(location.search).get("k");
+  if (fromUrl) {
+    localStorage.setItem(TOKEN_KEY, fromUrl);
+    return fromUrl;
+  }
+  return localStorage.getItem(TOKEN_KEY);
+}
+
+export function accessToken(): string | null {
+  return readAccessToken();
+}
+
+export function clearAccessToken() {
+  localStorage.removeItem(TOKEN_KEY);
+}
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const token = readAccessToken();
   const response = await fetch(`${base}${path}`, {
     ...init,
-    headers: { "content-type": "application/json", ...(init?.headers ?? {}) },
+    headers: {
+      "content-type": "application/json",
+      ...(token ? { "x-ct-access-token": token } : {}),
+      ...(init?.headers ?? {}),
+    },
   });
   const text = await response.text();
   const body = text ? JSON.parse(text) : null;
@@ -198,8 +226,12 @@ export function openStream(
   const connect = () => {
     if (closed) return;
     const protocol = location.protocol === "https:" ? "wss" : "ws";
+    // A browser WebSocket handshake cannot set custom headers, so the token
+    // goes in the query string here.
+    const token = readAccessToken();
+    const auth = token ? `&k=${encodeURIComponent(token)}` : "";
     socket = new WebSocket(
-      `${protocol}://${location.host}/api/towns/${townId}/stream?branch=${encodeURIComponent(branchId)}`,
+      `${protocol}://${location.host}/api/towns/${townId}/stream?branch=${encodeURIComponent(branchId)}${auth}`,
     );
     socket.onmessage = (event) => {
       try {

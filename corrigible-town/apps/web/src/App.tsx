@@ -28,6 +28,9 @@ export function App() {
     const params = new URLSearchParams(location.search);
     params.set("town", status.town.id);
     params.set("branch", status.branch.id);
+    // The access token has been stored by now; drop it from the address bar so
+    // it does not end up in a screenshot or a shared link by accident.
+    params.delete("k");
     history.replaceState(null, "", `?${params.toString()}`);
   }, [status?.town.id, status?.branch.id, status]);
 

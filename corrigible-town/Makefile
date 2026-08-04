@@ -8,8 +8,15 @@ SHELL := /bin/bash
 DATABASE_URL ?= postgres://corrigible:corrigible@127.0.0.1:5432/corrigible_town
 SERVER_PORT ?= 8787
 
+# `phone` deliberately defaults to the in-memory store. The whole point of that
+# target is to get the app onto a handset in one command, and requiring Docker
+# first defeats it. For a town that survives a restart, run `make db-up` and then
+#   make phone PHONE_DATABASE_URL="$(DATABASE_URL)"
+PHONE_DATABASE_URL ?=
+
 .PHONY: help setup db-up db-down db-reset migrate seed dev dev-server dev-web \
-        build schema fmt lint test test-rust test-browser test-all check clean
+        build schema fmt lint test test-rust test-browser test-all check clean \
+        phone docker-build docker-up docker-down
 
 help: ## Show the available commands
 	@grep -hE '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | \
@@ -58,6 +65,37 @@ dev-server: ## Run only the API server
 
 dev-web: ## Run only the web client
 	npm run dev --workspace @corrigible/web
+
+phone: ## Serve the built client and API on one port, reachable from your phone
+	@npm run build --workspace @corrigible/web
+	@echo
+	@echo "  Open this on your phone, on the same Wi-Fi:"
+	@echo
+	@for ip in $$(hostname -I 2>/dev/null || ipconfig getifaddr en0 2>/dev/null || true); do \
+	  echo "      http://$$ip:$(SERVER_PORT)$${CT_ACCESS_TOKEN:+/?k=$$CT_ACCESS_TOKEN}"; \
+	done
+	@echo
+	@if [ -z "$$CT_ACCESS_TOKEN" ]; then \
+	  echo "  No CT_ACCESS_TOKEN set: anyone on this network can use it. Fine at home."; \
+	  echo "  To require a secret:  CT_ACCESS_TOKEN=$$(openssl rand -hex 12) make phone"; \
+	  echo; \
+	fi
+	@echo "  (the first run builds the server in release mode, which takes a few minutes)"
+	@echo
+	@CT_BIND=0.0.0.0:$(SERVER_PORT) \
+	 CT_STATIC_DIR=apps/web/dist \
+	 DATABASE_URL="$(PHONE_DATABASE_URL)" \
+	 cargo run --release -p ct-server --bin ct-server
+
+docker-build: ## Build the single-container image
+	docker compose --profile app build
+
+docker-up: ## Run the whole thing in Docker (database + app on :8787)
+	docker compose --profile app up -d
+	@echo "http://localhost:8787"
+
+docker-down: ## Stop the Docker stack
+	docker compose --profile app down
 
 build: ## Build everything in release mode
 	cargo build --release --workspace

@@ -467,3 +467,62 @@ async fn unknown_things_return_404() {
     let (status, _) = call(&app, get("/api/towns/town-does-not-exist")).await;
     assert_eq!(status, StatusCode::NOT_FOUND);
 }
+
+/// The access-token gate. Off by default; when it is on, nothing but the health
+/// endpoint answers without the secret.
+#[tokio::test]
+async fn the_access_token_gate_keeps_strangers_out() {
+    let config = ct_server::Config {
+        bind: "127.0.0.1:0".into(),
+        database_url: None,
+        scenario_dir: "../../scenarios".into(),
+        snapshot_every: 200,
+        static_dir: None,
+        access_token: Some("s3cret".into()),
+    };
+    let app = ct_server::build_app(&config).await.expect("app builds");
+
+    let (status, body) = call(&app, get("/api/towns")).await;
+    assert_eq!(status, StatusCode::UNAUTHORIZED);
+    assert_eq!(body["error"]["code"], "unauthorized");
+
+    let wrong = Request::builder()
+        .uri("/api/towns")
+        .header("x-ct-access-token", "not-the-secret")
+        .body(Body::empty())
+        .unwrap();
+    assert_eq!(call(&app, wrong).await.0, StatusCode::UNAUTHORIZED);
+
+    let with_header = Request::builder()
+        .uri("/api/towns")
+        .header("x-ct-access-token", "s3cret")
+        .body(Body::empty())
+        .unwrap();
+    assert_eq!(call(&app, with_header).await.0, StatusCode::OK);
+
+    // The query form exists for WebSockets, which cannot carry a custom header,
+    // and so that a link can be sent to a phone.
+    assert_eq!(
+        call(&app, get("/api/towns?k=s3cret")).await.0,
+        StatusCode::OK
+    );
+
+    // Health stays open so platform probes keep working.
+    assert_eq!(call(&app, get("/api/health")).await.0, StatusCode::OK);
+}
+
+/// With no token configured the API is open, which is the right default for a
+/// laptop and is what every other test in this file relies on.
+#[tokio::test]
+async fn the_api_is_open_when_no_token_is_configured() {
+    let config = ct_server::Config {
+        bind: "127.0.0.1:0".into(),
+        database_url: None,
+        scenario_dir: "../../scenarios".into(),
+        snapshot_every: 200,
+        static_dir: None,
+        access_token: None,
+    };
+    let app = ct_server::build_app(&config).await.expect("app builds");
+    assert_eq!(call(&app, get("/api/towns")).await.0, StatusCode::OK);
+}

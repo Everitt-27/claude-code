@@ -22,6 +22,14 @@ pub struct Config {
     pub snapshot_every: u64,
     /// Optional directory of built frontend assets to serve.
     pub static_dir: Option<String>,
+    /// Optional shared secret guarding the API.
+    ///
+    /// Unset — the default, and the right setting on a laptop — leaves the API
+    /// open. Set it when the server is reachable from anywhere other than your
+    /// own machine or your own network: the prototype has no user accounts, so
+    /// without it anyone who finds the address can create towns and spend your
+    /// CPU. It is a door lock, not an authentication system.
+    pub access_token: Option<String>,
 }
 
 impl Config {
@@ -36,6 +44,10 @@ impl Config {
                 .unwrap_or(500),
             static_dir: std::env::var("CT_STATIC_DIR")
                 .ok()
+                .filter(|s| !s.is_empty()),
+            access_token: std::env::var("CT_ACCESS_TOKEN")
+                .ok()
+                .map(|s| s.trim().to_string())
                 .filter(|s| !s.is_empty()),
         }
     }
@@ -62,6 +74,71 @@ pub fn load_scenarios(dir: &str) -> Result<ScenarioRegistry> {
     Ok(registry)
 }
 
+/// Reject API calls that do not present the shared secret.
+///
+/// The token may arrive as an `x-ct-access-token` header or as a `k` query
+/// parameter. The query form exists because a WebSocket handshake from a browser
+/// cannot carry custom headers, and because it lets a phone be handed a working
+/// link. `/api/health` is deliberately exempt so platform health checks and
+/// readiness probes keep working; it exposes nothing but the store type and the
+/// names of the loaded scenarios.
+async fn require_access_token(
+    expected: String,
+    request: axum::extract::Request,
+    next: axum::middleware::Next,
+) -> axum::response::Response {
+    use axum::http::StatusCode;
+    use axum::response::IntoResponse;
+
+    if request.uri().path() == "/api/health" {
+        return next.run(request).await;
+    }
+
+    let presented = request
+        .headers()
+        .get("x-ct-access-token")
+        .and_then(|v| v.to_str().ok())
+        .map(str::to_string)
+        .or_else(|| {
+            request.uri().query().and_then(|q| {
+                q.split('&')
+                    .filter_map(|pair| pair.split_once('='))
+                    .find(|(key, _)| *key == "k")
+                    .map(|(_, value)| value.to_string())
+            })
+        });
+
+    // Compare every byte regardless of where the first mismatch is, so the
+    // response time does not leak the token a character at a time.
+    let ok = presented.as_deref().is_some_and(|given| {
+        let given = given.as_bytes();
+        let expected = expected.as_bytes();
+        let mut diff = given.len() ^ expected.len();
+        for i in 0..given.len().max(expected.len()) {
+            let a = given.get(i).copied().unwrap_or(0);
+            let b = expected.get(i).copied().unwrap_or(0);
+            diff |= (a ^ b) as usize;
+        }
+        diff == 0
+    });
+
+    if ok {
+        next.run(request).await
+    } else {
+        (
+            StatusCode::UNAUTHORIZED,
+            axum::Json(serde_json::json!({
+                "error": {
+                    "code": "unauthorized",
+                    "message": "this server requires an access token; open the link that \
+                                includes ?k=…, or send an x-ct-access-token header"
+                }
+            })),
+        )
+            .into_response()
+    }
+}
+
 pub async fn build_app(config: &Config) -> Result<axum::Router> {
     let scenarios = load_scenarios(&config.scenario_dir)?;
     for scenario in scenarios.all() {
@@ -82,9 +159,38 @@ pub async fn build_app(config: &Config) -> Result<axum::Router> {
         config.snapshot_every,
     ));
 
-    let mut app = routes::router(state)
-        // The prototype has no authentication, so the API is open to any local
-        // origin. Anything beyond local development needs a real policy here.
+    let mut app = routes::router(state);
+
+    if let Some(token) = config.access_token.clone() {
+        tracing::info!("API access token required");
+        app = app.layer(axum::middleware::from_fn(move |request, next| {
+            require_access_token(token.clone(), request, next)
+        }));
+    } else {
+        tracing::warn!(
+            "no CT_ACCESS_TOKEN set: the API is open to anyone who can reach it. \
+             Fine on a laptop; set one before exposing this beyond your own network."
+        );
+    }
+
+    if let Some(dir) = &config.static_dir {
+        // Single-origin mode: the API and the built client on one port. This is
+        // what makes the app usable from a phone — no CORS, no dev proxy, and
+        // one address to type.
+        //
+        // `fallback` rather than `not_found_service`: both serve index.html for
+        // an unknown path, but `not_found_service` keeps the 404 status, which
+        // is wrong for a client-side-routed app and upsets caches.
+        let index = format!("{dir}/index.html");
+        app = app.fallback_service(
+            tower_http::services::ServeDir::new(dir)
+                .fallback(tower_http::services::ServeFile::new(index)),
+        );
+    }
+
+    app = app
+        // The prototype has no user accounts, so any origin may call the API.
+        // The access token above, not the origin, is what keeps strangers out.
         .layer(
             CorsLayer::new()
                 .allow_origin(Any)
@@ -92,14 +198,6 @@ pub async fn build_app(config: &Config) -> Result<axum::Router> {
                 .allow_headers(Any),
         )
         .layer(TraceLayer::new_for_http());
-
-    if let Some(dir) = &config.static_dir {
-        let index = format!("{dir}/index.html");
-        app = app.fallback_service(
-            tower_http::services::ServeDir::new(dir)
-                .not_found_service(tower_http::services::ServeFile::new(index)),
-        );
-    }
 
     Ok(app)
 }

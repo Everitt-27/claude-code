@@ -146,16 +146,30 @@ export function TownMap({ view, overlay, onSelectResident }: Props) {
       x: world.position.x + x * scale,
       y: world.position.y + y * scale,
     });
+    // On a phone the map is a few hundred pixels wide. Building names at that
+    // size are unreadable clutter sitting on top of the thing they label, so
+    // below this width only the district names survive.
+    const compact = app.renderer.width < 560;
+    // A shadow keeps a label legible where it crosses a building.
+    const shadow = {
+      color: 0x000000,
+      alpha: 0.85,
+      blur: 3,
+      distance: 0,
+      angle: 0,
+    } as const;
     const districtStyle = new TextStyle({
       fill: COLOURS.label,
-      fontSize: 11,
+      fontSize: compact ? 10 : 11,
       letterSpacing: 1.2,
       fontFamily: "ui-sans-serif, system-ui, sans-serif",
+      dropShadow: shadow,
     });
     const buildingStyle = new TextStyle({
       fill: COLOURS.label,
       fontSize: 10,
       fontFamily: "ui-sans-serif, system-ui, sans-serif",
+      dropShadow: shadow,
     });
 
     // Districts.
@@ -186,8 +200,16 @@ export function TownMap({ view, overlay, onSelectResident }: Props) {
       const at = toScreen(d.bounds.x + 1.5, d.bounds.y + d.bounds.h - 2);
       const box = { x: at.x, y: at.y - label.height, w: label.width, h: label.height };
       placed.push(box);
+      // A chip behind the name, because a district label sits wherever the
+      // district is and cannot be moved somewhere emptier — on a phone that is
+      // usually straight on top of a row of houses.
+      const chip = new Graphics();
+      chip
+        .roundRect(box.x - 5, box.y - 3, box.w + 10, box.h + 5, 4)
+        .fill({ color: COLOURS.background, alpha: 0.72 });
+      labels.addChild(chip);
       label.position.set(box.x, box.y);
-      label.alpha = 0.55;
+      label.alpha = 0.75;
       labels.addChild(label);
     }
 
@@ -227,7 +249,7 @@ export function TownMap({ view, overlay, onSelectResident }: Props) {
     // Label the buildings that matter, dropping any label that would collide
     // with one already placed. A map with unreadable overlapping text is worse
     // than a map with fewer labels.
-    const named = view.buildings
+    const named = (compact ? [] : view.buildings)
       .filter((b) => b.kind !== "housing")
       .sort((a, b) => a.footprint.y - b.footprint.y || a.footprint.x - b.footprint.x);
     for (const b of named) {
@@ -261,6 +283,14 @@ export function TownMap({ view, overlay, onSelectResident }: Props) {
             : view.overlays.serviceAccess;
     const palette = OVERLAY_COLOURS[overlay];
 
+    // Hit targets are sized in *screen* pixels, not world units. At phone
+    // scale a 3-unit radius is about 9px across, which no thumb can reliably
+    // hit; this keeps every marker at least 22px wide however far out the map
+    // is zoomed, while leaving the drawn dot the same size.
+    const minTouchRadiusPx = 11;
+    const hitRadius = Math.max(3, minTouchRadiusPx / scale);
+    const hitRadiusSquared = hitRadius * hitRadius;
+
     const markers = new Container();
     view.residents.forEach((resident, index) => {
       const value = channel ? (channel[index] ?? 0) : 0;
@@ -276,7 +306,10 @@ export function TownMap({ view, overlay, onSelectResident }: Props) {
       }
       dot.eventMode = "static";
       dot.cursor = "pointer";
-      dot.hitArea = { contains: (px: number, py: number) => (px - x) ** 2 + (py - y) ** 2 <= 9 };
+      dot.hitArea = {
+        contains: (px: number, py: number) =>
+          (px - x) ** 2 + (py - y) ** 2 <= hitRadiusSquared,
+      };
       dot.on("pointertap", () => selectRef.current(resident.id));
       markers.addChild(dot);
     });

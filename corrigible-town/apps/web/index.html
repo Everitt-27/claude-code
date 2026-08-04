@@ -2,7 +2,31 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!--
+      `viewport-fit=cover` lets the layout run under the notch and home
+      indicator; the CSS then pads itself back out with env(safe-area-inset-*).
+      `maximum-scale` is deliberately left alone: pinch-zoom stays available,
+      because a map is exactly the sort of thing people want to zoom into.
+    -->
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#0b0e14" />
+    <meta name="color-scheme" content="dark" />
+    <meta
+      name="description"
+      content="A town simulation in which institutional rules are part of the causal model."
+    />
+
+    <!-- Added to the iOS home screen, this runs without Safari's chrome. -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Corrigible" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+
     <title>Corrigible Town</title>
   </head>
   <body>

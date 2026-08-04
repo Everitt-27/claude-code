@@ -28,11 +28,27 @@ export default defineConfig({
   reporter: process.env.CI ? [["list"], ["html", { open: "never" }]] : [["list"]],
   projects: [
     {
-      name: "chromium",
+      name: "desktop",
+      testIgnore: /mobile\.spec\.ts/,
       use: {
         browserName: "chromium",
         viewport: { width: 1440, height: 900 },
         // No `channel`: a channel would override the explicit executable.
+        launchOptions: executablePath ? { executablePath } : {},
+      },
+    },
+    {
+      // An iPhone 14 Pro viewport with touch input. The device descriptor is
+      // spelled out rather than imported from `devices` because those presets
+      // ask for WebKit, and this environment has Chromium.
+      name: "mobile",
+      testMatch: /mobile\.spec\.ts/,
+      use: {
+        browserName: "chromium",
+        viewport: { width: 393, height: 852 },
+        deviceScaleFactor: 3,
+        isMobile: true,
+        hasTouch: true,
         launchOptions: executablePath ? { executablePath } : {},
       },
     },

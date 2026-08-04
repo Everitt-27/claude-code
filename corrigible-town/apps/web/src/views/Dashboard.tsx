@@ -34,26 +34,28 @@ function Subgroups({ title, rows }: { title: string; rows: SubgroupRate[] }) {
   return (
     <section className="panel">
       <h3>{title}</h3>
-      <table className="data-table">
-        <thead>
-          <tr>
-            <th>Group</th>
-            <th>Population</th>
-            <th>Affected</th>
-            <th>Rate</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((r) => (
-            <tr key={r.group}>
-              <td>{r.group}</td>
-              <td>{r.population}</td>
-              <td>{r.affected}</td>
-              <td>{percent(r.rateBp)}</td>
+      <div className="table-scroll">
+        <table className="data-table">
+          <thead>
+            <tr>
+              <th>Group</th>
+              <th>Population</th>
+              <th>Affected</th>
+              <th>Rate</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {rows.map((r) => (
+              <tr key={r.group}>
+                <td>{r.group}</td>
+                <td>{r.population}</td>
+                <td>{r.affected}</td>
+                <td>{percent(r.rateBp)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </section>
   );
 }
