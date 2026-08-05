@@ -9,6 +9,7 @@ members = [
     "crates/events",
     "crates/sim-core",
     "crates/projections",
+    "crates/wasm",
     "apps/server",
 ]
 
@@ -60,6 +61,10 @@ ct-governance = { path = "crates/governance" }
 ct-events = { path = "crates/events" }
 ct-sim-core = { path = "crates/sim-core" }
 ct-projections = { path = "crates/projections" }
+ct-wasm = { path = "crates/wasm" }
 
 [profile.release]
 opt-level = 2
+lto = true
+codegen-units = 1
+strip = true

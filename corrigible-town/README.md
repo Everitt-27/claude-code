@@ -163,6 +163,24 @@ In Safari, **Share → Add to Home Screen**. It launches without browser chrome,
 gets its own icon, and keeps the town it was last looking at. The layout already
 accounts for the notch and the home indicator.
 
+### As a single file, with no server at all
+
+```bash
+make standalone      # → dist/corrigible-town.html
+```
+
+This compiles `crates/wasm` — the simulation core, the governance kernel, the
+ledger and the projections — to WebAssembly and inlines it, the JavaScript and
+the CSS into one HTML file with no external requests. Open it from a file://
+URL, mail it to yourself, put it on any static host.
+
+It is the *same Rust simulation*: determinism, the hash-chained event log,
+branching, causal traces and the privacy boundary all behave identically,
+because they are the same code. What it does not have is PostgreSQL — a browser
+build keeps its event streams in the tab, so closing the tab ends the town.
+`crates/wasm` carries its own tests walking the same arc the server integration
+test does.
+
 ### Reachable from anywhere
 
 The repository ships a `Dockerfile` that builds one image serving the API and

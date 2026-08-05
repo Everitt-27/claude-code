@@ -22,5 +22,14 @@ export default defineConfig({
       "/api": { target: serverTarget, changeOrigin: true, ws: true },
     },
   },
-  build: { outDir: "dist", sourcemap: true },
+  build: {
+    outDir: "dist",
+    // The standalone build is inlined into a single HTML file, so it has to be
+    // one chunk and needs no source map.
+    sourcemap: process.env.VITE_CT_STANDALONE !== "1",
+    rollupOptions:
+      process.env.VITE_CT_STANDALONE === "1"
+        ? { output: { inlineDynamicImports: true } }
+        : {},
+  },
 });

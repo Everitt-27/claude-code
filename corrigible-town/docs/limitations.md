@@ -140,10 +140,12 @@ session's own choices rather than to an identity anyone has proved.
 
 ## Technical limitations
 
-* **The simulation core is not compiled to WebAssembly.** It is written to be
-  compatible — no wall-clock time, no filesystem in the hot path, no host-only
-  dependencies below `apps/` — but browser-side replay is not implemented, and
-  the claim is untested until it is.
+* **The WebAssembly build has no persistence.** `crates/wasm` compiles the
+  simulation to wasm32 and runs it in the browser, and the standalone HTML build
+  uses it. Everything the server build guarantees still holds — determinism, the
+  event log, hash chaining, branching, causal traces, the privacy boundary — but
+  there is no database behind it, so closing the tab ends the town. It is the
+  full simulation, not the full product.
 * **The whole event stream is held in memory per branch.** Fine for thousands of
   events; it would need windowing for a much longer run.
 * **Branch forking copies events** rather than sharing a prefix. Simple and

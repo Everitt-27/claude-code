@@ -109,8 +109,7 @@ rewrite is a documented step in `scripts/generate-api-schema.mjs`.
 
 ## Not done
 
-- WebAssembly build of the simulation core (the core is written to be
-  compatible; the build is not wired up)
+- Snapshot/restore for the WebAssembly build (it holds its streams in the tab)
 - OpenTelemetry exporter (logging is structured and field names line up)
 - Authentication beyond a single local identity
 - Multi-seed branch comparison

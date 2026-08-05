@@ -16,7 +16,7 @@ PHONE_DATABASE_URL ?=
 
 .PHONY: help setup db-up db-down db-reset migrate seed dev dev-server dev-web \
         build schema fmt lint test test-rust test-browser test-all check clean \
-        phone docker-build docker-up docker-down
+        phone docker-build docker-up docker-down standalone
 
 help: ## Show the available commands
 	@grep -hE '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | \
@@ -86,6 +86,9 @@ phone: ## Serve the built client and API on one port, reachable from your phone
 	 CT_STATIC_DIR=apps/web/dist \
 	 DATABASE_URL="$(PHONE_DATABASE_URL)" \
 	 cargo run --release -p ct-server --bin ct-server
+
+standalone: ## Build the whole app as one self-contained HTML file (wasm, no server)
+	node scripts/build-standalone.mjs
 
 docker-build: ## Build the single-container image
 	docker compose --profile app build

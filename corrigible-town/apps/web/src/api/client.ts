@@ -4,6 +4,7 @@
 // function in this file that writes simulation state, because there is no
 // endpoint that would accept one: the browser asks, the server decides.
 
+import * as wasm from "./wasmBridge";
 import type {
   BranchComparison,
   CausalTrace,
@@ -68,7 +69,29 @@ export class ApiError extends Error {
   }
 }
 
+// Standalone mode runs the whole simulation in this tab through WebAssembly.
+// The two transports answer the same requests and return the same shapes, so
+// every screen above this file is identical either way.
+export const STANDALONE = import.meta.env.VITE_CT_STANDALONE === "1";
+
 const base = "/api";
+
+/// Subscribers for the standalone transport, which has no WebSocket to push
+/// through. Commands notify them directly once they have been applied.
+const localListeners = new Set<(message: { type: string; seq?: number }) => void>();
+
+function wasmRequest<T>(request: Record<string, unknown>): T {
+  const response = wasm.call<T & { error?: { code: string; message: string; detail?: unknown } }>(
+    request,
+  );
+  if (response && typeof response === "object" && "error" in response && response.error) {
+    const { code, message, detail } = response.error;
+    // Mirror the HTTP status codes so callers can treat both transports alike.
+    const status = code === "staleSequence" || code === "conflict" ? 409 : 400;
+    throw new ApiError(status, code, message, detail);
+  }
+  return response;
+}
 
 // When the server is started with CT_ACCESS_TOKEN, every API call has to carry
 // the secret. It arrives once in the URL — which is what makes a link you can
@@ -121,18 +144,30 @@ const branchQuery = (branch?: string) =>
   branch ? `?branch=${encodeURIComponent(branch)}` : "";
 
 export const api = {
-  health: () => request<{ status: string; store: string }>("/health"),
+  health: () =>
+    STANDALONE
+      ? Promise.resolve(wasmRequest<{ status: string; store: string }>({ op: "health" }))
+      : request<{ status: string; store: string }>("/health"),
 
   listTowns: () => request<{ towns: TownRecord[] }>("/towns"),
 
   createTown: (body: { name?: string; scenarioId?: string; seed?: string }) =>
-    request<{ town: TownRecord; branch: BranchRecord }>("/towns", {
-      method: "POST",
-      body: JSON.stringify(body),
-    }),
+    STANDALONE
+      ? Promise.resolve(
+          wasmRequest<{ town: TownRecord; branch: BranchRecord }>({
+            op: "createTown",
+            seed: body.seed,
+          }),
+        )
+      : request<{ town: TownRecord; branch: BranchRecord }>("/towns", {
+          method: "POST",
+          body: JSON.stringify(body),
+        }),
 
   status: (townId: string, branch?: string) =>
-    request<TownStatus>(`/towns/${townId}${branchQuery(branch)}`),
+    STANDALONE
+      ? Promise.resolve(wasmRequest<TownStatus>({ op: "status", branch }))
+      : request<TownStatus>(`/towns/${townId}${branchQuery(branch)}`),
 
   sendCommand: (
     townId: string,
@@ -140,8 +175,22 @@ export const api = {
     expectedSeq: number,
     actorId: string,
     payload: Command,
-  ) =>
-    request<CommandAccepted>(`/towns/${townId}/commands`, {
+  ) => {
+    if (STANDALONE) {
+      const result = wasmRequest<CommandAccepted>({
+        op: "command",
+        branch: branchId,
+        expectedSeq,
+        actorId,
+        payload,
+      });
+      // Stand in for the WebSocket: tell the views the branch has moved on.
+      for (const listener of localListeners) {
+        listener({ type: "events", seq: result.seq });
+      }
+      return Promise.resolve(result);
+    }
+    return request<CommandAccepted>(`/towns/${townId}/commands`, {
       method: "POST",
       body: JSON.stringify({
         commandId: crypto.randomUUID(),
@@ -151,22 +200,33 @@ export const api = {
         actorId,
         payload,
       }),
-    }),
+    });
+  },
 
   dashboard: (townId: string, branch?: string) =>
-    request<Dashboard>(`/towns/${townId}/projections/dashboard${branchQuery(branch)}`),
+    STANDALONE
+      ? Promise.resolve(wasmRequest<Dashboard>({ op: "dashboard", branch }))
+      : request<Dashboard>(`/towns/${townId}/projections/dashboard${branchQuery(branch)}`),
 
   townView: (townId: string, branch?: string) =>
-    request<TownView>(`/towns/${townId}/projections/town${branchQuery(branch)}`),
+    STANDALONE
+      ? Promise.resolve(wasmRequest<TownView>({ op: "townView", branch }))
+      : request<TownView>(`/towns/${townId}/projections/town${branchQuery(branch)}`),
 
   governance: (townId: string, branch?: string) =>
-    request<GovernanceView>(`/towns/${townId}/projections/governance${branchQuery(branch)}`),
+    STANDALONE
+      ? Promise.resolve(wasmRequest<GovernanceView>({ op: "governance", branch }))
+      : request<GovernanceView>(`/towns/${townId}/projections/governance${branchQuery(branch)}`),
 
   proposal: (townId: string, id: number, branch?: string) =>
-    request<ProposalView>(`/towns/${townId}/proposals/${id}${branchQuery(branch)}`),
+    STANDALONE
+      ? Promise.resolve(wasmRequest<ProposalView>({ op: "proposal", id, branch }))
+      : request<ProposalView>(`/towns/${townId}/proposals/${id}${branchQuery(branch)}`),
 
   alerts: (townId: string, branch?: string) =>
-    request<{ alerts: Alert[] }>(`/towns/${townId}/alerts${branchQuery(branch)}`),
+    STANDALONE
+      ? Promise.resolve(wasmRequest<{ alerts: Alert[] }>({ op: "alerts", branch }))
+      : request<{ alerts: Alert[] }>(`/towns/${townId}/alerts${branchQuery(branch)}`),
 
   events: (
     townId: string,
@@ -179,6 +239,14 @@ export const api = {
       resident?: number;
     } = {},
   ) => {
+    if (STANDALONE) {
+      return Promise.resolve(
+        wasmRequest<{ events: EventView[]; total: number; seq: number }>({
+          op: "events",
+          ...options,
+        }),
+      );
+    }
     const params = new URLSearchParams();
     if (options.branch) params.set("branch", options.branch);
     if (options.limit) params.set("limit", String(options.limit));
@@ -193,23 +261,40 @@ export const api = {
   },
 
   causes: (townId: string, eventId: string, branch?: string) =>
-    request<CausalTrace>(
-      `/towns/${townId}/causes/${encodeURIComponent(eventId)}${branchQuery(branch)}`,
-    ),
+    STANDALONE
+      ? Promise.resolve(wasmRequest<CausalTrace>({ op: "causes", eventId, branch }))
+      : request<CausalTrace>(
+          `/towns/${townId}/causes/${encodeURIComponent(eventId)}${branchQuery(branch)}`,
+        ),
+
+  resident: (townId: string, id: number, branch?: string, visibility = "public") =>
+    STANDALONE
+      ? Promise.resolve(
+          wasmRequest<Record<string, unknown>>({ op: "resident", id, branch, visibility }),
+        )
+      : request<Record<string, unknown>>(
+          `/towns/${townId}/residents/${id}?branch=${encodeURIComponent(branch ?? "")}`,
+        ),
 
   branches: (townId: string) =>
-    request<{ branches: BranchRecord[] }>(`/towns/${townId}/branches`),
+    STANDALONE
+      ? Promise.resolve(wasmRequest<{ branches: BranchRecord[] }>({ op: "branches" }))
+      : request<{ branches: BranchRecord[] }>(`/towns/${townId}/branches`),
 
   createBranch: (townId: string, body: { label: string; fromBranch?: string; atSeq?: number }) =>
-    request<{ branch: BranchRecord }>(`/towns/${townId}/branches`, {
-      method: "POST",
-      body: JSON.stringify(body),
-    }),
+    STANDALONE
+      ? Promise.resolve(wasmRequest<{ branch: BranchRecord }>({ op: "createBranch", ...body }))
+      : request<{ branch: BranchRecord }>(`/towns/${townId}/branches`, {
+          method: "POST",
+          body: JSON.stringify(body),
+        }),
 
   compare: (townId: string, branchIds: string[]) =>
-    request<BranchComparison>(
-      `/towns/${townId}/branches/compare?branches=${branchIds.map(encodeURIComponent).join(",")}`,
-    ),
+    STANDALONE
+      ? Promise.resolve(wasmRequest<BranchComparison>({ op: "compare", branches: branchIds }))
+      : request<BranchComparison>(
+          `/towns/${townId}/branches/compare?branches=${branchIds.map(encodeURIComponent).join(",")}`,
+        ),
 };
 
 /// Live event stream. Reconnects on drop; the UI refetches projections rather
@@ -219,6 +304,15 @@ export function openStream(
   branchId: string,
   onMessage: (message: { type: string; seq?: number; tick?: number; date?: string }) => void,
 ): () => void {
+  if (STANDALONE) {
+    // Everything happens in this tab, so there is nothing to connect to; the
+    // command path notifies subscribers directly.
+    localListeners.add(onMessage);
+    return () => {
+      localListeners.delete(onMessage);
+    };
+  }
+
   let socket: WebSocket | null = null;
   let closed = false;
   let retry: number | undefined;

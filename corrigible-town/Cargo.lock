@@ -390,6 +390,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "ct-wasm"
+version = "0.1.0"
+dependencies = [
+ "ct-economy",
+ "ct-events",
+ "ct-governance",
+ "ct-policies",
+ "ct-population",
+ "ct-projections",
+ "ct-sim-core",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "data-encoding"
 version = "2.11.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"

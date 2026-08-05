@@ -30,10 +30,11 @@ export function TownScreen({ revision }: { revision: number }) {
     selectResident(id);
     const { townId, branchId } = useUiStore.getState();
     if (!townId || !branchId) return;
-    const response = await fetch(
-      `/api/towns/${townId}/residents/${id}?branch=${encodeURIComponent(branchId)}`,
-    );
-    setResident(response.ok ? await response.json() : null);
+    try {
+      setResident(await api.resident(townId, id, branchId));
+    } catch {
+      setResident(null);
+    }
   };
 
   return (
